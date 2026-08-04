@@ -1,0 +1,13 @@
+body {
+    font-family: 'Prompt', sans-serif;
+    background-color: #F7F5F0;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
