@@ -524,7 +524,12 @@
 
             <!-- ชุดที่วางแผนไว้ในวันนี้ -->
             <div class="space-y-2">
-                <label class="block text-xs font-bold text-[#6B5647]">ชุดที่ใส่ในวันนี้:</label>
+                <div class="flex justify-between items-center">
+                    <label class="block text-xs font-bold text-[#6B5647]">ชุดที่ใส่ในวันนี้:</label>
+                    <button onclick="clearAllItemsFromDayDate()" class="text-[11px] text-red-500 hover:text-red-700 font-semibold flex items-center gap-1 transition cursor-pointer">
+                        <i class="fa-solid fa-trash-can"></i> <span>ล้างชุดทั้งหมดของวันนี้</span>
+                    </button>
+                </div>
                 <div id="modal-outfit-list" class="flex flex-wrap gap-2 min-h-[70px] p-3 bg-white rounded-2xl border border-[#D8C2B0] items-center">
                     <p class="text-xs text-gray-400 w-full text-center py-2">ยังไม่มีชุดที่เลือก</p>
                 </div>

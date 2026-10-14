@@ -502,6 +502,12 @@ async function saveTodayOutfitToCalendar() {
     const outfitImg = (window.currentAiLook && window.currentAiLook.image) || (first?.image || '');
 
     try {
+        // เคลียร์ข้อมูลเก่าของวันนี้ในฐานข้อมูลก่อน เพื่อให้ลุคของวันนี้เป็นลุคเดี่ยวที่อัปเดตล่าสุด
+        await fetch(`${window.LONGLOOK_API}/api/calendar/date/${today}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
         const response = await fetch(`${window.LONGLOOK_API}/api/calendar`, {
             method: 'POST',
             headers: {
@@ -512,7 +518,8 @@ async function saveTodayOutfitToCalendar() {
                 title: title,
                 style: style,
                 image: outfitImg,
-                log_date: today
+                log_date: today,
+                occasion: 'ชุดแนะนำประจำวัน'
             })
         });
         const data = await response.json();

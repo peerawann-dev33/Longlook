@@ -256,6 +256,44 @@ app.post('/api/calendar', authenticateToken, async (req, res) => {
     }
 });
 
+// ลบประวัติปฏิทินของวันที่กำหนด
+app.delete('/api/calendar/date/:date', authenticateToken, async (req, res) => {
+    try {
+        const { date } = req.params;
+        const logs = db.prepare('SELECT id, outfit_id FROM calendar_logs WHERE user_id = ? AND log_date = ?').all(req.user.id, date);
+        for (const l of logs) {
+            db.prepare('DELETE FROM calendar_logs WHERE id = ?').run(l.id);
+            if (l.outfit_id) {
+                db.prepare('DELETE FROM outfit_items WHERE outfit_id = ?').run(l.outfit_id);
+                db.prepare('DELETE FROM outfits WHERE id = ?').run(l.outfit_id);
+            }
+        }
+        res.json({ message: 'ลบข้อมูลปฏิทินของวันที่เลือกเรียบร้อยแล้ว' });
+    } catch (e) {
+        console.error('Delete calendar date error:', e);
+        res.status(500).json({ message: 'ลบข้อมูลไม่สำเร็จ' });
+    }
+});
+
+// ลบรายการปฏิทินตาม id
+app.delete('/api/calendar/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const log = db.prepare('SELECT * FROM calendar_logs WHERE id = ? AND user_id = ?').get(id, req.user.id);
+        if (log) {
+            db.prepare('DELETE FROM calendar_logs WHERE id = ?').run(id);
+            if (log.outfit_id) {
+                db.prepare('DELETE FROM outfit_items WHERE outfit_id = ?').run(log.outfit_id);
+                db.prepare('DELETE FROM outfits WHERE id = ?').run(log.outfit_id);
+            }
+        }
+        res.json({ message: 'ลบรายการสำเร็จ' });
+    } catch (e) {
+        console.error('Delete calendar log error:', e);
+        res.status(500).json({ message: 'ลบข้อมูลไม่สำเร็จ' });
+    }
+});
+
 // Endpoint ดึงประวัติ Outfits ทั้งหมดของผู้ใช้
 app.get('/api/outfits', authenticateToken, (req, res) => {
     try {

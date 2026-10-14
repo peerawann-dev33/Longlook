@@ -179,39 +179,76 @@ function removeItemFromDayDate(index) {
     }
     localStorage.setItem('wardrobe_calendar', JSON.stringify(calendarOutfits));
     renderDayModalContent();
+    renderFullCalendar();
 }
+
+// ล้างไอเทมทั้งหมดของวันที่กำลังเปิด
+async function clearAllItemsFromDayDate() {
+    if (!selectedDateKey) return;
+    delete calendarOutfits[selectedDateKey];
+    localStorage.setItem('wardrobe_calendar', JSON.stringify(calendarOutfits));
+    renderDayModalContent();
+    renderFullCalendar();
+
+    const token = localStorage.getItem('longlook_token');
+    if (token) {
+        try {
+            await fetch(`${window.LONGLOOK_API}/api/calendar/date/${selectedDateKey}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (typeof showLongLookToast === 'function') {
+                showLongLookToast('🗑️ ล้างข้อมูลชุดของวันนี้เรียบร้อยแล้ว', 'info');
+            }
+        } catch (e) {
+            console.error('Delete calendar date error:', e);
+        }
+    }
+}
+window.clearAllItemsFromDayDate = clearAllItemsFromDayDate;
 
 // บันทึกและซิงค์ลง SQLite + Firebase เมื่อกดปุ่มใน Modal
 async function saveDayModalOutfits() {
     const token = localStorage.getItem('longlook_token');
     const dayItems = calendarOutfits[selectedDateKey] || [];
 
-    if (token && dayItems.length > 0) {
-        const title = dayItems.map(i => i.name).join(' + ');
-        const firstImg = dayItems[0]?.image || '';
+    if (token) {
         try {
-            await fetch(`${window.LONGLOOK_API}/api/calendar`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    title: title,
-                    style: dayItems[0]?.style || 'CASUAL',
-                    image: firstImg,
-                    log_date: selectedDateKey
-                })
+            // เคลียร์ข้อมูลเก่าของวันนี้ในฐานข้อมูลก่อน เพื่อไม่ให้สะสมทับซ้อนกันมั่ว
+            await fetch(`${window.LONGLOOK_API}/api/calendar/date/${selectedDateKey}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
             });
-            if (typeof loadCalendarHistory === 'function') {
-                loadCalendarHistory();
+
+            if (dayItems.length > 0) {
+                const title = dayItems.map(i => i.name).join(' + ');
+                const firstImg = dayItems[0]?.image || '';
+                await fetch(`${window.LONGLOOK_API}/api/calendar`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        style: dayItems[0]?.style || 'CASUAL',
+                        image: firstImg,
+                        log_date: selectedDateKey,
+                        items: dayItems
+                    })
+                });
+            }
+            if (typeof showLongLookToast === 'function') {
+                showLongLookToast('📅 บันทึกชุดปฏิทินเรียบร้อยแล้ว!', 'success');
             }
         } catch (e) {
             console.error('Sync calendar error:', e);
         }
     }
 
+    localStorage.setItem('wardrobe_calendar', JSON.stringify(calendarOutfits));
     closeDayModal();
+    renderFullCalendar();
 }
 
 // ฟังก์ชันดึงวันที่ปัจจุบันตามเวลาท้องถิ่น (Local Time YYYY-MM-DD)
