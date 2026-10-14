@@ -1,0 +1,21 @@
+{
+  "name": "LongLook Wardrobe & Outfit Planner",
+  "short_name": "LongLook",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FDFBF7",
+  "theme_color": "#FAF7F2",
+  "description": "Look Long Choose Right - Minimalist Wardrobe App",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3050/3050239.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3050/3050239.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

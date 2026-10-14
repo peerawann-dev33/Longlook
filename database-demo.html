@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Demo - Wardrobe & Outfit Planner</title>
+    <style>
+        body { font-family: 'Thonburi', Arial, sans-serif; margin: 30px; background-color: #f9f9f9; color: #333; line-height: 1.6; }
+        h1, h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px; }
+        .card { background: white; padding: 20px; margin-bottom: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #3498db; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .badge-pk { background: #e74c3c; color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+        .badge-fk { background: #f39c12; color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+        .er-img { max-width: 100%; height: auto; border-radius: 6px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+
+    <h1>👔 Database Architecture & Demo</h1>
+    <p><strong>ระบบจัดการเสื้อผ้าและวางแผนการแต่งกาย (Wardrobe & Outfit Planner)</strong></p>
+
+    <!-- Section 1: ER Diagram -->
+    <div class="card">
+        <h2>1. ER Diagram (แผนผังความสัมพันธ์)</h2>
+        <p>ภาพแสดงโครงสร้างความสัมพันธ์ระหว่างข้อมูลในระบบ:</p>
+        <!-- แนบรูป ER ของน้องได้โดยเซฟรูปไว้นามสกุล .png/.jpg แล้วเปลี่ยนชื่อตรง src -->
+        <p><em>(นำไฟล์รูป ER Diagram มาใส่ในโปรเจกต์ แล้วแก้ไขพาธรูปที่นี่)</em></p>
+    </div>
+
+    <!-- Section 2: Data Dictionary & Tables -->
+    <div class="card">
+        <h2>2. Data Dictionary (ตารางข้อมูลในระบบ)</h2>
+        
+        <h3>2.1 USER (ผู้ใช้งาน)</h3>
+        <table>
+            <tr><th>Attribute</th><th>Type</th><th>Key</th><th>Description</th></tr>
+            <tr><td>user_id</td><td>INT / UUID</td><td><span class="badge-pk">PK</span></td><td>รหัสผู้ใช้</td></tr>
+            <tr><td>username / email</td><td>VARCHAR</td><td>-</td><td>ชื่อผู้ใช้ / อีเมล</td></tr>
+            <tr><td>created_at / updated_at</td><td>TIMESTAMP</td><td>-</td><td>เวลาที่สร้าง/แก้ไข</td></tr>
+        </table>
+
+        <h3>2.2 CLOTHING_ITEM (รายการเสื้อผ้า)</h3>
+        <table>
+            <tr><th>Attribute</th><th>Type</th><th>Key</th><th>Description</th></tr>
+            <tr><td>item_id</td><td>INT / UUID</td><td><span class="badge-pk">PK</span></td><td>รหัสเสื้อผ้า</td></tr>
+            <tr><td>category_id</td><td>INT / UUID</td><td><span class="badge-fk">FK</span></td><td>อ้างอิงประเภทเสื้อผ้า (CATEGORY)</td></tr>
+            <tr><td>user_id</td><td>INT / UUID</td><td><span class="badge-fk">FK</span></td><td>อ้างอิงผู้แต่งกาย/เจ้าของ (USER)</td></tr>
+            <tr><td>item_name / color / brand</td><td>VARCHAR</td><td>-</td><td>รายละเอียดเสื้อผ้า</td></tr>
+        </table>
+
+        <h3>2.3 OUTFIT & OUTFIT_ITEM (ชุดแต่งกาย และ เสื้อผ้าในชุด)</h3>
+        <table>
+            <tr><th>Attribute</th><th>Type</th><th>Key</th><th>Description</th></tr>
+            <tr><td>outfit_id</td><td>INT / UUID</td><td><span class="badge-pk">PK</span></td><td>รหัสชุดแต่งกาย</td></tr>
+            <tr><td>user_id</td><td>INT / UUID</td><td><span class="badge-fk">FK</span></td><td>เจ้าของชุด (USER)</td></tr>
+            <tr><td>item_id</td><td>INT / UUID</td><td><span class="badge-fk">FK</span></td><td>รายการเสื้อผ้าที่รวมในชุด (OUTFIT_ITEM)</td></tr>
+        </table>
+
+        <h3>2.4 CALENDAR_LOG, WEATHER & OCCASION (การบันทึกปฏิทิน สภาพอากาศ และโอกาส)</h3>
+        <table>
+            <tr><th>Attribute</th><th>Type</th><th>Key</th><th>Description</th></tr>
+            <tr><td>log_id</td><td>INT / UUID</td><td><span class="badge-pk">PK</span></td><td>รหัสบันทึกปฏิทินการแต่งกาย</td></tr>
+            <tr><td>outfit_id</td><td>INT / UUID</td><td><span class="badge-fk">FK</span></td><td>ชุดที่ใส่ในวันนั้น (OUTFIT)</td></tr>
+            <tr><td>weather_id</td><td>INT / UUID</td><td><span class="badge-fk">FK</span></td><td>สภาพอากาศวันนั้น (WEATHER)</td></tr>
+            <tr><td>occasion_id</td><td>INT / UUID</td><td><span class="badge-fk">FK</span></td><td>โอกาส/งานที่ไป (OCCASION)</td></tr>
+        </table>
+    </div>
+
+    <!-- Section 3: Audit Log -->
+    <div class="card">
+        <h2>3. AUDIT LOG (ประวัติการใช้งาน)</h2>
+        <p>บันทึกการกระทำของผู้ใช้เพื่อความปลอดภัยและตรวจสอบย้อนหลัง (USER 1:N AUDIT_LOG)</p>
+        <table>
+            <tr><th>Attribute</th><th>Type</th><th>Key</th><th>Description</th></tr>
+            <tr><td>log_id</td><td>INT / UUID</td><td><span class="badge-pk">PK</span></td><td>รหัสบันทึก</td></tr>
+            <tr><td>user_id</td><td>INT / UUID</td><td><span class="badge-fk">FK</span></td><td>ผู้กระทำกิจกรรม</td></tr>
+            <tr><td>action / record_id / table_name</td><td>VARCHAR</td><td>-</td><td>การกระทำ, ตารางที่ถูกแก้, ข้อมูลเก่า-ใหม่</td></tr>
+        </table>
+    </div>
+
+</body>
+</html>

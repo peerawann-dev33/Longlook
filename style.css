@@ -1,13 +1,140 @@
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Prompt:wght@300;400;500;600;700&display=swap');
+
+/* ตั้งค่าฟอนต์โลโก้แบบเขียน Cursive */
+.logo-font {
+  font-family: 'Great Vibes', cursive;
+}
+
+/* พื้นหลังสีชมพูอ่อนนุ่ม เรียบๆ ไม่มีลายจุด */
 body {
-    font-family: 'Prompt', sans-serif;
-    background-color: #F7F5F0;
+  font-family: 'Prompt', sans-serif;
+  background-color: #FCE8E8 !important; /* ชมพูอ่อนเรียบเนียน */
+  background-image: none !important; /* ลบลายจุดออก */
+  color: #4A3E3D;
 }
 
-.hide-scrollbar::-webkit-scrollbar {
-    display: none;
+/* เมนูด้านข้าง (Sidebar) สีน้ำตาลเข้มคลาสสิก */
+.sidebar-bg {
+  background-color: #3D2B1F !important;
+  color: #FFF0F5;
 }
 
-.hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+/* การ์ดและกล่องคอนเทนต์ สีน้ำตาลอ่อนละมุน */
+.card-bg {
+  background-color: #EBD9CB !important; /* น้ำตาลอ่อน */
+  border: 1px solid #D8C2B0;
+}
+
+/* ปุ่มกดเน้นสีน้ำตาลช็อกโกแลต */
+.btn-primary {
+  background-color: #4A3E3D !important;
+  color: #FFFFFF !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary:hover {
+  background-color: #3D2B1F !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(61, 43, 31, 0.15);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* ==========================================
+   LongLook Animations & Micro-interactions
+   ========================================== */
+
+/* 1. Page Entrance Transition */
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-enter {
+  animation: pageFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 2. Outfit Pop-in on Mannequin */
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.85) translateY(6px);
+  }
+  70% {
+    transform: scale(1.05) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-pop-in {
+  animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 3. Dice Roll Animation for Matcher */
+@keyframes diceSpin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.15);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+.animate-dice {
+  display: inline-block;
+  animation: diceSpin 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 4. Modal Entrance (Scale & Fade) */
+@keyframes modalScaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-modal-in {
+  animation: modalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 5. Smooth Card & Tile Lift */
+.hover-lift {
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(61, 43, 31, 0.08);
+}
+
+/* 6. Gentle Pulse for Today Tile or Active Highlights */
+@keyframes gentlePulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(61, 43, 31, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(61, 43, 31, 0.1);
+  }
+}
+
+.pulse-today {
+  animation: gentlePulse 2.5s infinite;
 }
