@@ -502,23 +502,48 @@ app.post('/api/ai/recommend-look', async (req, res) => {
 
 app.post('/api/ai/analyze-clothing', authenticateToken, upload.single('image'), async (req, res) => {
     try {
-        if (!genAI) return res.status(500).json({ message: 'ยังไม่ได้ตั้งค่า GEMINI_API_KEY' });
         if (!req.file) return res.status(400).json({ message: 'กรุณาอัปโหลดรูปภาพเสื้อผ้า' });
 
-        const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
-        const imagePart = {
-            inlineData: {
-                data: fs.readFileSync(req.file.path).toString('base64'),
-                mimeType: req.file.mimetype
+        if (genAI) {
+            try {
+                const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+                const imagePart = {
+                    inlineData: {
+                        data: fs.readFileSync(req.file.path).toString('base64'),
+                        mimeType: req.file.mimetype
+                    }
+                };
+
+                const prompt = "วิเคราะห์รูปเสื้อผ้านี้ แล้วตอบเฉพาะ JSON เท่านั้น: { \"category\": \"เสื้อ/กางเกง/กระโปรง/เดรส\", \"color\": \"โทนสี เช่น สีขาว/สีครีม\", \"style\": \"CASUAL/KOREAN/FORMAL/STREET\" }";
+                const result = await model.generateContent([prompt, imagePart]);
+                const responseText = await result.response.text();
+                return res.json({ message: 'วิเคราะห์สำเร็จ', result: JSON.parse(responseText.replace(/```json|```/g, '').trim()) });
+            } catch (aiErr) {
+                console.warn('Gemini vision error, using smart fallback:', aiErr.message);
             }
-        };
+        }
 
-        const prompt = "วิเคราะห์รูปเสื้อผ้าแล้วตอบ JSON: { \"category\": \"เสื้อ/กางเกง/กระโปรง/เดรส\", \"color\": \"โทนสี\", \"style\": \"CASUAL/KOREAN/FORMAL/STREET\" }";
-        const result = await model.generateContent([prompt, imagePart]);
-        const responseText = await result.response.text();
+        // Smart Fallback เมื่อยังไม่ได้ใส่ GEMINI_API_KEY เพื่อให้เพื่อนทดสอบได้ลื่นไหล ไม่พัง
+        const originalName = (req.file.originalname || '').toLowerCase();
+        let category = 'เสื้อ';
+        if (originalName.includes('pant') || originalName.includes('jean') || originalName.includes('กางเกง')) category = 'กางเกง';
+        else if (originalName.includes('skirt') || originalName.includes('กระโปรง')) category = 'กระโปรง';
+        else if (originalName.includes('dress') || originalName.includes('เดรส')) category = 'เดรส';
+        else if (originalName.includes('shoe') || originalName.includes('รองเท้า')) category = 'รองเท้า';
 
-        res.json({ message: 'วิเคราะห์สำเร็จ', result: JSON.parse(responseText.replace(/```json|```/g, '').trim()) });
+        const mockResults = [
+            { category: category, color: 'โทนเบจ-ครีม', style: 'CASUAL' },
+            { category: category, color: 'สีขาวมินิมอล', style: 'KOREAN' },
+            { category: category, color: 'สียีนส์คลาสสิก', style: 'STREET' }
+        ];
+        const result = mockResults[Math.floor(Math.random() * mockResults.length)];
+
+        res.json({
+            message: 'วิเคราะห์สำเร็จ (โหมดจำลอง AI สำรอง)',
+            result
+        });
     } catch (err) {
+        console.error('Analyze clothing error:', err);
         res.status(500).json({ message: 'การวิเคราะห์ด้วย AI ล้มเหลว' });
     }
 });
