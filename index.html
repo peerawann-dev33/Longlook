@@ -250,6 +250,15 @@
                         + เพิ่มเสื้อผ้าใหม่
                     </button>
                 </div>
+
+                <!-- แท็บกรองเพศเสื้อผ้าในตู้ -->
+                <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+                    <button type="button" onclick="filterClosetByGender('all')" id="closet-filter-all" class="px-3 py-1.5 rounded-xl font-bold bg-[#3D2B1F] text-white shadow-xs transition cursor-pointer">ทั้งหมด</button>
+                    <button type="button" onclick="filterClosetByGender('female')" id="closet-filter-female" class="px-3 py-1.5 rounded-xl font-medium bg-[#FCE8E8] text-[#3D2B1F] border border-[#D8C2B0] hover:bg-white transition cursor-pointer">👩 ผู้หญิง</button>
+                    <button type="button" onclick="filterClosetByGender('male')" id="closet-filter-male" class="px-3 py-1.5 rounded-xl font-medium bg-[#FCE8E8] text-[#3D2B1F] border border-[#D8C2B0] hover:bg-white transition cursor-pointer">👨 ผู้ชาย</button>
+                    <button type="button" onclick="filterClosetByGender('unisex')" id="closet-filter-unisex" class="px-3 py-1.5 rounded-xl font-medium bg-[#FCE8E8] text-[#3D2B1F] border border-[#D8C2B0] hover:bg-white transition cursor-pointer">🧑 Unisex</button>
+                </div>
+
                 <div id="closet-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <p class="text-xs text-[#6B5647] col-span-full text-center py-6">กำลังโหลดข้อมูลจากเซิร์ฟเวอร์...</p>
                 </div>
@@ -309,18 +318,37 @@
                                     <option value="SPORTY">👟 SPORTY (คล่องตัว สปอร์ต)</option>
                                 </select>
                             </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-[#6B5647] mb-1">เพศสำหรับการจัดลุค (Gender)</label>
+                                <select id="match-gender-select" onchange="handleMatchGenderChange(this.value)" class="w-full p-2.5 text-xs rounded-xl border border-[#D8C2B0] bg-white text-[#3D2B1F] font-medium shadow-xs">
+                                    <option value="female">👩 ผู้หญิง (Women)</option>
+                                    <option value="male">👨 ผู้ชาย (Men)</option>
+                                    <option value="unisex">🧑 Unisex (ไม่จำกัดเพศ)</option>
+                                </select>
+                            </div>
                         </div>
 
-                        <!-- รายการชิ้นส่วนที่แมตช์ได้ (4 ชิ้น: เสื้อ + กางเกง + รองเท้า + เครื่องประดับ) -->
-                        <div class="pt-2 border-t border-[#D8C2B0]">
+                        <!-- กล่องแรงบันดาลใจแฟชั่น Pinterest Trend (Pinterest Inspo Board) -->
+                        <div class="pt-3 border-t border-[#D8C2B0]">
                             <div class="flex justify-between items-center mb-2">
-                                <h4 class="text-xs font-bold text-[#3D2B1F]"><i class="fa-solid fa-list-check text-[#7A9A8B] mr-1.5"></i> ชิ้นส่วนในลุคนี้:</h4>
-                                <span class="text-[10px] text-[#6B5647] bg-[#FCE8E8] px-2 py-0.5 rounded-full border border-[#D8C2B0]">4 ชิ้นครบเซ็ต</span>
+                                <h4 class="text-xs font-bold text-[#3D2B1F] flex items-center gap-1.5">
+                                    <i class="fa-brands fa-pinterest text-[#E60023]"></i> Pinterest Fashion Inspo
+                                </h4>
+                                <span id="match-inspo-tag" class="text-[10px] text-[#E60023] bg-white px-2 py-0.5 rounded-full border border-[#D8C2B0] font-bold">Trend Inspo</span>
                             </div>
-                            <div id="match-pieces-summary">
-                                <p class="text-xs text-[#6B5647] text-center py-4 bg-white/60 rounded-xl border border-dashed border-[#D8C2B0]">
-                                    กดปุ่ม "สุ่มแมตช์ชุด" ด้านบนเพื่อเริ่มจัดชุด
+                            <div id="pinterest-inspo-card" class="bg-white/80 p-3.5 rounded-2xl border border-[#D8C2B0] shadow-xs space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span id="inspo-title" class="font-bold text-xs text-[#3D2B1F]">สไตล์มินิมอลคาเฟ่ (Korean Minimal)</span>
+                                </div>
+                                <p id="inspo-desc" class="text-[11px] text-[#6B5647] leading-relaxed">
+                                    AI จะอิงคู่สีและสัดส่วนยอดนิยมจาก Pinterest มาปรับใช้กับเสื้อผ้าในตู้ของคุณ
                                 </p>
+                                <div class="flex items-center justify-between pt-1 border-t border-dashed border-[#D8C2B0]">
+                                    <span id="inspo-palette" class="text-[10px] text-[#8C6D53] font-medium">🎨 โทน: เอิร์ธโทน & ครีม</span>
+                                    <a id="inspo-pinterest-link" href="https://www.pinterest.com/search/pins/?q=korean%20minimal%20outfit" target="_blank" rel="noopener noreferrer" class="text-[10px] font-bold text-[#E60023] hover:underline flex items-center gap-1">
+                                        <span>เปิดดูบน Pinterest</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
 
@@ -591,45 +619,80 @@
 
             <!-- Styled File Upload Input -->
             <div>
-                <label class="block text-[10px] font-bold text-[#6B5647] mb-1">หรือเลือกไฟล์รูปภาพจากอุปกรณ์:</label>
-                <input type="file" id="file-upload-input" accept="image/*" class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border file:border-[#D8C2B0] file:text-xs file:font-semibold file:bg-[#EBD9CB] file:text-[#3D2B1F] hover:file:bg-[#D8C2B0] cursor-pointer">
+                <div class="flex justify-between items-center mb-1">
+                    <label class="text-[10px] font-bold text-[#6B5647]">หรือเลือกไฟล์รูปภาพจากอุปกรณ์:</label>
+                    <span class="text-[10px] text-[#7A9A8B] font-bold"><i class="fa-solid fa-layer-group mr-1"></i>เลือกได้หลายรูปพร้อมกัน</span>
+                </div>
+                <input type="file" id="file-upload-input" accept="image/*" multiple class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border file:border-[#D8C2B0] file:text-xs file:font-semibold file:bg-[#EBD9CB] file:text-[#3D2B1F] hover:file:bg-[#D8C2B0] cursor-pointer">
             </div>
 
-            <div>
-                <label class="block text-[10px] font-bold text-[#6B5647] mb-1">ชื่อเสื้อผ้า</label>
-                <input type="text" id="cloth-name-input" placeholder="เช่น เสื้อยืดโอเวอร์ไซส์, กางเกงยีนส์ขากระบอก" class="w-full p-2.5 rounded-xl border border-[#D8C2B0] text-xs bg-white text-[#3D2B1F] focus:outline-none focus:ring-2 focus:ring-[#3D2B1F]/30">
-            </div>
-            
-            <div class="grid grid-cols-2 gap-2">
+            <!-- โหมด 1: แบบชุดเดียว (Single Item Form) -->
+            <div id="single-cloth-form" class="space-y-3">
                 <div>
-                    <label class="block text-[10px] font-bold text-[#6B5647] mb-1">หมวดหมู่</label>
-                    <select id="cloth-category-input" class="w-full p-2.5 rounded-xl border border-[#D8C2B0] text-xs bg-white text-[#3D2B1F] focus:outline-none">
-                        <option value="เสื้อ">👕 เสื้อ / ท่อนบน</option>
-                        <option value="กางเกง">👖 กางเกง</option>
-                        <option value="กระโปรง">👗 กระโปรง</option>
-                        <option value="เดรส">✨ เดรส / ชุดติดกัน</option>
-                        <option value="รองเท้า">👟 รองเท้า</option>
-                        <option value="เครื่องประดับ">💍 เครื่องประดับ (สร้อย/กำไล/แหวน/แว่น)</option>
-                        <option value="กระเป๋า">👜 กระเป๋า</option>
-                        <option value="หมวก">🧢 หมวก</option>
-                    </select>
+                    <label class="block text-[10px] font-bold text-[#6B5647] mb-1">ชื่อเสื้อผ้า</label>
+                    <input type="text" id="cloth-name-input" placeholder="เช่น เสื้อยืดโอเวอร์ไซส์, กางเกงยีนส์ขากระบอก" class="w-full p-2.5 rounded-xl border border-[#D8C2B0] text-xs bg-white text-[#3D2B1F] focus:outline-none focus:ring-2 focus:ring-[#3D2B1F]/30">
                 </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-[#6B5647] mb-1">สไตล์</label>
-                    <select id="cloth-style-input" class="w-full p-2.5 rounded-xl border border-[#D8C2B0] text-xs bg-white text-[#3D2B1F] focus:outline-none">
-                        <option value="CASUAL">CASUAL</option>
-                        <option value="KOREAN">KOREAN / MINIMAL</option>
-                        <option value="STREETWEAR">STREETWEAR</option>
-                        <option value="VINTAGE">VINTAGE / Y2K</option>
-                        <option value="FORMAL">FORMAL</option>
-                        <option value="SPORTY">SPORTY</option>
-                    </select>
+                
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block text-[10px] font-bold text-[#6B5647] mb-1">หมวดหมู่</label>
+                        <select id="cloth-category-input" class="w-full p-2.5 rounded-xl border border-[#D8C2B0] text-xs bg-white text-[#3D2B1F] focus:outline-none">
+                            <option value="เสื้อ">👕 เสื้อ</option>
+                            <option value="กางเกง">👖 กางเกง</option>
+                            <option value="กระโปรง">👗 กระโปรง</option>
+                            <option value="เดรส">✨ เดรส</option>
+                            <option value="รองเท้า">👟 รองเท้า</option>
+                            <option value="เครื่องประดับ">💍 พร็อพ</option>
+                            <option value="กระเป๋า">👜 กระเป๋า</option>
+                            <option value="หมวก">🧢 หมวก</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-[#6B5647] mb-1">สไตล์</label>
+                        <select id="cloth-style-input" class="w-full p-2.5 rounded-xl border border-[#D8C2B0] text-xs bg-white text-[#3D2B1F] focus:outline-none">
+                            <option value="CASUAL">CASUAL</option>
+                            <option value="KOREAN">KOREAN</option>
+                            <option value="STREETWEAR">STREET</option>
+                            <option value="VINTAGE">VINTAGE</option>
+                            <option value="FORMAL">FORMAL</option>
+                            <option value="SPORTY">SPORTY</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-[#6B5647] mb-1">เหมาะกับเพศ</label>
+                        <select id="cloth-gender-input" class="w-full p-2.5 rounded-xl border border-[#D8C2B0] text-xs bg-white text-[#3D2B1F] focus:outline-none font-medium">
+                            <option value="unisex">🧑 Unisex</option>
+                            <option value="female">👩 ผู้หญิง</option>
+                            <option value="male">👨 ผู้ชาย</option>
+                        </select>
+                    </div>
                 </div>
+
+                <button onclick="saveClothToDatabase()" class="w-full bg-[#3D2B1F] hover:bg-[#523B2B] text-white py-2.5 rounded-xl text-xs font-medium shadow-md transition-all duration-200 transform active:scale-95 cursor-pointer">
+                    💾 บันทึกเสื้อผ้าลงตู้
+                </button>
             </div>
 
-            <button onclick="saveClothToDatabase()" class="w-full bg-[#3D2B1F] hover:bg-[#523B2B] text-white py-2.5 rounded-xl text-xs font-medium shadow-md transition-all duration-200 transform active:scale-95">
-                💾 บันทึกเสื้อผ้าลงตู้
-            </button>
+            <!-- โหมด 2: อัปโหลดพร้อมกันหลายชุด (Batch Upload Panel) -->
+            <div id="batch-upload-panel" class="hidden space-y-3 pt-1">
+                <div class="flex justify-between items-center bg-[#EBD9CB] p-2.5 rounded-xl border border-[#D8C2B0]">
+                    <span class="text-xs font-bold text-[#3D2B1F] flex items-center gap-1.5">
+                        <i class="fa-solid fa-list-check text-[#7A9A8B]"></i> รายการเสื้อผ้าที่เลือก (<span id="batch-count-badge">0</span> ชิ้น)
+                    </span>
+                    <button onclick="resetBatchUpload()" class="text-[10px] text-red-500 hover:underline cursor-pointer">
+                        ล้างทั้งหมด
+                    </button>
+                </div>
+
+                <!-- Preview Grid for Batch Items -->
+                <div id="batch-items-container" class="max-h-56 overflow-y-auto space-y-2 pr-1">
+                    <!-- รายการที่ถูกเพิ่มจะแสดงที่นี่ -->
+                </div>
+
+                <button id="btn-save-batch" onclick="saveBatchClothesToDatabase()" class="w-full bg-gradient-to-r from-[#3D2B1F] to-[#523B2B] hover:from-[#523B2B] hover:to-[#3D2B1F] text-white py-3 rounded-xl text-xs font-bold shadow-md transition-all transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-floppy-disk"></i> <span>💾 บันทึกทุกชุดลงตู้พร้อมกัน</span>
+                </button>
+            </div>
         </div>
     </div>
 

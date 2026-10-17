@@ -55,6 +55,7 @@ db.exec(`
         category TEXT,
         color TEXT,
         style TEXT,
+        gender TEXT DEFAULT 'unisex',
         image TEXT,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT DEFAULT CURRENT_TIMESTAMP
@@ -137,5 +138,9 @@ const initialWeathers = ['แจ่มใส', 'มีเมฆมาก', 'ฝ�
 for (const w of initialWeathers) {
     db.prepare('INSERT OR IGNORE INTO weathers (weather_name) VALUES (?)').run(w);
 }
+
+try {
+    db.exec("ALTER TABLE clothes ADD COLUMN gender TEXT DEFAULT 'unisex';");
+} catch (e) {}
 
 module.exports = db;
