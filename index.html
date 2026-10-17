@@ -336,51 +336,63 @@
                     </div>
                 </div>
 
-                <!-- คอลัมน์ 2: หุ่นจำลองการสวมใส่ 4 ชิ้น (Visual Fitting Mannequin) (4 Cols) -->
+                <!-- คอลัมน์ 2: หุ่นจำลอง & ตัวฉันจริง (Visual Fitting Studio) (4 Cols) -->
                 <div class="lg:col-span-4 bg-[#EBD9CB] p-5 rounded-3xl border border-[#D8C2B0] shadow-sm flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="font-bold text-sm text-[#3D2B1F] flex items-center gap-2">
-                                <i class="fa-solid fa-child-reaching text-[#D88AAB]"></i> หุ่นลองชุด (4 ชิ้น)
+                                <i class="fa-solid fa-child-reaching text-[#D88AAB]"></i> ห้องลองชุดบนตัวจริง
                             </h3>
-                            <span class="text-[10px] bg-[#FAF1EC] text-[#3D2B1F] px-2.5 py-0.5 rounded-full border border-[#D8C2B0]">Layer View</span>
+                            <!-- สวิตช์สลับระหว่าง หุ่นจำลอง vs ตัวฉันจริง -->
+                            <div class="flex bg-[#FCE8E8] p-0.5 rounded-full border border-[#D8C2B0] text-[10px]">
+                                <button id="btn-view-model" onclick="toggleFittingMode('model')" class="px-2.5 py-1 rounded-full font-bold bg-[#3D2B1F] text-white transition shadow-xs">
+                                    หุ่นจำลอง
+                                </button>
+                                <button id="btn-view-user" onclick="toggleFittingMode('user')" class="px-2.5 py-1 rounded-full font-medium text-[#6B5647] hover:text-[#3D2B1F] transition">
+                                    ตัวฉันจริง 👤
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Avatar Multi-layer Fitting Box -->
-                        <div id="avatar-fitting-container" class="relative bg-white/90 border-2 border-dashed border-[#D8C2B0] rounded-2xl p-4 flex flex-col items-center justify-center min-h-[380px] shadow-inner space-y-2">
+                        <div id="avatar-fitting-container" class="relative bg-white/95 border-2 border-dashed border-[#D8C2B0] rounded-2xl p-4 flex flex-col items-center justify-center min-h-[390px] shadow-inner space-y-2 overflow-hidden group">
                             
+                            <!-- พื้นหลังรูปตัวจริงของผู้ใช้ (จะแสดงเมื่ออยู่ในโหมด 'ตัวฉันจริง') -->
+                            <img id="avatar-user-bg" src="" alt="User Body Preview" class="absolute inset-0 w-full h-full object-cover opacity-85 hidden transition-all duration-300">
+                            <div id="avatar-user-overlay" class="absolute inset-0 bg-[#3D2B1F]/15 backdrop-blur-[0.5px] hidden"></div>
+
                             <!-- ชิ้นที่ 4: เครื่องประดับ / หมวก / กระเป๋า (ด้านบนขวา) -->
-                            <div id="avatar-accessory-layer" class="w-full flex justify-end px-2 min-h-[45px]">
-                                <span class="text-[10px] text-[#8C6D53] bg-[#FCE8E8] px-2.5 py-1 rounded-full border border-[#D8C2B0] flex items-center gap-1 shadow-xs">
+                            <div id="avatar-accessory-layer" class="w-full flex justify-end px-2 min-h-[45px] z-10">
+                                <span class="text-[10px] text-[#8C6D53] bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-full border border-[#D8C2B0] flex items-center gap-1 shadow-xs">
                                     <i class="fa-solid fa-bag-shopping text-[#DDB892]"></i> กระเป๋า / เครื่องประดับ
                                 </span>
                             </div>
 
                             <!-- ชิ้นที่ 1: เสื้อท่อนบน -->
-                            <div id="avatar-top-layer" class="w-full flex justify-center items-center min-h-[85px]">
-                                <div class="text-xs text-[#8C6D53] border border-dashed border-[#D8C2B0] rounded-xl px-4 py-2 bg-white/60 flex items-center gap-1.5">
+                            <div id="avatar-top-layer" class="w-full flex justify-center items-center min-h-[95px] z-10">
+                                <div class="text-xs text-[#8C6D53] border border-dashed border-[#D8C2B0] rounded-xl px-4 py-2 bg-white/80 backdrop-blur-xs flex items-center gap-1.5 shadow-xs">
                                     <span>👕</span> เสื้อท่อนบน
                                 </div>
                             </div>
 
                             <!-- ชิ้นที่ 2: กางเกง/กระโปรงท่อนล่าง -->
-                            <div id="avatar-bottom-layer" class="w-full flex justify-center items-center min-h-[85px] -mt-2">
-                                <div class="text-xs text-[#8C6D53] border border-dashed border-[#D8C2B0] rounded-xl px-4 py-2 bg-white/60 flex items-center gap-1.5">
+                            <div id="avatar-bottom-layer" class="w-full flex justify-center items-center min-h-[95px] -mt-2 z-10">
+                                <div class="text-xs text-[#8C6D53] border border-dashed border-[#D8C2B0] rounded-xl px-4 py-2 bg-white/80 backdrop-blur-xs flex items-center gap-1.5 shadow-xs">
                                     <span>👖</span> กางเกง / กระโปรง
                                 </div>
                             </div>
 
                             <!-- ชิ้นที่ 3: รองเท้า -->
-                            <div id="avatar-shoes-layer" class="w-full flex justify-center items-center min-h-[55px] pt-1">
-                                <div class="text-xs text-[#8C6D53] border border-dashed border-[#D8C2B0] rounded-xl px-4 py-1.5 bg-white/60 flex items-center gap-1.5">
+                            <div id="avatar-shoes-layer" class="w-full flex justify-center items-center min-h-[60px] pt-1 z-10">
+                                <div class="text-xs text-[#8C6D53] border border-dashed border-[#D8C2B0] rounded-xl px-4 py-1.5 bg-white/80 backdrop-blur-xs flex items-center gap-1.5 shadow-xs">
                                     <span>👟</span> รองเท้า
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <p class="text-[11px] text-[#6B5647] text-center mt-3">
-                        💡 จัดวางเสื้อผ้าตามสัดส่วนจริง พร้อมส่งต่อให้ AI เจนภาพบนตัวคุณ
+                    <p id="fitting-mode-hint" class="text-[11px] text-[#6B5647] text-center mt-3">
+                        💡 เสื้อผ้าจากตู้ถูกจัดสัดส่วนครบ 4 ชิ้น พร้อมจำลองใส่บนรูปของคุณ
                     </p>
                 </div>
 
