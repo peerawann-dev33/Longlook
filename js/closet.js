@@ -202,30 +202,39 @@ async function saveClothToDatabase() {
     };
 
     const token = localStorage.getItem('longlook_token');
-    if (!token) {
-        showLongLookToast('🔒 กรุณาเข้าสู่ระบบก่อนบันทึกเสื้อผ้า', 'info');
-        if (typeof openLoginModal === 'function') openLoginModal();
-        return;
-    }
+    let savedToBackend = false;
 
-    try {
-        const response = await fetch(`${window.LONGLOOK_API}/api/clothes`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify(clothData)
-        });
-        const data = await response.json();
-        if (!response.ok) {
-            showLongLookToast(data.message || 'บันทึกเสื้อผ้าไม่สำเร็จ', 'error');
-            return;
+    if (token) {
+        try {
+            const response = await fetch(`${window.LONGLOOK_API}/api/clothes`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(clothData)
+            });
+            const data = await response.json();
+            if (response.ok) {
+                closetItems.unshift(data.cloth || clothData);
+                savedToBackend = true;
+            } else {
+                // หาก Token หมดอายุ หรือไม่ถูกต้อง ให้เคลียร์ทิ้งและบันทึกแบบ Local แทน
+                if (response.status === 401 || response.status === 403) {
+                    console.warn("Token expired or invalid, clearing local session.");
+                    localStorage.removeItem('longlook_token');
+                    localStorage.removeItem('longlook_user');
+                    if (typeof applyLoggedOutUser === 'function') applyLoggedOutUser();
+                }
+                closetItems.unshift(clothData);
+            }
+        } catch (e) {
+            console.error("Backend Save Error:", e);
+            closetItems.unshift(clothData);
         }
-        closetItems.unshift(data.cloth || clothData);
-    } catch (e) {
-        console.error("Backend Save Error:", e);
-        closetItems.push(clothData);
+    } else {
+        // ไม่มี Token หรือโหมดผู้เยี่ยมชม: บันทึกเข้าเครื่องทันที
+        closetItems.unshift(clothData);
     }
 
     localStorage.setItem('wardrobe_clothes', JSON.stringify(closetItems));
@@ -237,7 +246,14 @@ async function saveClothToDatabase() {
 
     if (nameInput) nameInput.value = '';
     if (fileInput) fileInput.value = '';
-    showLongLookToast("👕 บันทึกเสื้อผ้าลงตู้เรียบร้อยแล้ว!", "success");
+
+    if (savedToBackend) {
+        showLongLookToast("👕 บันทึกเสื้อผ้าลงตู้เรียบร้อยแล้ว!", "success");
+    } else if (token) {
+        showLongLookToast("👕 บันทึกลงตู้แล้ว (เซสชันเดิมหมดอายุ เข้าสู่ระบบใหม่เมื่อต้องการซิงค์ Cloud)", "info");
+    } else {
+        showLongLookToast("👕 บันทึกเสื้อผ้าลงตู้เรียบร้อยแล้ว!", "success");
+    }
 }
 
 // แสดงรายการเสื้อผ้าในตู้
@@ -637,20 +653,14 @@ async function saveTodayOutfitToCalendar() {
 
 // บันทึกชุดที่สุ่มได้จากหน้า Matcher ลงปฏิทิน
 async function saveCurrentMatchToCalendar() {
-    const token = localStorage.getItem('longlook_token');
-    if (!token) {
-        showLongLookToast('🔒 กรุณาเข้าสู่ระบบก่อนบันทึกลุค', 'info');
-        if (typeof openLoginModal === 'function') openLoginModal();
-        return;
-    }
-
     const topImg = document.querySelector('#avatar-top-layer img');
     const bottomImg = document.querySelector('#avatar-bottom-layer img');
-    if (!topImg && !bottomImg) {
-        showLongLookToast('กรุณากดสุ่มชุดก่อนบันทึกนะครับ', 'info');
+    if (!topImg && !bottomImg && !window.currentMatchedOutfit?.top) {
+        showLongLookToast('กรุณากดสุ่มชุดก่อนบันทึกนะครับ 🎲', 'info');
         return;
     }
 
+    const token = localStorage.getItem('longlook_token');
     const today = typeof window.getLocalTodayString === 'function' ? window.getLocalTodayString() : new Date().toLocaleDateString('en-CA');
     const items = [];
     if (window.currentMatchedOutfit?.top) items.push(window.currentMatchedOutfit.top);
@@ -662,43 +672,53 @@ async function saveCurrentMatchToCalendar() {
     const bottomTitle = window.currentMatchedOutfit?.bottom?.name || 'กางเกง';
     const outfitTitle = `${topTitle} + ${bottomTitle}`;
 
-    try {
-        const response = await fetch(`${window.LONGLOOK_API}/api/calendar`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                title: outfitTitle,
-                style: 'สุ่มแมตช์ชุด',
-                image: topImg?.src || bottomImg?.src || '',
-                log_date: today,
-                items: items
-            })
-        });
-        const data = await response.json();
-        if (response.ok) {
-            // ซิงค์ลง calendarOutfits ในหน้าปฏิทินด้วย
-            if (typeof calendarOutfits !== 'undefined' && items.length > 0) {
-                if (!calendarOutfits[today]) calendarOutfits[today] = [];
-                items.forEach(it => {
-                    if (!calendarOutfits[today].some(existing => String(existing.id) === String(it.id))) {
-                        calendarOutfits[today].push(it);
-                    }
-                });
-                localStorage.setItem('wardrobe_calendar', JSON.stringify(calendarOutfits));
-                if (typeof renderFullCalendar === 'function') renderFullCalendar();
+    // 1. บันทึกลงในเครื่อง (LocalStorage) ทันทีเสมอ เพื่อให้เพื่อนๆ เล่นได้ไม่มีสะดุด
+    if (typeof calendarOutfits !== 'undefined' && items.length > 0) {
+        if (!calendarOutfits[today]) calendarOutfits[today] = [];
+        items.forEach(it => {
+            if (!calendarOutfits[today].some(existing => String(existing.id) === String(it.id))) {
+                calendarOutfits[today].push(it);
             }
+        });
+        localStorage.setItem('wardrobe_calendar', JSON.stringify(calendarOutfits));
+        if (typeof renderFullCalendar === 'function') renderFullCalendar();
+    }
 
-            await loadCalendarHistory();
-            showLongLookToast('🎉 บันทึก Outfit ครบเซ็ตลงปฏิทินเรียบร้อยแล้ว!', 'success');
-        } else {
-            showLongLookToast(data.message || 'บันทึกไม่สำเร็จ', 'error');
+    let savedToBackend = false;
+    if (token) {
+        try {
+            const response = await fetch(`${window.LONGLOOK_API}/api/calendar`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    title: outfitTitle,
+                    style: 'สุ่มแมตช์ชุด',
+                    image: topImg?.src || bottomImg?.src || '',
+                    log_date: today,
+                    items: items
+                })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                savedToBackend = true;
+                await loadCalendarHistory();
+            } else if (response.status === 401 || response.status === 403) {
+                localStorage.removeItem('longlook_token');
+                localStorage.removeItem('longlook_user');
+                if (typeof applyLoggedOutUser === 'function') applyLoggedOutUser();
+            }
+        } catch (e) {
+            console.warn("Backend Calendar Save Warning:", e);
         }
-    } catch (e) {
-        console.error(e);
-        showLongLookToast('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+    }
+
+    if (savedToBackend) {
+        showLongLookToast('🎉 บันทึก Outfit ครบเซ็ตลงปฏิทินและ Cloud เรียบร้อยแล้ว!', 'success');
+    } else {
+        showLongLookToast('🎉 บันทึก Outfit ครบเซ็ตลงปฏิทินเรียบร้อยแล้ว!', 'success');
     }
 }
 
