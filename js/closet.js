@@ -326,8 +326,24 @@ window.executeDeleteClothItem = async function() {
     if (typeof renderFullCalendar === 'function') renderFullCalendar();
 };
 
-// ฟังก์ชันช่วยแยกประเภทเสื้อผ้า (ท่อนบน vs ท่อนล่าง)
+// ฟังก์ชันช่วยแยกประเภทเสื้อผ้า (4 หมวดหมู่: ท่อนบน, ท่อนล่าง, รองเท้า, เครื่องประดับ/พร็อพ)
+function isShoes(item) {
+    const cat = (item.category || '').toLowerCase();
+    const name = (item.name || '').toLowerCase();
+    return cat === 'รองเท้า' || cat.includes('รองเท้า') || cat.includes('shoes') || cat.includes('sneaker') || cat.includes('boots') ||
+           name.includes('รองเท้า') || name.includes('shoes') || name.includes('sneaker') || name.includes('ผ้าใบ') || name.includes('ส้นสูง') || name.includes('แตะ');
+}
+
+function isAccessory(item) {
+    const cat = (item.category || '').toLowerCase();
+    const name = (item.name || '').toLowerCase();
+    return cat === 'กระเป๋า' || cat === 'เครื่องประดับ' || cat.includes('กระเป๋า') || cat.includes('ประดับ') || cat.includes('หมวก') || cat.includes('แว่น') ||
+           cat.includes('accessory') || cat.includes('bag') || cat.includes('hat') || cat.includes('cap') ||
+           name.includes('กระเป๋า') || name.includes('หมวก') || name.includes('แว่น') || name.includes('นาฬิกา') || name.includes('สร้อย') || name.includes('bag') || name.includes('hat');
+}
+
 function isBottomClothing(item) {
+    if (isShoes(item) || isAccessory(item)) return false;
     const cat = (item.category || '').toLowerCase();
     const name = (item.name || '').toLowerCase();
     return cat === 'กางเกง' || cat === 'กระโปรง' || cat.includes('กางเกง') || cat.includes('กระโปรง') || cat.includes('bottom') || cat.includes('pants') ||
@@ -335,15 +351,15 @@ function isBottomClothing(item) {
 }
 
 function isTopClothing(item) {
-    if (isBottomClothing(item)) return false; // ถ้าเป็นท่อนล่าง ต้องไม่ใช่เสื้อเด็ดขาด
+    if (isShoes(item) || isAccessory(item) || isBottomClothing(item)) return false;
     const cat = (item.category || '').toLowerCase();
     const name = (item.name || '').toLowerCase();
     return cat === 'เสื้อ' || cat.includes('เสื้อ') || cat.includes('top') || cat.includes('แจ็คเก็ต') || 
            name.includes('เสื้อ') || name.includes('shirt') || name.includes('hoodie') || name.includes('jacket') ||
-           (!isBottomClothing(item) && cat !== 'เดรส');
+           cat === 'เดรส' || (!isBottomClothing(item) && !isShoes(item) && !isAccessory(item));
 }
 
-// สุ่มแมตช์ชุดใส่บนหุ่นจำลอง
+// สุ่มแมตช์ชุดครบเซ็ต: เสื้อ + กางเกง/กระโปรง + รองเท้า + เครื่องประดับ
 function triggerAutoMatchAndFitting() {
     const saved = localStorage.getItem('wardrobe_clothes');
     if (saved) closetItems = JSON.parse(saved);
@@ -363,33 +379,117 @@ function triggerAutoMatchAndFitting() {
 
     const tops = closetItems.filter(isTopClothing);
     const bottoms = closetItems.filter(isBottomClothing);
+    const shoes = closetItems.filter(isShoes);
+    const accessories = closetItems.filter(isAccessory);
 
+    // เลือกชิ้นส่วนจากตู้ หรือถ้าไม่มีให้ใช้ไอเทมที่มี/จำลองให้สมบูรณ์
     const chosenTop = tops.length > 0 ? tops[Math.floor(Math.random() * tops.length)] : closetItems[0];
     const chosenBottom = bottoms.length > 0 ? bottoms[Math.floor(Math.random() * bottoms.length)] : (closetItems[1] || closetItems[0]);
+    const chosenShoes = shoes.length > 0 ? shoes[Math.floor(Math.random() * shoes.length)] : {
+        name: 'รองเท้าผ้าใบมินิมอลสีขาว',
+        category: 'รองเท้า',
+        image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300&auto=format&fit=crop'
+    };
+    const chosenAccessory = accessories.length > 0 ? accessories[Math.floor(Math.random() * accessories.length)] : {
+        name: 'กระเป๋าสะพายข้างแฟชั่น',
+        category: 'กระเป๋า',
+        image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=300&auto=format&fit=crop'
+    };
 
     window.currentMatchedOutfit = {
         top: chosenTop,
-        bottom: chosenBottom
+        bottom: chosenBottom,
+        shoes: chosenShoes,
+        accessory: chosenAccessory
     };
+
+    // อัปเดตแสดงผลในหน้าแมตช์ชุด
+    renderOutfitLayers();
+}
+
+function renderOutfitLayers() {
+    const outfit = window.currentMatchedOutfit;
+    if (!outfit) return;
 
     const topLayer = document.getElementById('avatar-top-layer');
     const bottomLayer = document.getElementById('avatar-bottom-layer');
+    const shoesLayer = document.getElementById('avatar-shoes-layer');
+    const accessoryLayer = document.getElementById('avatar-accessory-layer');
 
-    if (topLayer && bottomLayer) {
+    if (topLayer && outfit.top) {
         topLayer.innerHTML = `
             <div class="flex flex-col items-center animate-pop-in">
-                <img src="${chosenTop.image}" class="h-28 w-28 object-contain drop-shadow transition-transform hover:scale-105" title="${chosenTop.name}">
-                <span class="text-[9px] bg-white/90 text-[#3D2B1F] px-2 py-0.5 rounded-full shadow-sm mt-1 max-w-[120px] truncate font-medium">${chosenTop.name}</span>
+                <img src="${outfit.top.image}" class="h-24 w-24 object-contain drop-shadow transition-transform hover:scale-105" title="${outfit.top.name}">
+                <span class="text-[9px] bg-white/95 text-[#3D2B1F] px-2 py-0.5 rounded-full shadow-xs mt-1 max-w-[110px] truncate font-medium border border-[#D8C2B0]">${outfit.top.name}</span>
             </div>
         `;
+    }
+
+    if (bottomLayer && outfit.bottom) {
         bottomLayer.innerHTML = `
-            <div class="flex flex-col items-center animate-pop-in" style="animation-delay: 0.08s;">
-                <img src="${chosenBottom.image}" class="h-28 w-28 object-contain drop-shadow transition-transform hover:scale-105" title="${chosenBottom.name}">
-                <span class="text-[9px] bg-white/90 text-[#3D2B1F] px-2 py-0.5 rounded-full shadow-sm mt-1 max-w-[120px] truncate font-medium">${chosenBottom.name}</span>
+            <div class="flex flex-col items-center animate-pop-in" style="animation-delay: 0.05s;">
+                <img src="${outfit.bottom.image}" class="h-24 w-24 object-contain drop-shadow transition-transform hover:scale-105" title="${outfit.bottom.name}">
+                <span class="text-[9px] bg-white/95 text-[#3D2B1F] px-2 py-0.5 rounded-full shadow-xs mt-1 max-w-[110px] truncate font-medium border border-[#D8C2B0]">${outfit.bottom.name}</span>
+            </div>
+        `;
+    }
+
+    if (shoesLayer && outfit.shoes) {
+        shoesLayer.innerHTML = `
+            <div class="flex flex-col items-center animate-pop-in" style="animation-delay: 0.1s;">
+                <img src="${outfit.shoes.image}" class="h-20 w-20 object-contain drop-shadow transition-transform hover:scale-105" title="${outfit.shoes.name}">
+                <span class="text-[9px] bg-white/95 text-[#3D2B1F] px-2 py-0.5 rounded-full shadow-xs mt-1 max-w-[110px] truncate font-medium border border-[#D8C2B0]">${outfit.shoes.name}</span>
+            </div>
+        `;
+    }
+
+    if (accessoryLayer && outfit.accessory) {
+        accessoryLayer.innerHTML = `
+            <div class="flex flex-col items-center animate-pop-in" style="animation-delay: 0.15s;">
+                <img src="${outfit.accessory.image}" class="h-20 w-20 object-contain drop-shadow transition-transform hover:scale-105" title="${outfit.accessory.name}">
+                <span class="text-[9px] bg-white/95 text-[#3D2B1F] px-2 py-0.5 rounded-full shadow-xs mt-1 max-w-[110px] truncate font-medium border border-[#D8C2B0]">${outfit.accessory.name}</span>
+            </div>
+        `;
+    }
+
+    // อัปเดตรายการชิ้นส่วนสรุปใน AI Studio Panel
+    const summaryBox = document.getElementById('match-pieces-summary');
+    if (summaryBox) {
+        summaryBox.innerHTML = `
+            <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="bg-white/80 p-2.5 rounded-xl border border-[#D8C2B0] flex items-center gap-2">
+                    <span class="text-base">👕</span>
+                    <div class="truncate">
+                        <div class="text-[10px] text-[#8C6D53] font-semibold">ท่อนบน</div>
+                        <div class="font-medium truncate text-[#3D2B1F]">${outfit.top?.name || '-'}</div>
+                    </div>
+                </div>
+                <div class="bg-white/80 p-2.5 rounded-xl border border-[#D8C2B0] flex items-center gap-2">
+                    <span class="text-base">👖</span>
+                    <div class="truncate">
+                        <div class="text-[10px] text-[#8C6D53] font-semibold">ท่อนล่าง</div>
+                        <div class="font-medium truncate text-[#3D2B1F]">${outfit.bottom?.name || '-'}</div>
+                    </div>
+                </div>
+                <div class="bg-white/80 p-2.5 rounded-xl border border-[#D8C2B0] flex items-center gap-2">
+                    <span class="text-base">👟</span>
+                    <div class="truncate">
+                        <div class="text-[10px] text-[#8C6D53] font-semibold">รองเท้า</div>
+                        <div class="font-medium truncate text-[#3D2B1F]">${outfit.shoes?.name || '-'}</div>
+                    </div>
+                </div>
+                <div class="bg-white/80 p-2.5 rounded-xl border border-[#D8C2B0] flex items-center gap-2">
+                    <span class="text-base">👜</span>
+                    <div class="truncate">
+                        <div class="text-[10px] text-[#8C6D53] font-semibold">เครื่องประดับ</div>
+                        <div class="font-medium truncate text-[#3D2B1F]">${outfit.accessory?.name || '-'}</div>
+                    </div>
+                </div>
             </div>
         `;
     }
 }
+
 
 // เติมตัวเลือกเสื้อผ้าลงใน Select สำหรับ Builder
 function populateSelectOptions() {
@@ -555,6 +655,8 @@ async function saveCurrentMatchToCalendar() {
     const items = [];
     if (window.currentMatchedOutfit?.top) items.push(window.currentMatchedOutfit.top);
     if (window.currentMatchedOutfit?.bottom) items.push(window.currentMatchedOutfit.bottom);
+    if (window.currentMatchedOutfit?.shoes) items.push(window.currentMatchedOutfit.shoes);
+    if (window.currentMatchedOutfit?.accessory) items.push(window.currentMatchedOutfit.accessory);
 
     const topTitle = window.currentMatchedOutfit?.top?.name || 'เสื้อ';
     const bottomTitle = window.currentMatchedOutfit?.bottom?.name || 'กางเกง';
@@ -590,7 +692,7 @@ async function saveCurrentMatchToCalendar() {
             }
 
             await loadCalendarHistory();
-            showLongLookToast('🎉 บันทึก Outfit ลงปฏิทินและ Database เรียบร้อยแล้ว!', 'success');
+            showLongLookToast('🎉 บันทึก Outfit ครบเซ็ตลงปฏิทินเรียบร้อยแล้ว!', 'success');
         } else {
             showLongLookToast(data.message || 'บันทึกไม่สำเร็จ', 'error');
         }
@@ -649,7 +751,6 @@ async function saveBuilderOutfitToCalendar() {
         });
         const data = await response.json();
         if (response.ok) {
-            // ซิงค์ลง calendarOutfits ในหน้าปฏิทินด้วย
             if (typeof calendarOutfits !== 'undefined' && items.length > 0) {
                 if (!calendarOutfits[today]) calendarOutfits[today] = [];
                 items.forEach(it => {
@@ -672,12 +773,133 @@ async function saveBuilderOutfitToCalendar() {
     }
 }
 
+// --------------------------------------------------------------------------
+// AI VIRTUAL TRY-ON & SELFIE LOGIC (ถ่ายรูปตัวเอง + AI เจนรูปใส่ชุดที่แมตช์)
+// --------------------------------------------------------------------------
+function triggerSelectUserSelfie() {
+    const input = document.getElementById('user-selfie-input');
+    if (input) input.click();
+}
+
+function handleUserSelfieChange(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const photoData = e.target.result;
+        localStorage.setItem('longlook_user_selfie', photoData);
+        updateUserSelfiePreview(photoData);
+        showLongLookToast('📸 โหลดรูปภาพของคุณเรียบร้อยแล้ว!', 'success');
+    };
+    reader.readAsDataURL(file);
+}
+
+function updateUserSelfiePreview(photoUrl) {
+    const placeholder = document.getElementById('user-selfie-placeholder');
+    const imgElem = document.getElementById('user-selfie-img');
+    const statusText = document.getElementById('user-selfie-status');
+
+    if (imgElem) {
+        imgElem.src = photoUrl;
+        imgElem.classList.remove('hidden');
+    }
+    if (placeholder) placeholder.classList.add('hidden');
+    if (statusText) statusText.innerText = 'รูปของคุณพร้อมลองชุดแล้ว ✨';
+}
+
+// AI Virtual Try-On: สั่งประมวลผลเจนภาพคนสวมใส่ชุดที่แมตช์
+async function runAiVirtualTryOn() {
+    if (!window.currentMatchedOutfit || !window.currentMatchedOutfit.top) {
+        // หากยังไม่ได้สุ่มชุด ให้ทำการสุ่มชุดก่อนอัตโนมัติ
+        triggerAutoMatchAndFitting();
+    }
+
+    const outfit = window.currentMatchedOutfit;
+    if (!outfit || !outfit.top) {
+        showLongLookToast('กรุณาเพิ่มเสื้อผ้าในตู้ก่อนลองชุดนะครับ', 'info');
+        return;
+    }
+
+    const userPhoto = localStorage.getItem('longlook_user_selfie') || '';
+    const occasionSelect = document.getElementById('match-occasion-select');
+    const styleSelect = document.getElementById('match-style-select');
+
+    const occasion = occasionSelect?.value || 'ทั่วไป';
+    const style = styleSelect?.value || 'CASUAL';
+
+    const modal = document.getElementById('tryon-result-modal');
+    const loadingElem = document.getElementById('tryon-loading');
+    const resultContent = document.getElementById('tryon-result-content');
+    const resultImg = document.getElementById('tryon-result-img');
+    const adviceElem = document.getElementById('tryon-advice-text');
+
+    if (modal) modal.classList.remove('hidden');
+    if (loadingElem) loadingElem.classList.remove('hidden');
+    if (resultContent) resultContent.classList.add('hidden');
+
+    try {
+        const response = await fetch(`${window.LONGLOOK_API}/api/ai/virtual-tryon`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userPhoto,
+                items: outfit,
+                style,
+                occasion,
+                gender: localStorage.getItem('longlook_user_gender') || 'unisex'
+            })
+        });
+
+        const data = await response.json();
+        if (response.ok && data.imageUrl) {
+            window.latestTryOnResult = data;
+            if (resultImg) {
+                resultImg.src = data.imageUrl;
+            }
+            if (adviceElem) {
+                adviceElem.innerText = data.advice || 'AI แมตช์ชุดนี้ให้เข้ากับสไตล์ของคุณอย่างลงตัว!';
+            }
+            if (loadingElem) loadingElem.classList.add('hidden');
+            if (resultContent) resultContent.classList.remove('hidden');
+        } else {
+            showLongLookToast(data.message || 'ไม่สามารถเจนรูปได้ในขณะนี้', 'error');
+            if (modal) modal.classList.add('hidden');
+        }
+    } catch (err) {
+        console.error('Try-on error:', err);
+        showLongLookToast('เกิดข้อผิดพลาดในการเชื่อมต่อ AI', 'error');
+        if (modal) modal.classList.add('hidden');
+    }
+}
+
+function closeTryOnModal() {
+    const modal = document.getElementById('tryon-result-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function downloadTryOnImage() {
+    if (!window.latestTryOnResult?.imageUrl) return;
+    const link = document.createElement('a');
+    link.href = window.latestTryOnResult.imageUrl;
+    link.target = '_blank';
+    link.download = `longlook-tryon-${Date.now()}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 // Event Listener เมื่อเลือกไฟล์รูปภาพ ให้อ่านไฟล์และสแกนด้วย AI อัตโนมัติ
 document.addEventListener('DOMContentLoaded', () => {
     renderClosetItems();
     populateSelectOptions();
     loadClothesFromDatabase();
     loadCalendarHistory();
+
+    const savedSelfie = localStorage.getItem('longlook_user_selfie');
+    if (savedSelfie) {
+        updateUserSelfiePreview(savedSelfie);
+    }
 
     const fileInput = document.getElementById('file-upload-input');
     if (fileInput) {

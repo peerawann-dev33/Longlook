@@ -25,6 +25,15 @@ function switchPage(pageId) {
     }
 
     // 5. โหลดข้อมูลอัตโนมัติตามหน้าที่เปิด
+    if (pageId === 'matcher') {
+        if (typeof renderOutfitLayers === 'function') {
+            if (!window.currentMatchedOutfit && typeof triggerAutoMatchAndFitting === 'function') {
+                triggerAutoMatchAndFitting();
+            } else {
+                renderOutfitLayers();
+            }
+        }
+    }
     if (pageId === 'calendar') {
         if (typeof renderFullCalendar === 'function') renderFullCalendar();
         if (typeof loadCalendarHistory === 'function') loadCalendarHistory();

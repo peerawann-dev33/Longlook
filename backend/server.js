@@ -586,6 +586,52 @@ app.post('/api/ai/analyze-clothing', authenticateToken, upload.single('image'), 
     }
 });
 
+// Endpoint ใหม่: AI Virtual Try-On (เจนรูปผู้ใช้สวมชุดที่แมตช์)
+app.post('/api/ai/virtual-tryon', async (req, res) => {
+    try {
+        const { userPhoto, items, style = 'Casual', gender = 'unisex', occasion = 'ทั่วไป' } = req.body || {};
+
+        const topName = items?.top?.name || 'เสื้อสไตล์มินิมอล';
+        const topColor = items?.top?.color || 'สีธรรมชาติ';
+        const bottomName = items?.bottom?.name || 'กางเกงสแล็คหรือยีนส์เข้าชุด';
+        const bottomColor = items?.bottom?.color || '';
+        const shoesName = items?.shoes?.name || 'รองเท้าผ้าใบ';
+        const accessoryName = items?.accessory?.name || 'กระเป๋าแฟชั่น';
+
+        const genderLabel = gender === 'female' ? 'young attractive asian woman' : (gender === 'male' ? 'young handsome asian man' : 'stylish asian young adult');
+        
+        // สร้าง Prompt คุณภาพสูงสำหรับ Fashion Lookbook / Virtual Try-on
+        const outfitDescription = `wearing ${topName} ${topColor}, paired with ${bottomName} ${bottomColor}, styled with ${shoesName} and ${accessoryName}`;
+        const prompt = `Full body fashion lookbook portrait of a ${genderLabel}, ${outfitDescription}, ${style} style, occasion for ${occasion}, elegant pose, aesthetic soft cafe or studio lighting, 8k resolution, highly detailed realistic photography, Pinterest fashion aesthetic, photorealistic`;
+
+        // สุ่ม Seed เพื่อให้แต่ละการเจนมีความหลากหลายและเป็นเอกลักษณ์
+        const seed = Math.floor(Math.random() * 999999);
+        const generatedImageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=768&height=1024&seed=${seed}&nologo=true&model=flux`;
+
+        // ข้อความคำแนะนำสไตล์จาก AI
+        const advice = `AI แมตช์ชุด "${topName}" คู่กับ "${bottomName}" พร้อมเสริมด้วย "${shoesName}" และ "${accessoryName}" ให้ดูเข้ากันในสไตล์ ${style} เหมาะกับ ${occasion} อย่างลงตัว`;
+
+        res.json({
+            success: true,
+            imageUrl: generatedImageUrl,
+            prompt: prompt,
+            advice: advice,
+            details: {
+                top: topName,
+                bottom: bottomName,
+                shoes: shoesName,
+                accessory: accessoryName,
+                style,
+                occasion
+            }
+        });
+    } catch (err) {
+        console.error('Virtual try-on error:', err);
+        res.status(500).json({ message: 'ไม่สามารถสร้างภาพลองชุดเสมือนจริงได้ในขณะนี้' });
+    }
+});
+
+
 app.listen(PORT, () => {
     console.log(`🚀 LongLook SQLite + Firebase backend: http://localhost:${PORT}`);
 });

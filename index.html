@@ -41,19 +41,18 @@
                 <p class="text-[9px] text-[#D8C2B0] mt-1 tracking-[0.2em] uppercase font-light">LOOK LONG. CHOOSE RIGHT.</p>
             </div>
 
-            <!-- NAV MENU (เหลือ 6 เมนู ย้ายโทนสีผิวไปหน้าหลักแล้ว) -->
+            <!-- NAV MENU: แมตช์ชุด & ลองใส่ AI ขึ้นมาเป็นพระเอกตัวจริง -->
             <nav class="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-col gap-1.5 text-xs font-medium">
-                <button onclick="switchPage('home')" id="nav-home" class="w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl text-[#EBD9CB] hover:bg-[#523B2B] transition">
-                    <span class="text-sm text-[#7A9A8B]"><i class="fa-solid fa-house"></i></span> <span>หน้าหลัก</span>
+                <button onclick="switchPage('matcher')" id="nav-matcher" class="w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl bg-[#EBD9CB] text-[#3D2B1F] font-bold shadow-sm transition">
+                    <span class="text-sm text-[#89C2D9]"><i class="fa-solid fa-wand-magic-sparkles"></i></span> 
+                    <span class="flex-1 text-left">แมตช์ & ลองชุด AI</span>
+                    <span class="hidden md:inline-block text-[9px] bg-[#3D2B1F] text-[#F5E6DA] px-2 py-0.5 rounded-full font-bold">HOT</span>
                 </button>
                 <button onclick="switchPage('closet')" id="nav-closet" class="w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl text-[#EBD9CB] hover:bg-[#523B2B] transition">
                     <span class="text-sm text-[#F4C2C2]"><i class="fa-solid fa-shirt"></i></span> <span>ตู้เสื้อผ้าของฉัน</span>
                 </button>
-                <button onclick="switchPage('matcher')" id="nav-matcher" class="w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl text-[#EBD9CB] hover:bg-[#523B2B] transition">
-                    <span class="text-sm text-[#89C2D9]"><i class="fa-solid fa-wand-magic-sparkles"></i></span> <span>ระบบแมตช์ชุด</span>
-                </button>
-                <button onclick="switchPage('builder')" id="nav-builder" class="w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl text-[#EBD9CB] hover:bg-[#523B2B] transition">
-                    <span class="text-sm text-[#DDB892]"><i class="fa-solid fa-palette"></i></span> <span>สร้างลุคเอง</span>
+                <button onclick="switchPage('home')" id="nav-home" class="w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl text-[#EBD9CB] hover:bg-[#523B2B] transition">
+                    <span class="text-sm text-[#7A9A8B]"><i class="fa-solid fa-sparkles"></i></span> <span>ลุคแนะนำประจำวัน</span>
                 </button>
                 <button onclick="switchPage('calendar')" id="nav-calendar" class="w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl text-[#EBD9CB] hover:bg-[#523B2B] transition">
                     <span class="text-sm text-[#B5A2D9]"><i class="fa-solid fa-calendar-days"></i></span> <span>ปฏิทินประวัติ</span>
@@ -93,7 +92,7 @@
         </header>
 
         <!-- PAGE 1: HOME -->
-        <div id="page-home" class="page-content space-y-6">
+        <div id="page-home" class="page-content hidden space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                 <!-- ฝั่งซ้าย: ลุคแนะนำ + โทนสีผิว & เพศ -->
@@ -257,66 +256,196 @@
             </div>
         </div>
 
-        <!-- PAGE 3: MATCHER -->
-        <div id="page-matcher" class="page-content hidden bg-[#EBD9CB] p-6 rounded-3xl border border-[#D8C2B0] shadow-sm space-y-6">
-            <h2 class="text-lg font-bold text-[#3D2B1F]"><i class="fa-solid fa-wand-magic-sparkles text-[#89C2D9] mr-2"></i> ระบบสุ่มแมตช์ชุดลองใส่จริง</h2>
+        <!-- PAGE 3: MATCHER & AI TRY-ON STUDIO -->
+        <div id="page-matcher" class="page-content space-y-6">
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="space-y-4 bg-[#FCE8E8] p-5 rounded-2xl border border-[#D8C2B0] shadow-sm">
-                    <h3 class="font-bold text-sm text-[#3D2B1F]">เลือกเงื่อนไขการแต่งตัว</h3>
-                    <div>
-                        <label class="block text-xs font-medium text-[#6B5647] mb-1">โอกาส (Occasion)</label>
-                        <select class="w-full p-2.5 text-xs rounded-xl border border-[#D8C2B0] bg-white">
-                            <option>ไปเรียน / ไปทำงาน</option>
-                            <option>เดินเล่น / ไปคาเฟ่</option>
-                            <option>ออกเดท / ไปเที่ยวกับเพื่อน</option>
-                            <option>งานทางการ / งานสัมมนา</option>
-                            <option>ออกกำลังกาย / สปอร์ต</option>
-                            <option>ปาร์ตี้ / สังสรรค์กลางคืน</option>
-                            <option>อยู่บ้าน / วันชิลล์ๆ</option>
-                        </select>
+            <!-- Hero Banner: แมตช์ชุด & ลองชุดด้วย AI -->
+            <div class="bg-gradient-to-r from-[#3D2B1F] to-[#523B2B] text-white p-6 rounded-3xl shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold bg-[#EBD9CB] text-[#3D2B1F] px-2.5 py-0.5 rounded-full shadow-xs">Studio Mode</span>
+                        <span class="text-xs text-[#EBD9CB]"><i class="fa-solid fa-wand-magic-sparkles text-[#E9B44C]"></i> AI Fashion Matching & Try-On</span>
                     </div>
-                    <div>
-                        <label class="block text-xs font-medium text-[#6B5647] mb-1">สไตล์ (Style)</label>
-                        <select class="w-full p-2.5 text-xs rounded-xl border border-[#D8C2B0] bg-white">
-                            <option>CASUAL (สบายๆ เป็นธรรมชาติ)</option>
-                            <option>KOREAN / MINIMAL (มินิมอลสายเกาหลี)</option>
-                            <option>STREETWEAR (สตรีทเท่ๆ)</option>
-                            <option>VINTAGE / Y2K (วินเทจย้อนยุค)</option>
-                            <option>FORMAL / ELEGANT (เรียบหรู ดูแพง)</option>
-                            <option>SPORTY (สปอร์ตลุค)</option>
-                            <option>PREPPY (ลุคนักเรียนนักศึกษา)</option>
-                        </select>
-                    </div>
-                    <button onclick="triggerAutoMatchAndFitting()" class="w-full bg-[#3D2B1F] hover:bg-[#523B2B] text-white py-3 rounded-xl text-xs font-medium shadow-md transition-all duration-200 transform active:scale-95 flex items-center justify-center gap-2">
-                        <span id="matcher-dice-icon" class="text-base">🎲</span> <span>สุ่มจับคู่แมตช์ใส่บนหุ่น!</span>
-                    </button>
-                    <button onclick="saveCurrentMatchToCalendar()" class="w-full bg-[#7A9A8B] hover:bg-[#688577] text-white py-2.5 rounded-xl text-xs font-medium shadow-md transition-all duration-200 transform active:scale-95">
-                        📅 บันทึกชุดที่สุ่มได้ลงปฏิทิน
-                    </button>
+                    <h2 class="text-xl font-bold text-[#F5E6DA] mt-1">ห้องลองชุด & แมตช์ลุค AI เสมือนจริง ✨</h2>
+                    <p class="text-xs text-[#D8C2B0] mt-0.5">จับคู่เสื้อผ้า ท่อนล่าง รองเท้า และเครื่องประดับ พร้อมถ่ายรูปตัวเองให้ AI เสกภาพลองใส่จริง!</p>
                 </div>
-
-                <div class="md:col-span-2 bg-[#FCE8E8] p-6 rounded-2xl border border-[#D8C2B0] shadow-sm flex flex-col items-center justify-center relative min-h-[380px]">
-                    <h3 class="text-xs font-bold text-[#6B5647] absolute top-4 left-4">👕 ลองใส่บนหุ่นจำลอง</h3>
-                    
-                    <div id="avatar-fitting-container" class="relative w-48 h-80 flex flex-col items-center justify-center border border-dashed border-[#D8C2B0] rounded-2xl bg-white p-2">
-                        <svg viewBox="0 0 100 200" class="w-32 h-64 opacity-20 absolute">
-                            <circle cx="50" cy="25" r="15" fill="#3D2B1F"/>
-                            <path d="M 30 45 L 70 45 L 65 110 L 35 110 Z" fill="#3D2B1F"/>
-                            <rect x="37" y="112" width="10" height="70" fill="#3D2B1F"/>
-                            <rect x="53" y="112" width="10" height="70" fill="#3D2B1F"/>
-                        </svg>
-
-                        <div id="avatar-top-layer" class="z-10 w-28 h-28 flex items-center justify-center transition-all">
-                            <span class="text-xs text-[#6B5647]">เสื้อ</span>
-                        </div>
-                        <div id="avatar-bottom-layer" class="z-10 w-28 h-28 flex items-center justify-center -mt-4 transition-all">
-                            <span class="text-xs text-[#6B5647]">กางเกง/กระโปรง</span>
-                        </div>
-                    </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <button onclick="triggerAutoMatchAndFitting()" class="bg-[#FAF1EC] hover:bg-white text-[#3D2B1F] px-4 py-2.5 rounded-2xl text-xs font-bold shadow-md transition flex items-center gap-2 active:scale-95 cursor-pointer">
+                        <span id="matcher-dice-icon" class="text-base">🎲</span> สุ่มแมตช์ชุดครบเซ็ต
+                    </button>
                 </div>
             </div>
+
+            <!-- Studio 3-Column Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+
+                <!-- คอลัมน์ 1: ตัวเลือกสไตล์ & สรุปไอเทมที่เลือก (4 Cols) -->
+                <div class="lg:col-span-4 space-y-4">
+                    <div class="bg-[#EBD9CB] p-5 rounded-3xl border border-[#D8C2B0] shadow-sm space-y-4">
+                        <h3 class="font-bold text-sm text-[#3D2B1F] flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-[#89C2D9]"></i> กำหนดสไตล์ & โอกาส
+                        </h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-[#6B5647] mb-1">โอกาสในการแต่งตัว (Occasion)</label>
+                                <select id="match-occasion-select" class="w-full p-2.5 text-xs rounded-xl border border-[#D8C2B0] bg-white text-[#3D2B1F] font-medium shadow-xs">
+                                    <option value="ไปคาเฟ่ / เดินเล่นวันสบายๆ">☕ เดินเล่น / ไปคาเฟ่</option>
+                                    <option value="ไปเรียน / มหาวิทยาลัย">🎓 ไปเรียน / มหาวิทยาลัย</option>
+                                    <option value="ไปทำงาน / ประชุม">💼 ไปทำงาน / ออฟฟิศ</option>
+                                    <option value="ออกเดท / ดินเนอร์">💖 ออกเดท / ดินเนอร์</option>
+                                    <option value="ปาร์ตี้ / สังสรรค์กลางคืน">🎉 ปาร์ตี้ / สังสรรค์กลางคืน</option>
+                                    <option value="ท่องเที่ยว / วันหยุด">✈️ ท่องเที่ยว / วันหยุด</option>
+                                    <option value="ออกกำลังกาย / กิจกรรมกลางแจ้ง">🏃 ออกกำลังกาย / สปอร์ต</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-[#6B5647] mb-1">สไตล์แฟชั่น (Style)</label>
+                                <select id="match-style-select" class="w-full p-2.5 text-xs rounded-xl border border-[#D8C2B0] bg-white text-[#3D2B1F] font-medium shadow-xs">
+                                    <option value="CASUAL">✨ CASUAL (สบายๆ ชิลล์ๆ)</option>
+                                    <option value="KOREAN MINIMAL">🇰🇷 KOREAN MINIMAL (สายเกาหลี มินิมอล)</option>
+                                    <option value="STREETWEAR">🛹 STREETWEAR (สตรีท คูลๆ เท่ๆ)</option>
+                                    <option value="SMART CASUAL">👔 SMART CASUAL (กึ่งทางการ เรียบหรู)</option>
+                                    <option value="VINTAGE 90s">🎞️ VINTAGE / Y2K (วินเทจย้อนยุค)</option>
+                                    <option value="SPORTY">👟 SPORTY (คล่องตัว สปอร์ต)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- รายการชิ้นส่วนที่แมตช์ได้ (4 ชิ้น: เสื้อ + กางเกง + รองเท้า + เครื่องประดับ) -->
+                        <div class="pt-2 border-t border-[#D8C2B0]">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="text-xs font-bold text-[#3D2B1F]"><i class="fa-solid fa-list-check text-[#7A9A8B] mr-1.5"></i> ชิ้นส่วนในลุคนี้:</h4>
+                                <span class="text-[10px] text-[#6B5647] bg-[#FCE8E8] px-2 py-0.5 rounded-full border border-[#D8C2B0]">4 ชิ้นครบเซ็ต</span>
+                            </div>
+                            <div id="match-pieces-summary">
+                                <p class="text-xs text-[#6B5647] text-center py-4 bg-white/60 rounded-xl border border-dashed border-[#D8C2B0]">
+                                    กดปุ่ม "สุ่มแมตช์ชุด" ด้านบนเพื่อเริ่มจัดชุด
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="space-y-2 pt-2">
+                            <button onclick="triggerAutoMatchAndFitting()" class="w-full bg-[#3D2B1F] hover:bg-[#523B2B] text-white py-3 rounded-2xl text-xs font-bold shadow-md transition transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+                                🎲 สุ่มแมตช์ชุดใหม่
+                            </button>
+                            <button onclick="saveCurrentMatchToCalendar()" class="w-full bg-[#7A9A8B] hover:bg-[#688577] text-white py-2.5 rounded-2xl text-xs font-bold shadow-md transition transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+                                📅 บันทึกชุดนี้ลงปฏิทิน
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- คอลัมน์ 2: หุ่นจำลองการสวมใส่ 4 ชิ้น (Visual Fitting Mannequin) (4 Cols) -->
+                <div class="lg:col-span-4 bg-[#EBD9CB] p-5 rounded-3xl border border-[#D8C2B0] shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-bold text-sm text-[#3D2B1F] flex items-center gap-2">
+                                <i class="fa-solid fa-child-reaching text-[#D88AAB]"></i> หุ่นลองชุด (4 ชิ้น)
+                            </h3>
+                            <span class="text-[10px] bg-[#FAF1EC] text-[#3D2B1F] px-2.5 py-0.5 rounded-full border border-[#D8C2B0]">Layer View</span>
+                        </div>
+
+                        <!-- Avatar Multi-layer Fitting Box -->
+                        <div id="avatar-fitting-container" class="relative bg-white/90 border-2 border-dashed border-[#D8C2B0] rounded-2xl p-4 flex flex-col items-center justify-center min-h-[380px] shadow-inner space-y-2">
+                            
+                            <!-- ชิ้นที่ 4: เครื่องประดับ / หมวก / กระเป๋า (ด้านบนขวา) -->
+                            <div id="avatar-accessory-layer" class="w-full flex justify-end px-2 min-h-[45px]">
+                                <span class="text-[10px] text-[#8C6D53] bg-[#FCE8E8] px-2.5 py-1 rounded-full border border-[#D8C2B0] flex items-center gap-1 shadow-xs">
+                                    <i class="fa-solid fa-bag-shopping text-[#DDB892]"></i> กระเป๋า / เครื่องประดับ
+                                </span>
+                            </div>
+
+                            <!-- ชิ้นที่ 1: เสื้อท่อนบน -->
+                            <div id="avatar-top-layer" class="w-full flex justify-center items-center min-h-[85px]">
+                                <div class="text-xs text-[#8C6D53] border border-dashed border-[#D8C2B0] rounded-xl px-4 py-2 bg-white/60 flex items-center gap-1.5">
+                                    <span>👕</span> เสื้อท่อนบน
+                                </div>
+                            </div>
+
+                            <!-- ชิ้นที่ 2: กางเกง/กระโปรงท่อนล่าง -->
+                            <div id="avatar-bottom-layer" class="w-full flex justify-center items-center min-h-[85px] -mt-2">
+                                <div class="text-xs text-[#8C6D53] border border-dashed border-[#D8C2B0] rounded-xl px-4 py-2 bg-white/60 flex items-center gap-1.5">
+                                    <span>👖</span> กางเกง / กระโปรง
+                                </div>
+                            </div>
+
+                            <!-- ชิ้นที่ 3: รองเท้า -->
+                            <div id="avatar-shoes-layer" class="w-full flex justify-center items-center min-h-[55px] pt-1">
+                                <div class="text-xs text-[#8C6D53] border border-dashed border-[#D8C2B0] rounded-xl px-4 py-1.5 bg-white/60 flex items-center gap-1.5">
+                                    <span>👟</span> รองเท้า
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-[11px] text-[#6B5647] text-center mt-3">
+                        💡 จัดวางเสื้อผ้าตามสัดส่วนจริง พร้อมส่งต่อให้ AI เจนภาพบนตัวคุณ
+                    </p>
+                </div>
+
+                <!-- คอลัมน์ 3: AI Virtual Try-On Studio (ถ่ายรูปตัวเอง + AI เสกรูปเราใส่ชุด) (4 Cols) -->
+                <div class="lg:col-span-4 bg-[#EBD9CB] p-5 rounded-3xl border border-[#D8C2B0] shadow-sm flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-bold text-sm text-[#3D2B1F] flex items-center gap-2">
+                                <i class="fa-solid fa-camera text-[#89C2D9]"></i> AI Virtual Try-On
+                            </h3>
+                            <span class="text-[10px] bg-gradient-to-r from-[#D88AAB] to-[#89C2D9] text-white px-2.5 py-0.5 rounded-full font-bold shadow-xs">
+                                ✨ เจนรูปเราใส่ชุด
+                            </span>
+                        </div>
+
+                        <!-- Photo Capture / Upload Box -->
+                        <div class="bg-[#FCE8E8] p-4 rounded-2xl border border-[#D8C2B0] space-y-3">
+                            <div class="text-xs font-semibold text-[#3D2B1F] flex justify-between items-center">
+                                <span>รูปถ่ายของคุณ:</span>
+                                <span id="user-selfie-status" class="text-[10px] text-[#7A9A8B] font-bold">ยังไม่ได้ใส่รูป</span>
+                            </div>
+
+                            <!-- Preview / Placeholder -->
+                            <div id="user-selfie-preview-box" class="relative bg-white rounded-xl overflow-hidden border border-[#D8C2B0] h-48 flex items-center justify-center shadow-inner">
+                                <div id="user-selfie-placeholder" class="text-center p-4 space-y-2">
+                                    <span class="w-12 h-12 bg-[#FAF1EC] text-[#3D2B1F] rounded-full flex items-center justify-center text-xl mx-auto border border-[#D8C2B0]">
+                                        <i class="fa-solid fa-user-astronaut"></i>
+                                    </span>
+                                    <p class="text-xs text-[#6B5647] font-medium">ถ่ายรูปตัวเองหรือเลือกจากอัลบั้ม</p>
+                                    <p class="text-[10px] text-gray-400">เห็นใบหน้าหรือเต็มตัวเพื่อผลลัพธ์ที่ดีที่สุด</p>
+                                </div>
+                                <img id="user-selfie-img" src="" alt="User Selfie" class="hidden w-full h-full object-cover">
+                            </div>
+
+                            <!-- Hidden File Input for Selfie -->
+                            <input type="file" id="user-selfie-input" accept="image/*" class="hidden" onchange="handleUserSelfieChange(event)">
+
+                            <div class="flex gap-2">
+                                <button onclick="triggerSelectUserSelfie()" class="flex-1 bg-white hover:bg-[#FAF1EC] text-[#3D2B1F] py-2 rounded-xl text-xs font-semibold border border-[#D8C2B0] shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                    <i class="fa-solid fa-upload text-[#89C2D9]"></i> อัปโหลดรูป
+                                </button>
+                                <button onclick="triggerSelectUserSelfie()" class="flex-1 bg-white hover:bg-[#FAF1EC] text-[#3D2B1F] py-2 rounded-xl text-xs font-semibold border border-[#D8C2B0] shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                    <i class="fa-solid fa-camera text-[#D88AAB]"></i> ถ่ายรูปเซลฟี่
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Generate Button -->
+                    <div class="space-y-2 pt-2">
+                        <button onclick="runAiVirtualTryOn()" class="w-full bg-gradient-to-r from-[#3D2B1F] via-[#523B2B] to-[#3D2B1F] hover:from-[#523B2B] hover:to-[#3D2B1F] text-[#F5E6DA] py-3.5 rounded-2xl text-xs font-bold shadow-lg transition-all transform active:scale-95 flex items-center justify-center gap-2 border border-[#8C6D53] cursor-pointer">
+                            <i class="fa-solid fa-wand-magic-sparkles text-[#E9B44C] animate-pulse"></i> 
+                            <span>✨ AI เสกรูปฉันใส่ชุดนี้</span>
+                        </button>
+                        <p class="text-[10px] text-[#6B5647] text-center">
+                            AI จะนำรูปของคุณ ผสานเข้ากับชุดที่แมตช์ และเจนเป็นภาพ Lookbook เสมือนจริง
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
+
 
         <!-- PAGE 4: BUILDER -->
         <div id="page-builder" class="page-content hidden bg-[#EBD9CB] p-6 rounded-3xl border border-[#D8C2B0] shadow-sm space-y-6">
@@ -466,7 +595,8 @@
                         <option value="กางเกง">👖 กางเกง</option>
                         <option value="กระโปรง">👗 กระโปรง</option>
                         <option value="เดรส">✨ เดรส / ชุดติดกัน</option>
-                        <option value="อื่นๆ">👟 อื่นๆ / รองเท้า / เครื่องประดับ</option>
+                        <option value="รองเท้า">👟 รองเท้า</option>
+                        <option value="กระเป๋า">👜 กระเป๋า / เครื่องประดับ / หมวก</option>
                     </select>
                 </div>
                 <div>
@@ -606,6 +736,77 @@
             </button>
         </div>
     </div>
+
+    <!-- MODAL 6: AI Virtual Try-On ผลลัพธ์ภาพลองชุดเสมือนจริง -->
+    <div id="tryon-result-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-[#FCE8E8] w-full max-w-md rounded-3xl p-6 shadow-2xl border border-[#D8C2B0] space-y-4 animate-modal-in text-center relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeTryOnModal()" class="absolute top-4 right-4 text-gray-500 hover:text-black font-bold p-1 cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+            
+            <!-- Loading State -->
+            <div id="tryon-loading" class="py-12 space-y-4">
+                <div class="w-16 h-16 bg-[#FAF1EC] border border-[#D8C2B0] rounded-full flex items-center justify-center text-3xl mx-auto shadow-inner text-[#89C2D9] animate-spin">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-[#3D2B1F]">AI กำลังเสกรูปคุณใส่ชุดนี้... ✨</h3>
+                    <p class="text-xs text-[#6B5647] mt-1 px-4">กำลังคำนวณแสง เงา สไตล์ และจัดชุดให้เข้ากับคุณอย่างสมบูรณ์แบบ</p>
+                </div>
+            </div>
+
+            <!-- Result State -->
+            <div id="tryon-result-content" class="space-y-4 hidden text-left">
+                <div class="text-center">
+                    <span class="text-[10px] font-bold bg-[#3D2B1F] text-[#F5E6DA] px-3 py-1 rounded-full"><i class="fa-solid fa-wand-magic-sparkles text-[#E9B44C] mr-1"></i> AI Virtual Try-On</span>
+                    <h3 class="text-base font-bold text-[#3D2B1F] mt-2">ลุคของคุณใส่ชุดที่แมตช์ ✨</h3>
+                </div>
+                
+                <div class="relative bg-white rounded-2xl overflow-hidden border border-[#D8C2B0] shadow-md max-h-[380px] flex items-center justify-center group">
+                    <img id="tryon-result-img" src="" alt="Virtual Try-On Result" class="w-full h-auto max-h-[380px] object-cover rounded-2xl transition duration-300">
+                </div>
+
+                <div class="bg-white/80 p-3.5 rounded-xl border border-[#D8C2B0] text-xs text-[#523B2B] space-y-1">
+                    <p class="font-bold text-[#7A9A8B] flex items-center gap-1.5">
+                        <i class="fa-solid fa-sparkles text-[#E9B44C]"></i> คำแนะนำจาก AI Stylist:
+                    </p>
+                    <p id="tryon-advice-text" class="text-xs text-[#6B5647] leading-relaxed">-</p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-2 pt-2">
+                    <button onclick="downloadTryOnImage()" class="flex-1 bg-[#3D2B1F] hover:bg-[#523B2B] text-white py-3 rounded-xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+                        <i class="fa-solid fa-download"></i> ดาวน์โหลดรูปภาพ
+                    </button>
+                    <button onclick="saveCurrentMatchToCalendar(); closeTryOnModal();" class="flex-1 bg-[#7A9A8B] hover:bg-[#688577] text-white py-3 rounded-xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+                        <i class="fa-solid fa-calendar-check"></i> บันทึกลงปฏิทิน
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOBILE BOTTOM NAVIGATION BAR (แถบเมนูด้านล่างสุดสำหรับจอมือถือ) -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#3D2B1F]/95 backdrop-blur-md border-t border-[#523B2B] px-3 py-2 flex justify-around items-center text-[#EBD9CB] text-[10px]">
+        <button onclick="switchPage('matcher')" class="flex flex-col items-center gap-1 py-1 px-3 rounded-xl hover:text-white transition cursor-pointer">
+            <span class="text-base text-[#89C2D9]"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+            <span class="font-bold text-[#F5E6DA]">แมตช์ชุด</span>
+        </button>
+        <button onclick="switchPage('closet')" class="flex flex-col items-center gap-1 py-1 px-3 rounded-xl hover:text-white transition cursor-pointer">
+            <span class="text-base text-[#F4C2C2]"><i class="fa-solid fa-shirt"></i></span>
+            <span>ตู้เสื้อผ้า</span>
+        </button>
+        <button onclick="switchPage('home')" class="flex flex-col items-center gap-1 py-1 px-3 rounded-xl hover:text-white transition cursor-pointer">
+            <span class="text-base text-[#7A9A8B]"><i class="fa-solid fa-house"></i></span>
+            <span>หน้าหลัก</span>
+        </button>
+        <button onclick="switchPage('calendar')" class="flex flex-col items-center gap-1 py-1 px-3 rounded-xl hover:text-white transition cursor-pointer">
+            <span class="text-base text-[#B5A2D9]"><i class="fa-solid fa-calendar-days"></i></span>
+            <span>ปฏิทิน</span>
+        </button>
+        <button onclick="openCameraModal()" class="flex flex-col items-center gap-1 py-1 px-3 bg-[#EBD9CB] text-[#3D2B1F] rounded-xl font-bold shadow-xs active:scale-95 cursor-pointer">
+            <span class="text-base"><i class="fa-solid fa-camera"></i></span>
+            <span>เพิ่มผ้า</span>
+        </button>
+    </div>
+
 
     <!-- TOAST NOTIFICATION (UI แจ้งเตือนสวยงามเข้ากับธีม LongLook) -->
     <div id="longlook-toast" class="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-[#3D2B1F] text-[#FFF0F5] border border-[#D8C2B0] px-5 py-3.5 rounded-2xl shadow-2xl transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none max-w-sm">
