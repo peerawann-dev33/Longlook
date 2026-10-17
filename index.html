@@ -336,63 +336,64 @@
                     </div>
                 </div>
 
-                <!-- คอลัมน์ 2: หุ่นจำลอง & ตัวฉันจริง (Visual Fitting Studio) (4 Cols) -->
+                <!-- คอลัมน์ 2: สไตล์บอร์ด & AI ลุคบุ๊ก (Fashion Lookbook & Fitting) (4 Cols) -->
                 <div class="lg:col-span-4 bg-[#EBD9CB] p-5 rounded-3xl border border-[#D8C2B0] shadow-sm flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="font-bold text-sm text-[#3D2B1F] flex items-center gap-2">
-                                <i class="fa-solid fa-child-reaching text-[#D88AAB]"></i> ห้องลองชุดบนตัวจริง
+                                <i class="fa-solid fa-sparkles text-[#D88AAB]"></i> สไตล์บอร์ด & AI ลุคบุ๊ก
                             </h3>
-                            <!-- สวิตช์สลับระหว่าง หุ่นจำลอง vs ตัวฉันจริง -->
+                            <!-- สลับมุมมอง: สไตล์บอร์ด vs ภาพถ่าย AI เสก -->
                             <div class="flex bg-[#FCE8E8] p-0.5 rounded-full border border-[#D8C2B0] text-[10px]">
-                                <button id="btn-view-model" onclick="toggleFittingMode('model')" class="px-2.5 py-1 rounded-full font-bold bg-[#3D2B1F] text-white transition shadow-xs">
-                                    หุ่นจำลอง
+                                <button id="btn-view-lookbook" onclick="toggleFittingMode('lookbook')" class="px-2.5 py-1 rounded-full font-bold bg-[#3D2B1F] text-white transition shadow-xs cursor-pointer">
+                                    สไตล์บอร์ด 4 ชิ้น
                                 </button>
-                                <button id="btn-view-user" onclick="toggleFittingMode('user')" class="px-2.5 py-1 rounded-full font-medium text-[#6B5647] hover:text-[#3D2B1F] transition">
-                                    ตัวฉันจริง 👤
+                                <button id="btn-view-ai-portrait" onclick="toggleFittingMode('portrait')" class="px-2.5 py-1 rounded-full font-medium text-[#6B5647] hover:text-[#3D2B1F] transition cursor-pointer">
+                                    ภาพ AI เสก 📸
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Avatar Multi-layer Fitting Box -->
+                        <!-- Main Lookbook & Fitting Container -->
                         <div id="avatar-fitting-container" class="relative bg-white/95 border-2 border-dashed border-[#D8C2B0] rounded-2xl p-4 flex flex-col items-center justify-center min-h-[390px] shadow-inner space-y-2 overflow-hidden group">
                             
-                            <!-- พื้นหลังรูปตัวจริงของผู้ใช้ (จะแสดงเมื่ออยู่ในโหมด 'ตัวฉันจริง') -->
-                            <img id="avatar-user-bg" src="" alt="User Body Preview" class="absolute inset-0 w-full h-full object-cover opacity-85 hidden transition-all duration-300">
-                            <div id="avatar-user-overlay" class="absolute inset-0 bg-[#3D2B1F]/15 backdrop-blur-[0.5px] hidden"></div>
-
-                            <!-- ชิ้นที่ 4: เครื่องประดับ / หมวก / กระเป๋า (ด้านบนขวา) -->
-                            <div id="avatar-accessory-layer" class="w-full flex justify-end px-2 min-h-[45px] z-10">
-                                <span class="text-[10px] text-[#8C6D53] bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-full border border-[#D8C2B0] flex items-center gap-1 shadow-xs">
-                                    <i class="fa-solid fa-bag-shopping text-[#DDB892]"></i> กระเป๋า / เครื่องประดับ
+                            <!-- Lookbook Grid (Active by default) -->
+                            <div id="fitting-lookbook-view" class="w-full h-full flex flex-col items-center justify-center text-center p-4">
+                                <span class="w-14 h-14 bg-[#FAF1EC] text-[#8C6D53] rounded-2xl flex items-center justify-center text-2xl mx-auto border border-[#D8C2B0] mb-3">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
                                 </span>
+                                <h4 class="font-bold text-xs text-[#3D2B1F]">ยังไม่มีชุดที่เลือก</h4>
+                                <p class="text-[11px] text-[#6B5647] mt-1 max-w-[220px]">กดปุ่ม "🎲 สุ่มแมตช์ชุดใหม่" ด้านซ้ายเพื่อเริ่มให้ AI สไตลิสต์คัดเลือกชุด</p>
                             </div>
 
-                            <!-- ชิ้นที่ 1: เสื้อท่อนบน -->
-                            <div id="avatar-top-layer" class="w-full flex justify-center items-center min-h-[95px] z-10">
-                                <div class="text-xs text-[#8C6D53] border border-dashed border-[#D8C2B0] rounded-xl px-4 py-2 bg-white/80 backdrop-blur-xs flex items-center gap-1.5 shadow-xs">
-                                    <span>👕</span> เสื้อท่อนบน
+                            <!-- AI Portrait View (Shows pure photorealistic image from AI generation) -->
+                            <div id="fitting-ai-view" class="hidden w-full h-full flex flex-col items-center justify-center text-center p-2">
+                                <div id="fitting-ai-empty" class="p-6 space-y-3">
+                                    <span class="w-14 h-14 bg-[#FAF1EC] text-[#89C2D9] rounded-2xl flex items-center justify-center text-2xl mx-auto border border-[#D8C2B0]">
+                                        <i class="fa-solid fa-camera"></i>
+                                    </span>
+                                    <p class="text-xs text-[#3D2B1F] font-bold">ยังไม่ได้เจนภาพถ่ายเสมือนจริง</p>
+                                    <p class="text-[10px] text-[#6B5647]">กดปุ่ม "✨ AI เสกรูปฉันใส่ชุดนี้" ด้านขวา เพื่อสร้างภาพถ่ายคุณสวมใส่ชุดนี้แบบเสมือนจริง</p>
+                                    <button onclick="runAiVirtualTryOn()" class="bg-[#3D2B1F] hover:bg-[#523B2B] text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-xs cursor-pointer">
+                                        ✨ สั่ง AI เสกรูปตอนนี้เลย
+                                    </button>
+                                </div>
+                                <div id="fitting-ai-display" class="hidden w-full space-y-2">
+                                    <div class="relative rounded-2xl overflow-hidden border border-[#D8C2B0] shadow-md max-h-[310px] bg-black">
+                                        <img id="fitting-ai-img" src="" alt="AI Try-On" class="w-full h-[310px] object-cover">
+                                        <span class="absolute bottom-2 left-2 bg-black/60 backdrop-blur-xs text-white text-[9px] px-2 py-0.5 rounded-full font-medium">
+                                            ✨ Photorealistic AI Look
+                                        </span>
+                                    </div>
+                                    <p id="fitting-ai-caption" class="text-[10px] text-[#6B5647] line-clamp-2 italic text-left px-1"></p>
                                 </div>
                             </div>
 
-                            <!-- ชิ้นที่ 2: กางเกง/กระโปรงท่อนล่าง -->
-                            <div id="avatar-bottom-layer" class="w-full flex justify-center items-center min-h-[95px] -mt-2 z-10">
-                                <div class="text-xs text-[#8C6D53] border border-dashed border-[#D8C2B0] rounded-xl px-4 py-2 bg-white/80 backdrop-blur-xs flex items-center gap-1.5 shadow-xs">
-                                    <span>👖</span> กางเกง / กระโปรง
-                                </div>
-                            </div>
-
-                            <!-- ชิ้นที่ 3: รองเท้า -->
-                            <div id="avatar-shoes-layer" class="w-full flex justify-center items-center min-h-[60px] pt-1 z-10">
-                                <div class="text-xs text-[#8C6D53] border border-dashed border-[#D8C2B0] rounded-xl px-4 py-1.5 bg-white/80 backdrop-blur-xs flex items-center gap-1.5 shadow-xs">
-                                    <span>👟</span> รองเท้า
-                                </div>
-                            </div>
                         </div>
                     </div>
 
                     <p id="fitting-mode-hint" class="text-[11px] text-[#6B5647] text-center mt-3">
-                        💡 เสื้อผ้าจากตู้ถูกจัดสัดส่วนครบ 4 ชิ้น พร้อมจำลองใส่บนรูปของคุณ
+                        💡 เสื้อผ้าจากตู้ถูกวิเคราะห์ด้วย AI ให้แมตช์เข้าชุด 4 ชิ้นอย่างลงตัว
                     </p>
                 </div>
 

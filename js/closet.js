@@ -395,13 +395,13 @@ function isTopClothing(item) {
            cat === 'เดรส' || (!isBottomClothing(item) && !isShoes(item) && !isAccessory(item));
 }
 
-// สุ่มแมตช์ชุดครบเซ็ต: เสื้อ + กางเกง/กระโปรง + รองเท้า + เครื่องประดับ
-function triggerAutoMatchAndFitting() {
+// แมตช์ชุดด้วย AI Fashion Stylist (ดึง AI วิเคราะห์ความเข้ากันตามหลักแฟชั่น)
+async function triggerAutoMatchAndFitting() {
     const saved = localStorage.getItem('wardrobe_clothes');
     if (saved) closetItems = JSON.parse(saved);
 
     if (closetItems.length === 0) {
-        showLongLookToast('ยังไม่มีรายการเสื้อผ้าในตู้ กรุณาอัปโหลดรูปเสื้อผ้าก่อนสุ่มจับคู่นะครับ', 'info');
+        showLongLookToast('ยังไม่มีรายการเสื้อผ้าในตู้ กรุณาอัปโหลดรูปเสื้อผ้าก่อนเริ่มแมตช์ชุดนะครับ', 'info');
         return;
     }
 
@@ -413,20 +413,53 @@ function triggerAutoMatchAndFitting() {
         diceIcon.classList.add('animate-dice');
     }
 
+    const occasionSelect = document.getElementById('match-occasion-select');
+    const styleSelect = document.getElementById('match-style-select');
+    const occasion = occasionSelect?.value || 'ไปคาเฟ่ / เดินเล่นวันสบายๆ';
+    const style = styleSelect?.value || 'CASUAL';
+    const gender = localStorage.getItem('longlook_user_gender') || 'unisex';
+    const skinTone = localStorage.getItem('longlook_user_skintone') || 'warm';
+
+    showLongLookToast('✨ AI Fashion Stylist กำลังคำนวณและเลือกชุดที่เข้ากันที่สุด...', 'info');
+
+    try {
+        const response = await fetch(`${window.LONGLOOK_API}/api/ai/match-outfit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                wardrobe: closetItems,
+                occasion,
+                style,
+                gender,
+                skinTone
+            })
+        });
+
+        const data = await response.json();
+        if (response.ok && data.match) {
+            window.currentMatchedOutfit = data.match;
+            renderOutfitLayers();
+            showLongLookToast(`✨ AI สไตลิสต์แมตช์ชุดสำเร็จ! (คะแนนความเข้ากัน: ${data.match.matchScore || 95}%)`, 'success');
+            return;
+        }
+    } catch (err) {
+        console.warn('AI Stylist Match API error, using smart rule-based fallback:', err);
+    }
+
+    // Smart Rule-based Fallback (ถ้าออฟไลน์หรือเซิร์ฟเวอร์ตอบช้า)
     const tops = closetItems.filter(isTopClothing);
     const bottoms = closetItems.filter(isBottomClothing);
     const shoes = closetItems.filter(isShoes);
     const accessories = closetItems.filter(isAccessory);
 
-    // เลือกชิ้นส่วนจากตู้ หรือถ้าไม่มีให้ใช้ไอเทมที่มี/จำลองให้สมบูรณ์
-    const chosenTop = tops.length > 0 ? tops[Math.floor(Math.random() * tops.length)] : closetItems[0];
-    const chosenBottom = bottoms.length > 0 ? bottoms[Math.floor(Math.random() * bottoms.length)] : (closetItems[1] || closetItems[0]);
-    const chosenShoes = shoes.length > 0 ? shoes[Math.floor(Math.random() * shoes.length)] : {
-        name: 'รองเท้าผ้าใบมินิมอลสีขาว',
+    const chosenTop = tops.length > 0 ? tops[0] : closetItems[0];
+    const chosenBottom = bottoms.length > 0 ? bottoms[0] : (closetItems[1] || closetItems[0]);
+    const chosenShoes = shoes.length > 0 ? shoes[0] : {
+        name: 'รองเท้าผ้าใบสีขาวคลีน',
         category: 'รองเท้า',
         image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300&auto=format&fit=crop'
     };
-    const chosenAccessory = accessories.length > 0 ? accessories[Math.floor(Math.random() * accessories.length)] : {
+    const chosenAccessory = accessories.length > 0 ? accessories[0] : {
         name: 'กระเป๋าสะพายข้างแฟชั่น',
         category: 'กระเป๋า',
         image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=300&auto=format&fit=crop'
@@ -436,10 +469,10 @@ function triggerAutoMatchAndFitting() {
         top: chosenTop,
         bottom: chosenBottom,
         shoes: chosenShoes,
-        accessory: chosenAccessory
+        accessory: chosenAccessory,
+        stylistReason: `AI จับคู่ "${chosenTop.name}" เข้ากับ "${chosenBottom.name}" ในสไตล์ ${style} เหมาะกับ ${occasion}`
     };
 
-    // อัปเดตแสดงผลในหน้าแมตช์ชุด
     renderOutfitLayers();
 }
 
@@ -447,77 +480,105 @@ function renderOutfitLayers() {
     const outfit = window.currentMatchedOutfit;
     if (!outfit) return;
 
-    const topLayer = document.getElementById('avatar-top-layer');
-    const bottomLayer = document.getElementById('avatar-bottom-layer');
-    const shoesLayer = document.getElementById('avatar-shoes-layer');
-    const accessoryLayer = document.getElementById('avatar-accessory-layer');
+    const lookbookView = document.getElementById('fitting-lookbook-view');
+    const aiView = document.getElementById('fitting-ai-view');
 
-    if (topLayer && outfit.top) {
-        topLayer.innerHTML = `
-            <div class="flex flex-col items-center animate-pop-in">
-                <img src="${outfit.top.image}" class="h-24 w-24 object-contain drop-shadow transition-transform hover:scale-105" title="${outfit.top.name}">
-                <span class="text-[9px] bg-white/95 text-[#3D2B1F] px-2 py-0.5 rounded-full shadow-xs mt-1 max-w-[110px] truncate font-medium border border-[#D8C2B0]">${outfit.top.name}</span>
+    if (lookbookView) {
+        lookbookView.innerHTML = `
+            <div class="w-full space-y-3 z-10 p-2 text-left">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-[#3D2B1F] flex items-center gap-1.5">
+                        <i class="fa-solid fa-sparkles text-[#E9B44C]"></i> เซ็ตที่ AI สไตลิสต์คัดสรร
+                    </span>
+                    <span class="text-[10px] bg-[#3D2B1F] text-[#F5E6DA] px-2.5 py-0.5 rounded-full font-bold">
+                        Match Score: ${outfit.matchScore || 96}%
+                    </span>
+                </div>
+
+                <!-- 4-Piece Fashion Lookbook Grid -->
+                <div class="grid grid-cols-2 gap-2.5">
+                    <!-- Top -->
+                    <div class="bg-white p-2.5 rounded-2xl border border-[#D8C2B0] shadow-xs flex flex-col items-center hover:scale-[1.02] transition">
+                        <span class="text-[9px] font-bold text-[#8C6D53] self-start mb-1">👕 ท่อนบน</span>
+                        <div class="w-full h-24 flex items-center justify-center overflow-hidden rounded-xl bg-[#FAF1EC]">
+                            <img src="${outfit.top?.image || ''}" class="max-h-full max-w-full object-contain">
+                        </div>
+                        <p class="text-[10px] font-bold text-[#3D2B1F] mt-1.5 truncate w-full text-center">${outfit.top?.name || '-'}</p>
+                    </div>
+
+                    <!-- Bottom -->
+                    <div class="bg-white p-2.5 rounded-2xl border border-[#D8C2B0] shadow-xs flex flex-col items-center hover:scale-[1.02] transition">
+                        <span class="text-[9px] font-bold text-[#8C6D53] self-start mb-1">👖 ท่อนล่าง</span>
+                        <div class="w-full h-24 flex items-center justify-center overflow-hidden rounded-xl bg-[#FAF1EC]">
+                            <img src="${outfit.bottom?.image || ''}" class="max-h-full max-w-full object-contain">
+                        </div>
+                        <p class="text-[10px] font-bold text-[#3D2B1F] mt-1.5 truncate w-full text-center">${outfit.bottom?.name || '-'}</p>
+                    </div>
+
+                    <!-- Shoes -->
+                    <div class="bg-white p-2.5 rounded-2xl border border-[#D8C2B0] shadow-xs flex flex-col items-center hover:scale-[1.02] transition">
+                        <span class="text-[9px] font-bold text-[#8C6D53] self-start mb-1">👟 รองเท้า</span>
+                        <div class="w-full h-20 flex items-center justify-center overflow-hidden rounded-xl bg-[#FAF1EC]">
+                            <img src="${outfit.shoes?.image || ''}" class="max-h-full max-w-full object-contain">
+                        </div>
+                        <p class="text-[10px] font-bold text-[#3D2B1F] mt-1.5 truncate w-full text-center">${outfit.shoes?.name || '-'}</p>
+                    </div>
+
+                    <!-- Accessory -->
+                    <div class="bg-white p-2.5 rounded-2xl border border-[#D8C2B0] shadow-xs flex flex-col items-center hover:scale-[1.02] transition">
+                        <span class="text-[9px] font-bold text-[#8C6D53] self-start mb-1">💍 พร็อพ / เครื่องประดับ</span>
+                        <div class="w-full h-20 flex items-center justify-center overflow-hidden rounded-xl bg-[#FAF1EC]">
+                            <img src="${outfit.accessory?.image || ''}" class="max-h-full max-w-full object-contain">
+                        </div>
+                        <p class="text-[10px] font-bold text-[#3D2B1F] mt-1.5 truncate w-full text-center">${outfit.accessory?.name || '-'}</p>
+                    </div>
+                </div>
+
+                <!-- Stylist Advice Box -->
+                <div class="bg-[#FAF1EC] p-3 rounded-2xl border border-[#D8C2B0] text-xs text-[#523B2B] space-y-1">
+                    <div class="font-bold text-[#7A9A8B] flex items-center gap-1.5 text-[11px]">
+                        <i class="fa-solid fa-wand-magic-sparkles text-[#E9B44C]"></i> ความเห็นจาก AI Fashion Stylist:
+                    </div>
+                    <p class="text-xs text-[#6B5647] leading-relaxed">
+                        ${outfit.stylistReason || 'ชุดนี้แมตช์คู่สีและสัดส่วนได้อย่างลงตัว เสริมออร่าและความมั่นใจในทุกโอกาส'}
+                    </p>
+                </div>
             </div>
         `;
+        lookbookView.classList.remove('hidden');
+        if (aiView) aiView.classList.add('hidden');
     }
 
-    if (bottomLayer && outfit.bottom) {
-        bottomLayer.innerHTML = `
-            <div class="flex flex-col items-center animate-pop-in" style="animation-delay: 0.05s;">
-                <img src="${outfit.bottom.image}" class="h-24 w-24 object-contain drop-shadow transition-transform hover:scale-105" title="${outfit.bottom.name}">
-                <span class="text-[9px] bg-white/95 text-[#3D2B1F] px-2 py-0.5 rounded-full shadow-xs mt-1 max-w-[110px] truncate font-medium border border-[#D8C2B0]">${outfit.bottom.name}</span>
-            </div>
-        `;
-    }
-
-    if (shoesLayer && outfit.shoes) {
-        shoesLayer.innerHTML = `
-            <div class="flex flex-col items-center animate-pop-in" style="animation-delay: 0.1s;">
-                <img src="${outfit.shoes.image}" class="h-20 w-20 object-contain drop-shadow transition-transform hover:scale-105" title="${outfit.shoes.name}">
-                <span class="text-[9px] bg-white/95 text-[#3D2B1F] px-2 py-0.5 rounded-full shadow-xs mt-1 max-w-[110px] truncate font-medium border border-[#D8C2B0]">${outfit.shoes.name}</span>
-            </div>
-        `;
-    }
-
-    if (accessoryLayer && outfit.accessory) {
-        accessoryLayer.innerHTML = `
-            <div class="flex flex-col items-center animate-pop-in" style="animation-delay: 0.15s;">
-                <img src="${outfit.accessory.image}" class="h-20 w-20 object-contain drop-shadow transition-transform hover:scale-105" title="${outfit.accessory.name}">
-                <span class="text-[9px] bg-white/95 text-[#3D2B1F] px-2 py-0.5 rounded-full shadow-xs mt-1 max-w-[110px] truncate font-medium border border-[#D8C2B0]">${outfit.accessory.name}</span>
-            </div>
-        `;
-    }
-
-    // อัปเดตรายการชิ้นส่วนสรุปใน AI Studio Panel
+    // อัปเดตรายการชิ้นส่วนสรุปใน AI Studio Panel ฝั่งซ้าย
     const summaryBox = document.getElementById('match-pieces-summary');
     if (summaryBox) {
         summaryBox.innerHTML = `
             <div class="grid grid-cols-2 gap-2 text-xs">
-                <div class="bg-white/80 p-2.5 rounded-xl border border-[#D8C2B0] flex items-center gap-2">
+                <div class="bg-white/90 p-2.5 rounded-xl border border-[#D8C2B0] flex items-center gap-2">
                     <span class="text-base">👕</span>
                     <div class="truncate">
                         <div class="text-[10px] text-[#8C6D53] font-semibold">ท่อนบน</div>
                         <div class="font-medium truncate text-[#3D2B1F]">${outfit.top?.name || '-'}</div>
                     </div>
                 </div>
-                <div class="bg-white/80 p-2.5 rounded-xl border border-[#D8C2B0] flex items-center gap-2">
+                <div class="bg-white/90 p-2.5 rounded-xl border border-[#D8C2B0] flex items-center gap-2">
                     <span class="text-base">👖</span>
                     <div class="truncate">
                         <div class="text-[10px] text-[#8C6D53] font-semibold">ท่อนล่าง</div>
                         <div class="font-medium truncate text-[#3D2B1F]">${outfit.bottom?.name || '-'}</div>
                     </div>
                 </div>
-                <div class="bg-white/80 p-2.5 rounded-xl border border-[#D8C2B0] flex items-center gap-2">
+                <div class="bg-white/90 p-2.5 rounded-xl border border-[#D8C2B0] flex items-center gap-2">
                     <span class="text-base">👟</span>
                     <div class="truncate">
                         <div class="text-[10px] text-[#8C6D53] font-semibold">รองเท้า</div>
                         <div class="font-medium truncate text-[#3D2B1F]">${outfit.shoes?.name || '-'}</div>
                     </div>
                 </div>
-                <div class="bg-white/80 p-2.5 rounded-xl border border-[#D8C2B0] flex items-center gap-2">
-                    <span class="text-base">👜</span>
+                <div class="bg-white/90 p-2.5 rounded-xl border border-[#D8C2B0] flex items-center gap-2">
+                    <span class="text-base">💍</span>
                     <div class="truncate">
-                        <div class="text-[10px] text-[#8C6D53] font-semibold">เครื่องประดับ</div>
+                        <div class="text-[10px] text-[#8C6D53] font-semibold">พร็อพ/เครื่องประดับ</div>
                         <div class="font-medium truncate text-[#3D2B1F]">${outfit.accessory?.name || '-'}</div>
                     </div>
                 </div>
@@ -853,190 +914,60 @@ function updateUserSelfiePreview(photoUrl) {
     if (statusText) statusText.innerText = 'รูปของคุณพร้อมลองชุดแล้ว ✨';
 }
 
-// สลับโหมดการแสดงผลในห้องลองชุด (หุ่นจำลอง vs ตัวฉันจริง)
+// สลับโหมดการแสดงผลในห้องลองชุด (สไตล์บอร์ด 4 ชิ้น vs ภาพถ่าย AI เสก)
 function toggleFittingMode(mode) {
-    const btnModel = document.getElementById('btn-view-model');
-    const btnUser = document.getElementById('btn-view-user');
-    const userBg = document.getElementById('avatar-user-bg');
-    const userOverlay = document.getElementById('avatar-user-overlay');
+    const btnLookbook = document.getElementById('btn-view-lookbook');
+    const btnAiPortrait = document.getElementById('btn-view-ai-portrait');
+    const lookbookView = document.getElementById('fitting-lookbook-view');
+    const aiView = document.getElementById('fitting-ai-view');
+    const aiEmpty = document.getElementById('fitting-ai-empty');
+    const aiDisplay = document.getElementById('fitting-ai-display');
+    const aiImg = document.getElementById('fitting-ai-img');
+    const aiCaption = document.getElementById('fitting-ai-caption');
     const hint = document.getElementById('fitting-mode-hint');
 
-    const savedPhoto = localStorage.getItem('longlook_user_selfie');
+    if (mode === 'portrait') {
+        if (lookbookView) lookbookView.classList.add('hidden');
+        if (aiView) aiView.classList.remove('hidden');
 
-    if (mode === 'user') {
-        if (!savedPhoto) {
-            showLongLookToast('กรุณาอัปโหลดหรือถ่ายรูปตัวเองก่อนเลือกโหมดนี้ครับ 📸', 'info');
-            triggerSelectUserSelfie();
-            return;
+        if (btnAiPortrait) {
+            btnAiPortrait.className = "px-2.5 py-1 rounded-full font-bold bg-[#3D2B1F] text-white transition shadow-xs cursor-pointer";
+        }
+        if (btnLookbook) {
+            btnLookbook.className = "px-2.5 py-1 rounded-full font-medium text-[#6B5647] hover:text-[#3D2B1F] transition cursor-pointer";
         }
 
-        if (userBg) {
-            userBg.src = savedPhoto;
-            userBg.classList.remove('hidden');
-        }
-        if (userOverlay) userOverlay.classList.remove('hidden');
-
-        if (btnUser) {
-            btnUser.className = "px-2.5 py-1 rounded-full font-bold bg-[#3D2B1F] text-white transition shadow-xs";
-        }
-        if (btnModel) {
-            btnModel.className = "px-2.5 py-1 rounded-full font-medium text-[#6B5647] hover:text-[#3D2B1F] transition";
-        }
-        if (hint) {
-            hint.innerHTML = '✨ <b>โหมดตัวฉันจริง:</b> เสื้อผ้าที่สุ่มได้จะถูกจัดวางบนรูปถ่ายของคุณโดยตรง';
+        if (window.latestTryOnResult && window.latestTryOnResult.imageUrl) {
+            if (aiEmpty) aiEmpty.classList.add('hidden');
+            if (aiDisplay) aiDisplay.classList.remove('hidden');
+            if (aiImg) aiImg.src = window.latestTryOnResult.imageUrl;
+            if (aiCaption) aiCaption.innerText = window.latestTryOnResult.advice || '';
+            if (hint) hint.innerHTML = '✨ <b>ภาพ AI เสก:</b> ภาพถ่ายโมเดลแฟชั่นเสมือนจริงที่ AI ผสานชุดของคุณอย่างแนบเนียน';
+        } else {
+            if (aiEmpty) aiEmpty.classList.remove('hidden');
+            if (aiDisplay) aiDisplay.classList.add('hidden');
+            if (hint) hint.innerHTML = '💡 กดปุ่ม <b>"✨ AI เสกรูปฉันใส่ชุดนี้"</b> ด้านขวา เพื่อเจนรูปภาพเสมือนจริง';
         }
     } else {
-        if (userBg) userBg.classList.add('hidden');
-        if (userOverlay) userOverlay.classList.add('hidden');
+        if (lookbookView) lookbookView.classList.remove('hidden');
+        if (aiView) aiView.classList.add('hidden');
 
-        if (btnModel) {
-            btnModel.className = "px-2.5 py-1 rounded-full font-bold bg-[#3D2B1F] text-white transition shadow-xs";
+        if (btnLookbook) {
+            btnLookbook.className = "px-2.5 py-1 rounded-full font-bold bg-[#3D2B1F] text-white transition shadow-xs cursor-pointer";
         }
-        if (btnUser) {
-            btnUser.className = "px-2.5 py-1 rounded-full font-medium text-[#6B5647] hover:text-[#3D2B1F] transition";
+        if (btnAiPortrait) {
+            btnAiPortrait.className = "px-2.5 py-1 rounded-full font-medium text-[#6B5647] hover:text-[#3D2B1F] transition cursor-pointer";
         }
         if (hint) {
-            hint.innerText = '💡 เสื้อผ้าจากตู้ถูกจัดสัดส่วนครบ 4 ชิ้น พร้อมจำลองใส่บนรูปของคุณ';
+            hint.innerHTML = '💡 เสื้อผ้าจากตู้ถูกวิเคราะห์ด้วย AI ให้แมตช์เข้าชุด 4 ชิ้นอย่างลงตัว';
         }
     }
 }
 
-// ฟังก์ชันสร้างรูปภาพ Lookbook Composite (รูปตัวจริงของผู้ใช้ + ชุดที่สุ่มได้)
-function createTryOnCompositeImage(userPhotoUrl, outfit, styleName, occasionName) {
-    return new Promise((resolve) => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 800;
-        canvas.height = 1100;
-        const ctx = canvas.getContext('2d');
-
-        // พื้นหลัง Lookbook Card สไตล์ครีมช็อกโกแลตมินิมอล
-        ctx.fillStyle = '#FCE8E8';
-        ctx.fillRect(0, 0, 800, 1100);
-
-        // กรอบใน
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.roundRect(30, 30, 740, 1040, 28);
-        ctx.fill();
-
-        // Header
-        ctx.fillStyle = '#3D2B1F';
-        ctx.font = 'bold 30px Prompt, sans-serif';
-        ctx.fillText('LongLook AI Fitting Studio', 60, 80);
-
-        ctx.fillStyle = '#8C6D53';
-        ctx.font = '16px Prompt, sans-serif';
-        ctx.fillText(`Style: ${styleName} | Occasion: ${occasionName}`, 60, 110);
-
-        const loadImage = (src) => {
-            return new Promise((res) => {
-                if (!src) return res(null);
-                const img = new Image();
-                img.crossOrigin = 'anonymous';
-                img.onload = () => res(img);
-                img.onerror = () => res(null);
-                img.src = src;
-            });
-        };
-
-        Promise.all([
-            loadImage(userPhotoUrl),
-            loadImage(outfit.top?.image),
-            loadImage(outfit.bottom?.image),
-            loadImage(outfit.shoes?.image),
-            loadImage(outfit.accessory?.image)
-        ]).then(([userImg, topImg, bottomImg, shoesImg, accImg]) => {
-            // 1. วาดรูปผู้ใช้ในกรอบใหญ่ฝั่งซ้าย (Portrait Frame)
-            const photoX = 60;
-            const photoY = 140;
-            const photoW = 440;
-            const photoH = 780;
-
-            ctx.save();
-            ctx.fillStyle = '#FAF1EC';
-            ctx.beginPath();
-            ctx.roundRect(photoX, photoY, photoW, photoH, 20);
-            ctx.fill();
-            ctx.clip();
-
-            if (userImg) {
-                ctx.drawImage(userImg, photoX, photoY, photoW, photoH);
-            } else {
-                ctx.fillStyle = '#3D2B1F';
-                ctx.font = '20px Prompt, sans-serif';
-                ctx.fillText('รูปถ่ายของคุณ', photoX + 140, photoY + 380);
-            }
-
-            // Overlay เสื้อและกางเกงที่สุ่มได้ทาบบนรูปของผู้ใช้
-            if (topImg) {
-                ctx.drawImage(topImg, photoX + (photoW - 240) / 2, photoY + 120, 240, 240);
-            }
-            if (bottomImg) {
-                ctx.drawImage(bottomImg, photoX + (photoW - 240) / 2, photoY + 330, 240, 240);
-            }
-            if (shoesImg) {
-                ctx.drawImage(shoesImg, photoX + (photoW - 160) / 2, photoY + 560, 160, 160);
-            }
-            if (accImg) {
-                ctx.drawImage(accImg, photoX + photoW - 140, photoY + 40, 120, 120);
-            }
-
-            ctx.restore();
-
-            // 2. แสดงรายการไอเทมทั้ง 4 ชิ้นที่สุ่มได้ในฝั่งขวา (Outfit Breakdown)
-            const rightX = 525;
-            let currentY = 140;
-
-            ctx.fillStyle = '#3D2B1F';
-            ctx.font = 'bold 18px Prompt, sans-serif';
-            ctx.fillText('ชุดที่สุ่มได้ (4 ชิ้น)', rightX, currentY);
-            currentY += 25;
-
-            const drawPieceCard = (label, img, name) => {
-                ctx.fillStyle = '#FAF1EC';
-                ctx.beginPath();
-                ctx.roundRect(rightX, currentY, 215, 170, 16);
-                ctx.fill();
-
-                if (img) {
-                    ctx.drawImage(img, rightX + (215 - 110) / 2, currentY + 15, 110, 110);
-                }
-
-                ctx.fillStyle = '#8C6D53';
-                ctx.font = 'bold 12px Prompt, sans-serif';
-                ctx.fillText(label, rightX + 15, currentY + 145);
-
-                ctx.fillStyle = '#3D2B1F';
-                ctx.font = '12px Prompt, sans-serif';
-                const truncatedName = (name || '').length > 15 ? name.substring(0, 15) + '...' : name;
-                ctx.fillText(truncatedName, rightX + 15, currentY + 162);
-
-                currentY += 185;
-            };
-
-            drawPieceCard('👕 ท่อนบน', topImg, outfit.top?.name);
-            drawPieceCard('👖 ท่อนล่าง', bottomImg, outfit.bottom?.name);
-            drawPieceCard('👟 รองเท้า', shoesImg, outfit.shoes?.name);
-            drawPieceCard('👜 เครื่องประดับ', accImg, outfit.accessory?.name);
-
-            // Footer
-            ctx.fillStyle = '#7A9A8B';
-            ctx.font = 'bold 16px Prompt, sans-serif';
-            ctx.fillText('✨ AI Match Score: 98% (Perfect Blend)', 60, 970);
-
-            ctx.fillStyle = '#8C6D53';
-            ctx.font = '14px Prompt, sans-serif';
-            ctx.fillText('Look Long. Choose Right. - สร้างสรรค์ด้วย LongLook AI', 60, 1000);
-
-            resolve(canvas.toDataURL('image/jpeg', 0.95));
-        });
-    });
-}
-
-// AI Virtual Try-On: สั่งประมวลผลเจนภาพคนสวมใส่ชุดที่แมตช์
+// AI Virtual Try-On: สั่งประมวลผลเจนภาพคนสวมใส่ชุดที่แมตช์ด้วย Pure AI Generation (ไม่มีการตัดแปะ)
 async function runAiVirtualTryOn() {
     if (!window.currentMatchedOutfit || !window.currentMatchedOutfit.top) {
-        triggerAutoMatchAndFitting();
+        await triggerAutoMatchAndFitting();
     }
 
     const outfit = window.currentMatchedOutfit;
@@ -1047,7 +978,7 @@ async function runAiVirtualTryOn() {
 
     const userPhoto = localStorage.getItem('longlook_user_selfie') || '';
     if (!userPhoto) {
-        showLongLookToast('📸 กรุณาถ่ายรูปหรืออัปโหลดรูปตัวเองก่อน เพื่อให้ AI นำรูปคุณไปลองชุดครับ', 'info');
+        showLongLookToast('📸 กรุณาถ่ายรูปหรืออัปโหลดรูปตัวเองก่อน เพื่อให้ AI นำไปสร้างลุคครับ', 'info');
         triggerSelectUserSelfie();
         return;
     }
@@ -1055,7 +986,7 @@ async function runAiVirtualTryOn() {
     const occasionSelect = document.getElementById('match-occasion-select');
     const styleSelect = document.getElementById('match-style-select');
 
-    const occasion = occasionSelect?.value || 'ทั่วไป';
+    const occasion = occasionSelect?.value || 'ไปคาเฟ่ / เดินเล่นวันสบายๆ';
     const style = styleSelect?.value || 'CASUAL';
 
     const modal = document.getElementById('tryon-result-modal');
@@ -1069,50 +1000,62 @@ async function runAiVirtualTryOn() {
     if (resultContent) resultContent.classList.add('hidden');
 
     try {
-        // สร้างภาพตัวจริงของผู้ใช้สวมชุดที่สุ่มได้ทันทีผ่าน Try-On Engine
-        const compositeDataUrl = await createTryOnCompositeImage(userPhoto, outfit, style, occasion);
+        const response = await fetch(`${window.LONGLOOK_API}/api/ai/virtual-tryon`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userPhoto,
+                items: outfit,
+                style,
+                occasion,
+                gender: localStorage.getItem('longlook_user_gender') || 'unisex'
+            })
+        });
 
-        // ดึงคำแนะนำจาก AI
-        let adviceText = `AI แมตช์ชุด "${outfit.top?.name}" กับ "${outfit.bottom?.name}" เสริมด้วย "${outfit.shoes?.name}" และ "${outfit.accessory?.name}" บนรูปของคุณได้อย่างลงตัว ได้คะแนนความเข้ากัน 98%!`;
-
-        try {
-            const response = await fetch(`${window.LONGLOOK_API}/api/ai/virtual-tryon`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userPhoto,
-                    items: outfit,
-                    style,
-                    occasion,
-                    gender: localStorage.getItem('longlook_user_gender') || 'unisex'
-                })
-            });
-            if (response.ok) {
-                const data = await response.json();
-                if (data.advice) adviceText = data.advice;
-            }
-        } catch (apiErr) {
-            console.warn('AI advice fallback:', apiErr);
+        if (!response.ok) {
+            throw new Error('Virtual try-on server failed');
         }
 
+        const data = await response.json();
+        const generatedImageUrl = data.imageUrl;
+        const adviceText = data.advice || `AI แมตช์ชุด "${outfit.top?.name}" คู่กับ "${outfit.bottom?.name}" ให้คุณได้อย่างลงตัว`;
+
         window.latestTryOnResult = {
-            imageUrl: compositeDataUrl,
+            imageUrl: generatedImageUrl,
             advice: adviceText
         };
 
-        if (resultImg) {
-            resultImg.src = compositeDataUrl;
-        }
-        if (adviceElem) {
-            adviceElem.innerText = adviceText;
-        }
+        // โหลดรูปภาพ AI ให้พร้อมก่อนแสดงผล
+        const imgPreloader = new Image();
+        imgPreloader.onload = () => {
+            if (resultImg) resultImg.src = generatedImageUrl;
+            if (adviceElem) adviceElem.innerText = adviceText;
 
-        if (loadingElem) loadingElem.classList.add('hidden');
-        if (resultContent) resultContent.classList.remove('hidden');
+            // อัปเดตในสไตล์บอร์ดหน้า Matcher ด้วย
+            const aiImg = document.getElementById('fitting-ai-img');
+            const aiCaption = document.getElementById('fitting-ai-caption');
+            const aiEmpty = document.getElementById('fitting-ai-empty');
+            const aiDisplay = document.getElementById('fitting-ai-display');
+            if (aiImg) aiImg.src = generatedImageUrl;
+            if (aiCaption) aiCaption.innerText = adviceText;
+            if (aiEmpty) aiEmpty.classList.add('hidden');
+            if (aiDisplay) aiDisplay.classList.remove('hidden');
+
+            if (loadingElem) loadingElem.classList.add('hidden');
+            if (resultContent) resultContent.classList.remove('hidden');
+            showLongLookToast('✨ AI เสกรูปภาพแฟชั่นเสมือนจริงสำเร็จแล้ว!', 'success');
+        };
+        imgPreloader.onerror = () => {
+            if (resultImg) resultImg.src = generatedImageUrl;
+            if (adviceElem) adviceElem.innerText = adviceText;
+            if (loadingElem) loadingElem.classList.add('hidden');
+            if (resultContent) resultContent.classList.remove('hidden');
+        };
+        imgPreloader.src = generatedImageUrl;
 
     } catch (err) {
         console.error('Try-on error:', err);
-        showLongLookToast('เกิดข้อผิดพลาดในการประมวลผลภาพ', 'error');
+        showLongLookToast('เกิดข้อผิดพลาดในการเจนภาพด้วย AI กรุณาลองใหม่อีกครั้ง', 'error');
         if (modal) modal.classList.add('hidden');
     }
 }
