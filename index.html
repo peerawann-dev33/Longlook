@@ -18,54 +18,97 @@
     <style>
         body { 
             font-family: 'Prompt', sans-serif; 
-            background-color: #FCE8E8 !important; /* พื้นหลังชมพูอ่อนเรียบเนียน ไม่มีลายจุด */
-            background-image: none !important;
-            color: #4A3E3D;
+            background: linear-gradient(135deg, #FFF0F4 0%, #FFF8F0 25%, #F4EEFB 60%, #EBF5FF 100%) fixed !important;
+            color: #3D2B1F;
+            min-height: 100vh;
         }
         .logo-font { 
             font-family: 'Great Vibes', cursive; 
         }
+
+        /* Glassmorphism & Bento Box Aesthetic */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 30px -5px rgba(61, 43, 31, 0.05), 0 4px 10px -2px rgba(61, 43, 31, 0.02);
+        }
+        .glass-subcard {
+            background: linear-gradient(135deg, #FFFDFB 0%, #FFF5F2 100%);
+            border: 1px solid #F5DCD5;
+            box-shadow: 0 4px 14px rgba(61, 43, 31, 0.03);
+        }
+        
+        /* Pastel Pop Tag Badges */
+        .pop-purple { background: #F3EDFD; color: #734DB5; border: 1px solid #DFCEFA; }
+        .pop-pink   { background: #FFEAF1; color: #E03177; border: 1px solid #FFC9DD; }
+        .pop-blue   { background: #EBF5FF; color: #1C7ED6; border: 1px solid #BEE3F8; }
+        .pop-green  { background: #EDFAF2; color: #2B8A3E; border: 1px solid #C3F0D4; }
+        .pop-yellow { background: #FFF9DB; color: #F59F00; border: 1px solid #FFE066; }
+        .pop-peach  { background: #FFF2EB; color: #F76707; border: 1px solid #FFD8A8; }
+
+        /* Bouncy Hover Animations */
+        .hover-pop {
+            transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .hover-pop:hover {
+            transform: translateY(-3px) scale(1.015);
+            box-shadow: 0 12px 28px -6px rgba(61, 43, 31, 0.12);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #D8C2B0; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #8C6D53; }
     </style>
 </head>
 
 <body class="text-[#4A3E3D] antialiased min-h-screen flex flex-col md:flex-row">
 
     <!-- SIDEBAR -->
-    <aside class="w-full md:w-64 bg-[#3D2B1F] text-[#FFF0F5] border-b md:border-b-0 md:border-r border-[#523B2B] flex flex-col justify-between p-5 md:fixed h-auto md:h-full z-20 overflow-y-auto shadow-md">
+    <aside class="w-full md:w-64 bg-gradient-to-b from-[#2B1A0F] via-[#3D2B1F] to-[#24170E] text-[#FFF0F5] border-b md:border-b-0 md:border-r border-[#523B2B]/60 flex flex-col justify-between p-5 md:fixed h-auto md:h-full z-20 overflow-y-auto shadow-2xl">
         <div>
-            <!-- LOGO -->
-            <div class="flex flex-col items-center mb-6 cursor-pointer" onclick="switchPage('home')">
-                <h1 class="logo-font text-5xl font-bold text-[#F5E6DA] tracking-wide hover:scale-105 transition-transform">
-                    LongLook
-                </h1>
-                <p class="text-[9px] text-[#D8C2B0] mt-1 tracking-[0.2em] uppercase font-light">LOOK LONG. CHOOSE RIGHT.</p>
+            <!-- LOGO & BRAND STICKER -->
+            <div class="flex flex-col items-center mb-6 cursor-pointer relative group" onclick="switchPage('home')">
+                <div class="relative">
+                    <h1 class="logo-font text-5xl font-bold bg-gradient-to-r from-[#FFF5F8] via-[#FCE788] to-[#FFE0EB] bg-clip-text text-transparent tracking-wide hover:scale-105 transition-transform duration-300">
+                        LongLook
+                    </h1>
+                    <span class="absolute -top-1 -right-3 text-xs animate-bounce">✨</span>
+                </div>
+                <div class="flex items-center gap-1.5 mt-1">
+                    <span class="text-[8px] bg-gradient-to-r from-[#FF8E72] to-[#FF6B8B] text-white font-extrabold px-1.5 py-0.5 rounded-full shadow-2xs tracking-wider">GEN-Z</span>
+                    <p class="text-[9px] text-[#D8C2B0] tracking-[0.2em] uppercase font-light">LOOK LONG. CHOOSE RIGHT.</p>
+                </div>
             </div>
 
-            <!-- NAV MENU: แมตช์ชุด & ลองใส่ AI ขึ้นมาเป็นพระเอกตัวจริง -->
+            <!-- NAV MENU: Pastel Pop & Aesthetic Buttons -->
             <nav class="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-col gap-1.5 text-xs font-medium">
-                <button onclick="switchPage('matcher')" id="nav-matcher" class="w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl bg-[#EBD9CB] text-[#3D2B1F] font-bold shadow-sm transition">
-                    <span class="text-sm text-[#89C2D9]"><i class="fa-solid fa-wand-magic-sparkles"></i></span> 
-                    <span class="flex-1 text-left">แมตช์ & ลองชุด AI</span>
-                    <span class="hidden md:inline-block text-[9px] bg-[#3D2B1F] text-[#F5E6DA] px-2 py-0.5 rounded-full font-bold">HOT</span>
+                <button onclick="switchPage('matcher')" id="nav-matcher" class="w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-[#FFF0F2] to-[#FAF1EC] text-[#3D2B1F] font-extrabold shadow-sm transition border border-white/60">
+                    <span class="text-sm text-[#FF6B8B]"><i class="fa-solid fa-wand-magic-sparkles"></i></span> 
+                    <span class="flex-1 text-left">แมตช์ชุดสไตล์บอร์ด</span>
+                    <span class="hidden md:inline-block text-[9px] bg-gradient-to-r from-[#FF8E72] to-[#FF6B8B] text-white px-2 py-0.5 rounded-full font-black shadow-2xs">HOT 🔥</span>
                 </button>
-                <button onclick="switchPage('closet')" id="nav-closet" class="w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl text-[#EBD9CB] hover:bg-[#523B2B] transition">
+                <button onclick="switchPage('closet')" id="nav-closet" class="w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl text-[#EBD9CB] hover:bg-[#523B2B]/60 hover:text-white transition">
                     <span class="text-sm text-[#F4C2C2]"><i class="fa-solid fa-shirt"></i></span> <span>ตู้เสื้อผ้าของฉัน</span>
                 </button>
-                <button onclick="switchPage('home')" id="nav-home" class="w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl text-[#EBD9CB] hover:bg-[#523B2B] transition">
+                <button onclick="switchPage('home')" id="nav-home" class="w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl text-[#EBD9CB] hover:bg-[#523B2B]/60 hover:text-white transition">
                     <span class="text-sm text-[#7A9A8B]"><i class="fa-solid fa-sparkles"></i></span> <span>ลุคแนะนำประจำวัน</span>
                 </button>
-                <button onclick="switchPage('calendar')" id="nav-calendar" class="w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl text-[#EBD9CB] hover:bg-[#523B2B] transition">
+                <button onclick="switchPage('calendar')" id="nav-calendar" class="w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl text-[#EBD9CB] hover:bg-[#523B2B]/60 hover:text-white transition">
                     <span class="text-sm text-[#B5A2D9]"><i class="fa-solid fa-calendar-days"></i></span> <span>ปฏิทินประวัติ</span>
                 </button>
-                <button onclick="switchPage('stats')" id="nav-stats" class="col-span-2 sm:col-span-1 w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl text-[#EBD9CB] hover:bg-[#523B2B] transition">
+                <button onclick="switchPage('stats')" id="nav-stats" class="col-span-2 sm:col-span-1 w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl text-[#EBD9CB] hover:bg-[#523B2B]/60 hover:text-white transition">
                     <span class="text-sm text-[#E9B44C]"><i class="fa-solid fa-chart-pie"></i></span> <span>สถิติ</span>
                 </button>
             </nav>
         </div>
 
         <div class="hidden md:block mt-6">
-            <button onclick="openCameraModal()" class="w-full bg-[#EBD9CB] hover:bg-[#D8C2B0] text-[#3D2B1F] text-xs font-bold py-2.5 rounded-2xl transition shadow-md flex items-center justify-center gap-2">
-                <i class="fa-solid fa-camera text-[#3D2B1F]"></i> ถ่ายรูป / เพิ่มเสื้อผ้า
+            <button onclick="openCameraModal()" class="w-full bg-gradient-to-r from-[#FFF0F2] to-[#FAF1EC] hover:from-white hover:to-[#FFF0F2] text-[#3D2B1F] text-xs font-black py-3 rounded-2xl transition shadow-md flex items-center justify-center gap-2 border border-white/80 hover:scale-[1.02] active:scale-95 cursor-pointer">
+                <i class="fa-solid fa-camera text-[#FF6B8B]"></i> ถ่ายรูป / เพิ่มเสื้อผ้า
             </button>
         </div>
     </aside>
@@ -74,18 +117,23 @@
     <main class="md:ml-64 flex-grow p-4 md:p-8 space-y-6">
 
         <!-- HEADER -->
-        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#EBD9CB] p-6 rounded-3xl border border-[#D8C2B0] shadow-sm">
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 glass-panel p-5 sm:p-6 rounded-3xl">
             <div>
-                <h2 id="greeting-text" class="text-xl font-bold text-[#3D2B1F]">สวัสดีตอนเช้า! ☀️</h2>
-                <p class="text-xs text-[#6B5647] mt-1">วันนี้มีอะไรใส่ดีน้า~ ให้เราช่วยแมตช์ชุดให้คุณไหม?</p>
+                <div class="flex items-center gap-2">
+                    <h2 id="greeting-text" class="text-xl font-extrabold text-[#3D2B1F]">สวัสดีตอนเช้า! ☀️</h2>
+                    <span class="text-[10px] bg-gradient-to-r from-[#FFEAF1] to-[#FFF0F5] text-[#D6336C] font-extrabold px-2.5 py-0.5 rounded-full border border-[#FFC9DD] flex items-center gap-1 shadow-2xs">
+                        ✨ OOTD TODAY
+                    </span>
+                </div>
+                <p class="text-xs text-[#6B5647] mt-1 font-medium">วันนี้มีอะไรใส่ดีน้า~ ให้เราช่วยแมตช์ชุดสไตล์ Pinterest ให้คุณไหม? 🎀</p>
             </div>
 
             <div class="flex items-center gap-3">
-                <div class="flex items-center gap-2 bg-[#FCE8E8] px-4 py-2 rounded-full border border-[#D8C2B0] shadow-sm">
-                    <span class="w-6 h-6 bg-[#3D2B1F] text-white rounded-full flex items-center justify-center text-[10px]" id="user-avatar-icon"><i class="fa-solid fa-user"></i></span>
-                    <span class="text-xs font-semibold text-[#3D2B1F]" id="user-name-label">ผู้เยี่ยมชม</span>
+                <div class="flex items-center gap-2.5 bg-gradient-to-r from-[#FFF8F6] to-[#FAF1EC] px-4 py-2 rounded-2xl border border-[#F2D2C2] shadow-2xs">
+                    <span class="w-7 h-7 bg-gradient-to-tr from-[#3D2B1F] to-[#5C3B30] text-white rounded-full flex items-center justify-center text-[11px] shadow-xs" id="user-avatar-icon"><i class="fa-solid fa-user"></i></span>
+                    <span class="text-xs font-bold text-[#3D2B1F]" id="user-name-label">ผู้เยี่ยมชม</span>
                 </div>
-                <button id="btn-login-trigger" onclick="openLoginModal()" class="bg-[#3D2B1F] hover:bg-[#523B2B] text-white text-xs px-4 py-2 rounded-full font-medium transition shadow-sm">
+                <button id="btn-login-trigger" onclick="openLoginModal()" class="bg-[#3D2B1F] hover:bg-[#523B2B] text-white text-xs px-4 py-2.5 rounded-2xl font-bold transition shadow-md hover:shadow-lg active:scale-95 cursor-pointer">
                     เข้าสู่ระบบ / สมัครสมาชิก
                 </button>
             </div>
@@ -99,33 +147,33 @@
                 <div class="lg:col-span-2 space-y-6">
                     
                     <!-- 1. ลุคแนะนำสำหรับวันนี้ (Gemini AI Look + Pinterest Inspiration) -->
-                    <div class="bg-[#EBD9CB] p-6 rounded-3xl border border-[#D8C2B0] shadow-sm space-y-4">
+                    <div class="glass-panel p-6 rounded-3xl space-y-4">
                         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
                             <div class="flex items-center gap-2 flex-wrap">
-                                <h3 class="font-bold text-base text-[#3D2B1F]">✨ ลุคแนะนำสำหรับวันนี้</h3>
-                                <span id="ai-stylist-badge" class="text-[10px] bg-gradient-to-r from-[#D88AAB] to-[#89C2D9] text-white px-2.5 py-0.5 rounded-full font-bold shadow-xs">
+                                <h3 class="font-extrabold text-base text-[#3D2B1F]">✨ ลุคแนะนำสำหรับวันนี้</h3>
+                                <span id="ai-stylist-badge" class="text-[10px] bg-gradient-to-r from-[#FF8E72] to-[#FF6B8B] text-white px-2.5 py-0.5 rounded-full font-black shadow-xs">
                                     <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Gemini AI Stylist
                                 </span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <button onclick="fetchDailyAiLook(true)" title="ขอไอเดียลุคใหม่" class="text-xs bg-[#FCE8E8] hover:bg-[#FAF1EC] text-[#3D2B1F] border border-[#D8C2B0] px-3 py-1 rounded-full font-medium transition flex items-center gap-1.5 shadow-sm active:scale-95">
+                                <button onclick="fetchDailyAiLook(true)" title="ขอไอเดียลุคใหม่" class="text-xs bg-white hover:bg-[#FFF5F2] text-[#3D2B1F] border border-[#F0DDD0] px-3.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 shadow-xs hover:scale-102 active:scale-95 cursor-pointer">
                                     <i class="fa-solid fa-dice text-[#E9B44C]"></i> สุ่มลุคใหม่
                                 </button>
-                                <span id="current-date-badge" class="text-xs bg-[#FCE8E8] text-[#3D2B1F] border border-[#D8C2B0] px-3 py-1 rounded-full font-medium">14 ตุลาคม 2569</span>
+                                <span id="current-date-badge" class="text-xs bg-[#FFF8F6] text-[#8C6D53] border border-[#F0DDD0] px-3 py-1 rounded-xl font-bold">14 ตุลาคม 2569</span>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch bg-[#FCE8E8] p-5 rounded-2xl border border-[#D8C2B0] shadow-sm hover-lift">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch glass-subcard p-5 rounded-2xl shadow-xs hover-pop">
                             <!-- ภาพชุดแฟชั่น Inspiration จาก Web / Pinterest -->
-                            <div class="relative bg-white rounded-2xl overflow-hidden border border-[#D8C2B0] min-h-[240px] flex flex-col justify-center items-center shadow-inner group">
+                            <div class="relative bg-white rounded-2xl overflow-hidden border border-[#F0DDD0] min-h-[240px] flex flex-col justify-center items-center shadow-inner group">
                                 <img id="home-outfit-img" src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop" alt="Today Look Inspiration" class="w-full h-full object-cover min-h-[240px] max-h-[300px] rounded-2xl transition duration-300 group-hover:scale-105" />
                                 <div id="home-outfit-loading" class="flex flex-col items-center justify-center p-6 text-center gap-2 hidden absolute inset-0 bg-white/70 backdrop-blur-xs">
-                                    <span class="text-3xl text-[#89C2D9] animate-spin"><i class="fa-solid fa-spinner"></i></span>
-                                    <p class="text-xs text-[#6B5647]">กำลังให้ Gemini AI แมตช์ลุคสวยๆ...</p>
+                                    <span class="text-3xl text-[#FF6B8B] animate-spin"><i class="fa-solid fa-spinner"></i></span>
+                                    <p class="text-xs text-[#6B5647] font-bold">กำลังให้ AI สไตลิสต์เลือกคู่ลุคสวยๆ...</p>
                                 </div>
                                 <!-- ปุ่ม Pinterest Link -->
-                                <a id="home-outfit-pinterest-link" href="https://www.pinterest.com" target="_blank" rel="noopener noreferrer" class="absolute bottom-3 right-3 bg-[#E60023] hover:bg-[#b8001c] text-white text-[11px] font-semibold px-3 py-1.5 rounded-full shadow-lg transition flex items-center gap-1.5 transform active:scale-95">
-                                    <i class="fa-brands fa-pinterest"></i> ดูไอเดียบน Pinterest
+                                <a id="home-outfit-pinterest-link" href="https://www.pinterest.com" target="_blank" rel="noopener noreferrer" class="absolute bottom-3 right-3 bg-[#E60023] hover:bg-[#b8001c] text-white text-[11px] font-black px-3.5 py-1.5 rounded-full shadow-lg transition flex items-center gap-1.5 transform active:scale-95">
+                                    <i class="fa-brands fa-pinterest"></i> ไอเดียบน Pinterest
                                 </a>
                             </div>
 
@@ -133,17 +181,17 @@
                             <div class="flex flex-col justify-between space-y-3">
                                 <div class="space-y-2.5">
                                     <div>
-                                        <h4 id="home-outfit-title" class="font-bold text-base text-[#3D2B1F]">ลุคเอิร์ธโทนคาเฟ่ชิลล์</h4>
-                                        <div class="flex flex-wrap items-center gap-1.5 mt-1">
-                                            <span id="home-outfit-style" class="bg-[#EBD9CB] text-[#3D2B1F] border border-[#D8C2B0] text-[10px] px-2.5 py-0.5 rounded-md font-semibold">Casual</span>
-                                            <span id="home-outfit-color" class="bg-white/80 text-[#6B5647] border border-[#D8C2B0] text-[10px] px-2.5 py-0.5 rounded-md font-medium">โทนเบจ-ครีม</span>
+                                        <h4 id="home-outfit-title" class="font-extrabold text-base text-[#3D2B1F]">ลุคเอิร์ธโทนคาเฟ่ชิลล์</h4>
+                                        <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+                                            <span id="home-outfit-style" class="pop-purple text-[10px] px-2.5 py-0.5 rounded-lg font-bold">Casual</span>
+                                            <span id="home-outfit-color" class="pop-peach text-[10px] px-2.5 py-0.5 rounded-lg font-bold">โทนเบจ-ครีม</span>
                                         </div>
                                     </div>
 
                                     <!-- กล่องคำแนะนำ AI -->
-                                    <div class="bg-white/80 p-3 rounded-xl border border-[#D8C2B0] text-xs text-[#523B2B] leading-relaxed shadow-inner">
-                                        <p class="font-semibold text-[#7A9A8B] text-[11px] mb-1 flex items-center gap-1">
-                                            <i class="fa-solid fa-sparkles text-[#E9B44C]"></i> คำแนะนำจาก AI Stylist:
+                                    <div class="bg-white/90 p-3.5 rounded-2xl border border-[#F2DFD5] text-xs text-[#523B2B] leading-relaxed shadow-2xs">
+                                        <p class="font-bold text-[#E03177] text-[11px] mb-1 flex items-center gap-1">
+                                            <i class="fa-solid fa-wand-magic-sparkles text-[#FFD166]"></i> คำแนะนำจาก AI Stylist:
                                         </p>
                                         <p id="home-outfit-reason" class="text-xs text-[#6B5647]">
                                             โทนสีเบจและเอิร์ธโทนช่วยขับผิว Warm Tone ให้ดูสดใส อบอุ่น แมตช์ง่าย เหมาะกับคาเฟ่หรือเดินเล่นวันสบายๆ
@@ -151,56 +199,56 @@
                                     </div>
 
                                     <!-- ชิ้นส่วนไอเทมที่แนะนำ (Pieces Checklist) -->
-                                    <div id="home-outfit-pieces" class="grid grid-cols-2 gap-1.5 text-[11px] text-[#6B5647]">
-                                        <div class="bg-white/70 px-2.5 py-1.5 rounded-lg border border-[#D8C2B0] truncate flex items-center gap-1.5">
-                                            <i class="fa-solid fa-shirt text-[#D88AAB]"></i> <span id="piece-top" class="truncate">เสื้อเชิ้ตโอเวอร์ไซส์</span>
+                                    <div id="home-outfit-pieces" class="grid grid-cols-2 gap-2 text-[11px] text-[#6B5647]">
+                                        <div class="bg-white px-2.5 py-1.5 rounded-xl border border-[#F0DDD0] truncate flex items-center gap-1.5 shadow-2xs">
+                                            <i class="fa-solid fa-shirt text-[#734DB5]"></i> <span id="piece-top" class="truncate font-semibold">เสื้อเชิ้ตโอเวอร์ไซส์</span>
                                         </div>
-                                        <div class="bg-white/70 px-2.5 py-1.5 rounded-lg border border-[#D8C2B0] truncate flex items-center gap-1.5">
-                                            <i class="fa-solid fa-socks text-[#89C2D9]"></i> <span id="piece-bottom" class="truncate">กางเกงสแล็คขากระบอก</span>
+                                        <div class="bg-white px-2.5 py-1.5 rounded-xl border border-[#F0DDD0] truncate flex items-center gap-1.5 shadow-2xs">
+                                            <i class="fa-solid fa-socks text-[#1C7ED6]"></i> <span id="piece-bottom" class="truncate font-semibold">กางเกงสแล็คขากระบอก</span>
                                         </div>
-                                        <div class="bg-white/70 px-2.5 py-1.5 rounded-lg border border-[#D8C2B0] truncate flex items-center gap-1.5">
-                                            <i class="fa-solid fa-shoe-prints text-[#E9B44C]"></i> <span id="piece-shoes" class="truncate">สนีกเกอร์มินิมอล</span>
+                                        <div class="bg-white px-2.5 py-1.5 rounded-xl border border-[#F0DDD0] truncate flex items-center gap-1.5 shadow-2xs">
+                                            <i class="fa-solid fa-shoe-prints text-[#2B8A3E]"></i> <span id="piece-shoes" class="truncate font-semibold">สนีกเกอร์มินิมอล</span>
                                         </div>
-                                        <div class="bg-white/70 px-2.5 py-1.5 rounded-lg border border-[#D8C2B0] truncate flex items-center gap-1.5">
-                                            <i class="fa-solid fa-bag-shopping text-[#7A9A8B]"></i> <span id="piece-acc" class="truncate">กระเป๋าผ้าแคนวาส</span>
+                                        <div class="bg-white px-2.5 py-1.5 rounded-xl border border-[#F0DDD0] truncate flex items-center gap-1.5 shadow-2xs">
+                                            <i class="fa-solid fa-bag-shopping text-[#E03177]"></i> <span id="piece-acc" class="truncate font-semibold">กระเป๋าผ้าแคนวาส</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- ปุ่มบันทึกเข้าปฏิทิน -->
-                                <button onclick="saveTodayOutfitToCalendar()" class="w-full bg-[#3D2B1F] hover:bg-[#523B2B] text-white py-2.5 rounded-xl text-xs font-medium transition-all duration-200 transform active:scale-95 shadow-md flex items-center justify-center gap-2">
-                                    <i class="fa-solid fa-calendar-check"></i> <span>บันทึกลุคนี้ลงปฏิทินวันนี้</span>
+                                <button onclick="saveTodayOutfitToCalendar()" class="w-full bg-[#3D2B1F] hover:bg-[#523B2B] text-white py-2.5 rounded-xl text-xs font-bold transition-all duration-200 transform active:scale-95 shadow-md flex items-center justify-center gap-2 cursor-pointer">
+                                    <i class="fa-solid fa-calendar-check text-[#FCE788]"></i> <span>บันทึกลุคนี้ลงปฏิทินวันนี้</span>
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 2. โทนสีผิว (Personal Color) & เลือกเพศ (อยู่หน้าหลักใต้ลุคแนะนำแล้ว) -->
-                    <div class="bg-[#EBD9CB] p-6 rounded-3xl border border-[#D8C2B0] shadow-sm space-y-4">
-                        <h3 class="font-bold text-base text-[#3D2B1F] flex items-center gap-2">
+                    <!-- 2. โทนสีผิว (Personal Color) & เลือกเพศ -->
+                    <div class="glass-panel p-6 rounded-3xl space-y-4">
+                        <h3 class="font-extrabold text-base text-[#3D2B1F] flex items-center gap-2">
                             <span>👤</span> โทนสีผิว (Personal Color) & เลือกเพศ
                         </h3>
-                        <div class="bg-[#FCE8E8] p-5 rounded-2xl border border-[#D8C2B0] shadow-sm space-y-4 hover-lift">
+                        <div class="glass-subcard p-5 rounded-2xl space-y-4 hover-pop">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-xs font-semibold text-[#6B5647] mb-1.5">เลือกเพศการแต่งตัว</label>
-                                    <select id="user-gender" class="w-full p-2.5 rounded-xl border border-[#D8C2B0] text-xs bg-white text-[#3D2B1F]">
-                                        <option value="unisex">Unisex / ทั่วไป</option>
-                                        <option value="female">ผู้หญิง (Female)</option>
-                                        <option value="male">ผู้ชาย (Male)</option>
+                                    <label class="block text-xs font-bold text-[#6B5647] mb-1.5">เลือกเพศการแต่งตัว</label>
+                                    <select id="user-gender" class="w-full p-2.5 rounded-xl border border-[#F0DDD0] text-xs bg-white text-[#3D2B1F] font-semibold focus:outline-none focus:ring-2 focus:ring-[#3D2B1F]/20 shadow-xs">
+                                        <option value="unisex">🧑 Unisex / ทั่วไป</option>
+                                        <option value="female">👩 ผู้หญิง (Female)</option>
+                                        <option value="male">👨 ผู้ชาย (Male)</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-[#6B5647] mb-1.5">เลือกโทนสีผิว (Skin Tone)</label>
-                                    <select id="user-skintone" class="w-full p-2.5 rounded-xl border border-[#D8C2B0] text-xs bg-white text-[#3D2B1F]">
-                                        <option value="warm">Warm Tone (ผิวสองสี / โทนเหลือง)</option>
-                                        <option value="cool">Cool Tone (ผิวขาว / โทนชมพู)</option>
-                                        <option value="neutral">Neutral Tone (ผิวโทนธรรมชาติ)</option>
+                                    <label class="block text-xs font-bold text-[#6B5647] mb-1.5">เลือกโทนสีผิว (Skin Tone)</label>
+                                    <select id="user-skintone" class="w-full p-2.5 rounded-xl border border-[#F0DDD0] text-xs bg-white text-[#3D2B1F] font-semibold focus:outline-none focus:ring-2 focus:ring-[#3D2B1F]/20 shadow-xs">
+                                        <option value="warm">✨ Warm Tone (ผิวสองสี / โทนเหลือง)</option>
+                                        <option value="cool">🌸 Cool Tone (ผิวขาว / โทนชมพู)</option>
+                                        <option value="neutral">🌿 Neutral Tone (ผิวโทนธรรมชาติ)</option>
                                     </select>
                                 </div>
                             </div>
-                            <button onclick="saveUserProfileToDatabase()" class="w-full bg-[#3D2B1F] hover:bg-[#523B2B] text-white py-2.5 rounded-xl text-xs font-medium transition-all duration-200 transform active:scale-95 shadow-md">
-                                บันทึกข้อมูลส่วนตัวเข้า Database
+                            <button onclick="saveUserProfileToDatabase()" class="w-full bg-[#3D2B1F] hover:bg-[#523B2B] text-white py-2.5 rounded-xl text-xs font-bold transition-all duration-200 transform active:scale-95 shadow-md cursor-pointer">
+                                💾 บันทึกข้อมูลส่วนตัวเข้า Database
                             </button>
                         </div>
                     </div>
@@ -209,31 +257,35 @@
 
                 <!-- ฝั่งขวา: สภาพอากาศ & ปฏิทิน -->
                 <div class="space-y-6">
-                    <div class="bg-[#EBD9CB] p-5 rounded-3xl border border-[#D8C2B0] shadow-sm space-y-3">
-                        <h3 class="font-bold text-sm text-[#3D2B1F]">☀️ สภาพอากาศวันนี้</h3>
-                        <div class="flex items-center justify-between bg-[#FCE8E8] p-3.5 rounded-2xl border border-[#D8C2B0] hover-lift">
+                    <div class="glass-panel p-5 rounded-3xl space-y-3">
+                        <h3 class="font-extrabold text-sm text-[#3D2B1F] flex items-center gap-1.5">
+                            <span>☀️</span> สภาพอากาศวันนี้
+                        </h3>
+                        <div class="flex items-center justify-between glass-subcard p-4 rounded-2xl hover-pop">
                             <div class="flex items-center gap-3">
-                                <span class="text-3xl text-[#E9B44C]"><i class="fa-solid fa-sun"></i></span>
+                                <span class="text-3xl text-[#E9B44C] animate-pulse"><i class="fa-solid fa-sun"></i></span>
                                 <div>
-                                    <h4 id="weather-temp" class="font-bold text-lg text-[#3D2B1F]">25°C</h4>
-                                    <p class="text-xs text-[#6B5647]">แจ่มใส เหมาะกับการแต่งกายสบายๆ</p>
+                                    <h4 id="weather-temp" class="font-extrabold text-lg text-[#3D2B1F]">25°C</h4>
+                                    <p class="text-xs text-[#6B5647] font-medium">แจ่มใส เหมาะกับลุคชิลล์ๆ</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="bg-[#EBD9CB] p-5 rounded-3xl border border-[#D8C2B0] shadow-sm space-y-3">
+                    <div class="glass-panel p-5 rounded-3xl space-y-3">
                         <div class="flex justify-between items-center">
-                            <h3 class="font-bold text-sm text-[#3D2B1F]">📅 ปฏิทินการแต่งตัว</h3>
-                            <span onclick="switchPage('calendar')" class="text-xs text-[#6B5647] font-semibold hover:underline cursor-pointer">ดูทั้งหมด</span>
+                            <h3 class="font-extrabold text-sm text-[#3D2B1F] flex items-center gap-1.5">
+                                <span>📅</span> ปฏิทินการแต่งตัว
+                            </h3>
+                            <span onclick="switchPage('calendar')" class="text-xs text-[#FF6B8B] font-extrabold hover:underline cursor-pointer">ดูทั้งหมด →</span>
                         </div>
-                        <div class="grid grid-cols-7 text-center text-[10px] font-bold text-[#6B5647] gap-1">
+                        <div class="grid grid-cols-7 text-center text-[10px] font-bold text-[#8C6D53] gap-1">
                             <span>อา</span><span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span>
                         </div>
-                        <div class="grid grid-cols-7 text-center text-xs gap-1 font-medium bg-[#FCE8E8] p-2 rounded-xl border border-[#D8C2B0]">
-                            <span class="text-gray-400">11</span><span class="text-gray-400">12</span><span class="text-gray-400">13</span>
-                            <span class="bg-[#3D2B1F] text-white font-bold rounded-lg py-0.5">14</span>
-                            <span>15</span><span>16</span><span>17</span>
+                        <div class="grid grid-cols-7 text-center text-xs gap-1 font-bold glass-subcard p-2.5 rounded-2xl">
+                            <span class="text-gray-300">11</span><span class="text-gray-300">12</span><span class="text-gray-300">13</span>
+                            <span class="bg-[#3D2B1F] text-white font-extrabold rounded-lg py-1 shadow-xs">14</span>
+                            <span class="py-1">15</span><span class="py-1">16</span><span class="py-1">17</span>
                         </div>
                     </div>
                 </div>
@@ -243,20 +295,33 @@
 
         <!-- PAGE 2: CLOSET -->
         <div id="page-closet" class="page-content hidden space-y-6">
-            <div class="bg-[#EBD9CB] p-6 rounded-3xl border border-[#D8C2B0] shadow-sm space-y-6">
+            <div class="glass-panel p-6 rounded-3xl space-y-6">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-lg font-bold text-[#3D2B1F]">👕 ตู้เสื้อผ้าของฉัน</h2>
-                    <button onclick="openCameraModal()" class="bg-[#3D2B1F] text-white px-4 py-2 rounded-xl text-xs font-medium shadow-sm">
-                        + เพิ่มเสื้อผ้าใหม่
+                    <div>
+                        <h2 class="text-lg font-extrabold text-[#3D2B1F] flex items-center gap-2">
+                            <span>👕</span> ตู้เสื้อผ้าของฉัน
+                        </h2>
+                        <p class="text-xs text-[#6B5647] mt-0.5">รวมเสื้อผ้าทั้งหมดของคุณ แยกตามหมวดหมู่และเพศการแต่งตัว</p>
+                    </div>
+                    <button onclick="openCameraModal()" class="bg-gradient-to-r from-[#3D2B1F] to-[#5A382C] hover:from-[#5A382C] hover:to-[#3D2B1F] text-white px-4 py-2.5 rounded-2xl text-xs font-bold shadow-md hover:shadow-lg transition transform hover:scale-102 active:scale-95 flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-plus text-[#FCE788]"></i> เพิ่มเสื้อผ้าใหม่
                     </button>
                 </div>
 
-                <!-- แท็บกรองเพศเสื้อผ้าในตู้ -->
+                <!-- แท็บกรองเพศเสื้อผ้าในตู้ (Trendy Pastel Pills) -->
                 <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
-                    <button type="button" onclick="filterClosetByGender('all')" id="closet-filter-all" class="px-3 py-1.5 rounded-xl font-bold bg-[#3D2B1F] text-white shadow-xs transition cursor-pointer">ทั้งหมด</button>
-                    <button type="button" onclick="filterClosetByGender('female')" id="closet-filter-female" class="px-3 py-1.5 rounded-xl font-medium bg-[#FCE8E8] text-[#3D2B1F] border border-[#D8C2B0] hover:bg-white transition cursor-pointer">👩 ผู้หญิง</button>
-                    <button type="button" onclick="filterClosetByGender('male')" id="closet-filter-male" class="px-3 py-1.5 rounded-xl font-medium bg-[#FCE8E8] text-[#3D2B1F] border border-[#D8C2B0] hover:bg-white transition cursor-pointer">👨 ผู้ชาย</button>
-                    <button type="button" onclick="filterClosetByGender('unisex')" id="closet-filter-unisex" class="px-3 py-1.5 rounded-xl font-medium bg-[#FCE8E8] text-[#3D2B1F] border border-[#D8C2B0] hover:bg-white transition cursor-pointer">🧑 Unisex</button>
+                    <button type="button" onclick="filterClosetByGender('all')" id="closet-filter-all" class="px-3.5 py-1.5 rounded-xl font-extrabold bg-[#3D2B1F] text-[#FFF0F5] shadow-md transition transform scale-105 cursor-pointer border border-[#523B2B]">
+                        ✨ ทั้งหมด
+                    </button>
+                    <button type="button" onclick="filterClosetByGender('female')" id="closet-filter-female" class="px-3.5 py-1.5 rounded-xl font-bold bg-white/80 text-[#6B5647] border border-[#F0DDD0] hover:bg-white hover:text-[#3D2B1F] transition cursor-pointer shadow-2xs hover:scale-102">
+                        🎀 ผู้หญิง
+                    </button>
+                    <button type="button" onclick="filterClosetByGender('male')" id="closet-filter-male" class="px-3.5 py-1.5 rounded-xl font-bold bg-white/80 text-[#6B5647] border border-[#F0DDD0] hover:bg-white hover:text-[#3D2B1F] transition cursor-pointer shadow-2xs hover:scale-102">
+                        🧢 ผู้ชาย
+                    </button>
+                    <button type="button" onclick="filterClosetByGender('unisex')" id="closet-filter-unisex" class="px-3.5 py-1.5 rounded-xl font-bold bg-white/80 text-[#6B5647] border border-[#F0DDD0] hover:bg-white hover:text-[#3D2B1F] transition cursor-pointer shadow-2xs hover:scale-102">
+                        ⚡ Unisex
+                    </button>
                 </div>
 
                 <div id="closet-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -265,39 +330,51 @@
             </div>
         </div>
 
-        <!-- PAGE 3: MATCHER & AI TRY-ON STUDIO -->
+        <!-- PAGE 3: MATCHER & STYLEBOARD STUDIO -->
         <div id="page-matcher" class="page-content space-y-6">
             
-            <!-- Hero Banner: แมตช์ชุด & ลองชุดด้วย AI -->
-            <div class="bg-gradient-to-r from-[#3D2B1F] to-[#523B2B] text-white p-6 rounded-3xl shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
+            <!-- Hero Banner: Pinterest-Inspired Matching & Studio Mode -->
+            <div class="bg-gradient-to-r from-[#3D2B1F] via-[#5A382C] to-[#73434F] text-white p-6 rounded-3xl shadow-lg border border-[#8C6D53]/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative overflow-hidden">
+                <div class="absolute -right-8 -bottom-8 w-44 h-44 bg-gradient-to-tr from-[#FF8E72]/20 to-[#FF6B8B]/20 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="relative z-10">
                     <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold bg-[#EBD9CB] text-[#3D2B1F] px-2.5 py-0.5 rounded-full shadow-xs">Studio Mode</span>
-                        <span class="text-xs text-[#EBD9CB]"><i class="fa-solid fa-wand-magic-sparkles text-[#E9B44C]"></i> AI Fashion Matching & Try-On</span>
+                        <span class="text-[10px] font-black bg-white/20 backdrop-blur-sm text-[#FFF0F5] px-2.5 py-0.5 rounded-full border border-white/30 shadow-xs">Studio Mode</span>
+                        <span class="text-xs text-[#F5E6DA] font-semibold"><i class="fa-solid fa-wand-magic-sparkles text-[#FFD166]"></i> Pinterest-Inspired Matching</span>
                     </div>
-                    <h2 class="text-xl font-bold text-[#F5E6DA] mt-1">ห้องลองชุด & แมตช์ลุค AI เสมือนจริง ✨</h2>
-                    <p class="text-xs text-[#D8C2B0] mt-0.5">จับคู่เสื้อผ้า ท่อนล่าง รองเท้า และเครื่องประดับ พร้อมถ่ายรูปตัวเองให้ AI เสกภาพลองใส่จริง!</p>
+                    <h2 class="text-xl font-extrabold text-[#F5E6DA] mt-1.5 flex items-center gap-2">
+                        แมตช์ลุค AI & สไตล์บอร์ดแฟชั่น ✨
+                    </h2>
+                    <p class="text-xs text-[#EBD9CB] mt-0.5">จับคู่เสื้อผ้า ท่อนล่าง รองเท้า และเครื่องประดับจากตู้ของคุณ อิงตามเทรนด์ฮิตบน Pinterest 📌</p>
                 </div>
-                <div class="flex items-center gap-2 shrink-0">
-                    <button onclick="triggerAutoMatchAndFitting()" class="bg-[#FAF1EC] hover:bg-white text-[#3D2B1F] px-4 py-2.5 rounded-2xl text-xs font-bold shadow-md transition flex items-center gap-2 active:scale-95 cursor-pointer">
-                        <span id="matcher-dice-icon" class="text-base">🎲</span> สุ่มแมตช์ชุดครบเซ็ต
+                <div class="flex items-center gap-2 shrink-0 relative z-10">
+                    <button id="btn-hero-match" onclick="triggerAutoMatchAndFitting()" class="bg-gradient-to-r from-[#FFF5F2] to-white hover:from-white hover:to-[#FAF1EC] text-[#3D2B1F] px-4 py-2.5 rounded-2xl text-xs font-black shadow-md transition flex items-center gap-2 active:scale-95 cursor-pointer border border-white/80 hover:shadow-lg">
+                        <span id="matcher-dice-icon" class="text-base">🎲</span> <span id="hero-match-text">สุ่มแมตช์ชุดครบเซ็ต</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Studio 3-Column Layout -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            <!-- Studio 2-Column Bento Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
 
-                <!-- คอลัมน์ 1: ตัวเลือกสไตล์ & สรุปไอเทมที่เลือก (4 Cols) -->
-                <div class="lg:col-span-4 space-y-4">
-                    <div class="bg-[#EBD9CB] p-5 rounded-3xl border border-[#D8C2B0] shadow-sm space-y-4">
-                        <h3 class="font-bold text-sm text-[#3D2B1F] flex items-center gap-2">
-                            <i class="fa-solid fa-sliders text-[#89C2D9]"></i> กำหนดสไตล์ & โอกาส
-                        </h3>
+                <!-- คอลัมน์ 1: ตัวเลือกสไตล์ & Pinterest Inspo Card -->
+                <div class="space-y-4">
+                    <div class="glass-panel p-6 rounded-3xl space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-extrabold text-sm text-[#3D2B1F] flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-xl bg-[#EBF5FF] text-[#1C7ED6] flex items-center justify-center text-xs shadow-2xs">
+                                    <i class="fa-solid fa-sliders"></i>
+                                </span>
+                                <span>กำหนดสไตล์ & โอกาส</span>
+                            </h3>
+                            <span class="text-[10px] pop-purple font-extrabold px-2.5 py-0.5 rounded-full">
+                                AI FILTER
+                            </span>
+                        </div>
+
                         <div class="space-y-3">
                             <div>
-                                <label class="block text-xs font-semibold text-[#6B5647] mb-1">โอกาสในการแต่งตัว (Occasion)</label>
-                                <select id="match-occasion-select" class="w-full p-2.5 text-xs rounded-xl border border-[#D8C2B0] bg-white text-[#3D2B1F] font-medium shadow-xs">
+                                <label class="block text-xs font-bold text-[#6B5647] mb-1">โอกาสในการแต่งตัว (Occasion)</label>
+                                <select id="match-occasion-select" class="w-full p-2.5 text-xs rounded-xl border border-[#F0DDD0] bg-white text-[#3D2B1F] font-semibold shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#3D2B1F]/20">
                                     <option value="ไปคาเฟ่ / เดินเล่นวันสบายๆ">☕ เดินเล่น / ไปคาเฟ่</option>
                                     <option value="ไปเรียน / มหาวิทยาลัย">🎓 ไปเรียน / มหาวิทยาลัย</option>
                                     <option value="ไปทำงาน / ประชุม">💼 ไปทำงาน / ออฟฟิศ</option>
@@ -308,8 +385,8 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-[#6B5647] mb-1">สไตล์แฟชั่น (Style)</label>
-                                <select id="match-style-select" class="w-full p-2.5 text-xs rounded-xl border border-[#D8C2B0] bg-white text-[#3D2B1F] font-medium shadow-xs">
+                                <label class="block text-xs font-bold text-[#6B5647] mb-1">สไตล์แฟชั่น (Style)</label>
+                                <select id="match-style-select" class="w-full p-2.5 text-xs rounded-xl border border-[#F0DDD0] bg-white text-[#3D2B1F] font-semibold shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#3D2B1F]/20">
                                     <option value="CASUAL">✨ CASUAL (สบายๆ ชิลล์ๆ)</option>
                                     <option value="KOREAN MINIMAL">🇰🇷 KOREAN MINIMAL (สายเกาหลี มินิมอล)</option>
                                     <option value="STREETWEAR">🛹 STREETWEAR (สตรีท คูลๆ เท่ๆ)</option>
@@ -319,34 +396,53 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-[#6B5647] mb-1">เพศสำหรับการจัดลุค (Gender)</label>
-                                <select id="match-gender-select" onchange="handleMatchGenderChange(this.value)" class="w-full p-2.5 text-xs rounded-xl border border-[#D8C2B0] bg-white text-[#3D2B1F] font-medium shadow-xs">
+                                <label class="block text-xs font-bold text-[#6B5647] mb-1">เพศสำหรับการจัดลุค (Gender)</label>
+                                <select id="match-gender-select" onchange="handleMatchGenderChange(this.value)" class="w-full p-2.5 text-xs rounded-xl border border-[#F0DDD0] bg-white text-[#3D2B1F] font-semibold shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#3D2B1F]/20">
                                     <option value="female">👩 ผู้หญิง (Women)</option>
                                     <option value="male">👨 ผู้ชาย (Men)</option>
                                     <option value="unisex">🧑 Unisex (ไม่จำกัดเพศ)</option>
                                 </select>
                             </div>
+
+                            <!-- ตัวเลือกรวมพร็อพหรือไม่ -->
+                            <div class="flex items-center justify-between glass-subcard p-3 rounded-2xl">
+                                <div>
+                                    <span class="block text-xs font-bold text-[#3D2B1F]">💍 รวมเครื่องประดับ / กระเป๋า</span>
+                                    <span class="text-[10px] text-[#6B5647]">ปิดเพื่อจัดลุค 3 ชิ้น คลีนๆ (เสื้อ+กางเกง+รองเท้า)</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="match-include-acc" class="sr-only peer">
+                                    <div class="w-9 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#3D2B1F]"></div>
+                                </label>
+                            </div>
                         </div>
 
                         <!-- กล่องแรงบันดาลใจแฟชั่น Pinterest Trend (Pinterest Inspo Board) -->
-                        <div class="pt-3 border-t border-[#D8C2B0]">
-                            <div class="flex justify-between items-center mb-2">
-                                <h4 class="text-xs font-bold text-[#3D2B1F] flex items-center gap-1.5">
-                                    <i class="fa-brands fa-pinterest text-[#E60023]"></i> Pinterest Fashion Inspo
+                        <div class="pt-3 border-t border-[#F0DDD0]">
+                            <div class="flex justify-between items-center mb-2.5">
+                                <h4 class="text-xs font-extrabold text-[#3D2B1F] flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-full bg-[#E60023] text-white flex items-center justify-center text-[10px] shadow-xs">
+                                        <i class="fa-brands fa-pinterest-p"></i>
+                                    </span>
+                                    <span>Pinterest Fashion Inspo</span>
                                 </h4>
-                                <span id="match-inspo-tag" class="text-[10px] text-[#E60023] bg-white px-2 py-0.5 rounded-full border border-[#D8C2B0] font-bold">Trend Inspo</span>
+                                <span id="match-inspo-tag" class="text-[10px] text-[#E60023] bg-[#FFEBEB] px-2.5 py-0.5 rounded-full border border-[#FFCCD0] font-black shadow-2xs">
+                                    TRENDING 🔥
+                                </span>
                             </div>
-                            <div id="pinterest-inspo-card" class="bg-white/80 p-3.5 rounded-2xl border border-[#D8C2B0] shadow-xs space-y-2">
+                            <div id="pinterest-inspo-card" class="bg-gradient-to-br from-[#FFF8F6] to-[#FFF0EC] p-4 rounded-2xl border border-[#FADCD5] shadow-xs space-y-2.5 hover:shadow-md transition">
                                 <div class="flex items-center justify-between">
-                                    <span id="inspo-title" class="font-bold text-xs text-[#3D2B1F]">สไตล์มินิมอลคาเฟ่ (Korean Minimal)</span>
+                                    <span id="inspo-title" class="font-extrabold text-xs text-[#3D2B1F]">
+                                        สไตล์มินิมอลคาเฟ่ (Korean Minimal)
+                                    </span>
                                 </div>
                                 <p id="inspo-desc" class="text-[11px] text-[#6B5647] leading-relaxed">
                                     AI จะอิงคู่สีและสัดส่วนยอดนิยมจาก Pinterest มาปรับใช้กับเสื้อผ้าในตู้ของคุณ
                                 </p>
-                                <div class="flex items-center justify-between pt-1 border-t border-dashed border-[#D8C2B0]">
-                                    <span id="inspo-palette" class="text-[10px] text-[#8C6D53] font-medium">🎨 โทน: เอิร์ธโทน & ครีม</span>
-                                    <a id="inspo-pinterest-link" href="https://www.pinterest.com/search/pins/?q=korean%20minimal%20outfit" target="_blank" rel="noopener noreferrer" class="text-[10px] font-bold text-[#E60023] hover:underline flex items-center gap-1">
-                                        <span>เปิดดูบน Pinterest</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                                <div class="flex items-center justify-between pt-2 border-t border-dashed border-[#F0CCC4]">
+                                    <span id="inspo-palette" class="text-[10px] text-[#8C6D53] font-bold bg-white/80 px-2 py-0.5 rounded-md border border-[#F0DDD0]">🎨 โทน: เอิร์ธโทน & ครีม</span>
+                                    <a id="inspo-pinterest-link" href="https://www.pinterest.com/search/pins/?q=korean%20minimal%20outfit" target="_blank" rel="noopener noreferrer" class="text-[10px] font-extrabold text-white bg-[#E60023] hover:bg-[#cc001f] px-3 py-1 rounded-full shadow-xs transition flex items-center gap-1 active:scale-95">
+                                        <span>ดูบน Pinterest</span> <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i>
                                     </a>
                                 </div>
                             </div>
@@ -354,133 +450,49 @@
 
                         <!-- Action Buttons -->
                         <div class="space-y-2 pt-2">
-                            <button onclick="triggerAutoMatchAndFitting()" class="w-full bg-[#3D2B1F] hover:bg-[#523B2B] text-white py-3 rounded-2xl text-xs font-bold shadow-md transition transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
-                                🎲 สุ่มแมตช์ชุดใหม่
+                            <button id="btn-col-match" onclick="triggerAutoMatchAndFitting()" class="w-full bg-gradient-to-r from-[#3D2B1F] to-[#5A382C] hover:from-[#5A382C] hover:to-[#3D2B1F] text-white py-3 rounded-2xl text-xs font-bold shadow-md hover:shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer border border-[#523B2B]">
+                                <span id="col-dice-icon">🎲</span> <span id="col-match-text">สุ่มแมตช์ชุดใหม่</span>
                             </button>
-                            <button onclick="saveCurrentMatchToCalendar()" class="w-full bg-[#7A9A8B] hover:bg-[#688577] text-white py-2.5 rounded-2xl text-xs font-bold shadow-md transition transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+                            <button onclick="saveCurrentMatchToCalendar()" class="w-full bg-[#7A9A8B] hover:bg-[#688577] text-white py-2.5 rounded-2xl text-xs font-bold shadow-md hover:shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
                                 📅 บันทึกชุดนี้ลงปฏิทิน
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- คอลัมน์ 2: สไตล์บอร์ด & AI ลุคบุ๊ก (Fashion Lookbook & Fitting) (4 Cols) -->
-                <div class="lg:col-span-4 bg-[#EBD9CB] p-5 rounded-3xl border border-[#D8C2B0] shadow-sm flex flex-col justify-between">
+                <!-- คอลัมน์ 2: สไตล์บอร์ด & AI ลุคบุ๊ก (Fashion Lookbook & Fitting) -->
+                <div class="glass-panel p-6 rounded-3xl flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-bold text-sm text-[#3D2B1F] flex items-center gap-2">
-                                <i class="fa-solid fa-sparkles text-[#D88AAB]"></i> สไตล์บอร์ด & AI ลุคบุ๊ก
-                            </h3>
-                            <!-- สลับมุมมอง: สไตล์บอร์ด vs ภาพถ่าย AI เสก -->
-                            <div class="flex bg-[#FCE8E8] p-0.5 rounded-full border border-[#D8C2B0] text-[10px]">
-                                <button id="btn-view-lookbook" onclick="toggleFittingMode('lookbook')" class="px-2.5 py-1 rounded-full font-bold bg-[#3D2B1F] text-white transition shadow-xs cursor-pointer">
-                                    สไตล์บอร์ด 4 ชิ้น
-                                </button>
-                                <button id="btn-view-ai-portrait" onclick="toggleFittingMode('portrait')" class="px-2.5 py-1 rounded-full font-medium text-[#6B5647] hover:text-[#3D2B1F] transition cursor-pointer">
-                                    ภาพ AI เสก 📸
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Main Lookbook & Fitting Container -->
-                        <div id="avatar-fitting-container" class="relative bg-white/95 border-2 border-dashed border-[#D8C2B0] rounded-2xl p-4 flex flex-col items-center justify-center min-h-[390px] shadow-inner space-y-2 overflow-hidden group">
-                            
-                            <!-- Lookbook Grid (Active by default) -->
-                            <div id="fitting-lookbook-view" class="w-full h-full flex flex-col items-center justify-center text-center p-4">
-                                <span class="w-14 h-14 bg-[#FAF1EC] text-[#8C6D53] rounded-2xl flex items-center justify-center text-2xl mx-auto border border-[#D8C2B0] mb-3">
-                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <h3 class="font-extrabold text-sm text-[#3D2B1F] flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-xl bg-[#FFEAF1] text-[#E03177] flex items-center justify-center text-xs shadow-2xs">
+                                    <i class="fa-solid fa-sparkles"></i>
                                 </span>
-                                <h4 class="font-bold text-xs text-[#3D2B1F]">ยังไม่มีชุดที่เลือก</h4>
-                                <p class="text-[11px] text-[#6B5647] mt-1 max-w-[220px]">กดปุ่ม "🎲 สุ่มแมตช์ชุดใหม่" ด้านซ้ายเพื่อเริ่มให้ AI สไตลิสต์คัดเลือกชุด</p>
-                            </div>
-
-                            <!-- AI Portrait View (Shows pure photorealistic image from AI generation) -->
-                            <div id="fitting-ai-view" class="hidden w-full h-full flex flex-col items-center justify-center text-center p-2">
-                                <div id="fitting-ai-empty" class="p-6 space-y-3">
-                                    <span class="w-14 h-14 bg-[#FAF1EC] text-[#89C2D9] rounded-2xl flex items-center justify-center text-2xl mx-auto border border-[#D8C2B0]">
-                                        <i class="fa-solid fa-camera"></i>
-                                    </span>
-                                    <p class="text-xs text-[#3D2B1F] font-bold">ยังไม่ได้เจนภาพถ่ายเสมือนจริง</p>
-                                    <p class="text-[10px] text-[#6B5647]">กดปุ่ม "✨ AI เสกรูปฉันใส่ชุดนี้" ด้านขวา เพื่อสร้างภาพถ่ายคุณสวมใส่ชุดนี้แบบเสมือนจริง</p>
-                                    <button onclick="runAiVirtualTryOn()" class="bg-[#3D2B1F] hover:bg-[#523B2B] text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-xs cursor-pointer">
-                                        ✨ สั่ง AI เสกรูปตอนนี้เลย
-                                    </button>
-                                </div>
-                                <div id="fitting-ai-display" class="hidden w-full space-y-2">
-                                    <div class="relative rounded-2xl overflow-hidden border border-[#D8C2B0] shadow-md max-h-[310px] bg-black">
-                                        <img id="fitting-ai-img" src="" alt="AI Try-On" class="w-full h-[310px] object-cover">
-                                        <span class="absolute bottom-2 left-2 bg-black/60 backdrop-blur-xs text-white text-[9px] px-2 py-0.5 rounded-full font-medium">
-                                            ✨ Photorealistic AI Look
-                                        </span>
-                                    </div>
-                                    <p id="fitting-ai-caption" class="text-[10px] text-[#6B5647] line-clamp-2 italic text-left px-1"></p>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <p id="fitting-mode-hint" class="text-[11px] text-[#6B5647] text-center mt-3">
-                        💡 เสื้อผ้าจากตู้ถูกวิเคราะห์ด้วย AI ให้แมตช์เข้าชุด 4 ชิ้นอย่างลงตัว
-                    </p>
-                </div>
-
-                <!-- คอลัมน์ 3: AI Virtual Try-On Studio (ถ่ายรูปตัวเอง + AI เสกรูปเราใส่ชุด) (4 Cols) -->
-                <div class="lg:col-span-4 bg-[#EBD9CB] p-5 rounded-3xl border border-[#D8C2B0] shadow-sm flex flex-col justify-between space-y-4">
-                    <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-bold text-sm text-[#3D2B1F] flex items-center gap-2">
-                                <i class="fa-solid fa-camera text-[#89C2D9]"></i> AI Virtual Try-On
+                                <span>สไตล์บอร์ด & AI ลุคบุ๊ก</span>
                             </h3>
-                            <span class="text-[10px] bg-gradient-to-r from-[#D88AAB] to-[#89C2D9] text-white px-2.5 py-0.5 rounded-full font-bold shadow-xs">
-                                ✨ เจนรูปเราใส่ชุด
+                            <span class="text-[10px] pop-peach font-extrabold px-2.5 py-0.5 rounded-full">
+                                LOOKBOOK
                             </span>
                         </div>
 
-                        <!-- Photo Capture / Upload Box -->
-                        <div class="bg-[#FCE8E8] p-4 rounded-2xl border border-[#D8C2B0] space-y-3">
-                            <div class="text-xs font-semibold text-[#3D2B1F] flex justify-between items-center">
-                                <span>รูปถ่ายของคุณ:</span>
-                                <span id="user-selfie-status" class="text-[10px] text-[#7A9A8B] font-bold">ยังไม่ได้ใส่รูป</span>
+                        <!-- Main Lookbook & Fitting Container -->
+                        <div id="avatar-fitting-container" class="relative bg-gradient-to-b from-white/95 to-[#FFF9F6] border-2 border-dashed border-[#E8D4C5] rounded-3xl p-4 flex flex-col items-center justify-center min-h-[390px] shadow-inner space-y-2 overflow-hidden group">
+                            
+                            <!-- Lookbook Grid (Active by default) -->
+                            <div id="fitting-lookbook-view" class="w-full h-full flex flex-col items-center justify-center text-center p-4">
+                                <span class="w-16 h-16 bg-[#FFF2EB] text-[#FF8E72] rounded-3xl flex items-center justify-center text-2xl mx-auto border border-[#FFD8A8] mb-3 shadow-2xs animate-pulse">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                </span>
+                                <h4 class="font-extrabold text-sm text-[#3D2B1F]">ยังไม่มีชุดที่เลือก</h4>
+                                <p class="text-[11px] text-[#6B5647] mt-1 max-w-[240px] font-medium">กดปุ่ม "🎲 สุ่มแมตช์ชุดใหม่" ด้านซ้ายเพื่อเริ่มให้ AI สไตลิสต์คัดเลือกชุดตามเทรนด์ Pinterest</p>
                             </div>
 
-                            <!-- Preview / Placeholder -->
-                            <div id="user-selfie-preview-box" class="relative bg-white rounded-xl overflow-hidden border border-[#D8C2B0] h-48 flex items-center justify-center shadow-inner">
-                                <div id="user-selfie-placeholder" class="text-center p-4 space-y-2">
-                                    <span class="w-12 h-12 bg-[#FAF1EC] text-[#3D2B1F] rounded-full flex items-center justify-center text-xl mx-auto border border-[#D8C2B0]">
-                                        <i class="fa-solid fa-user-astronaut"></i>
-                                    </span>
-                                    <p class="text-xs text-[#6B5647] font-medium">ถ่ายรูปตัวเองหรือเลือกจากอัลบั้ม</p>
-                                    <p class="text-[10px] text-gray-400">เห็นใบหน้าหรือเต็มตัวเพื่อผลลัพธ์ที่ดีที่สุด</p>
-                                </div>
-                                <img id="user-selfie-img" src="" alt="User Selfie" class="hidden w-full h-full object-cover">
-                            </div>
-
-                            <!-- Hidden File Input for Selfie -->
-                            <input type="file" id="user-selfie-input" accept="image/*" class="hidden" onchange="handleUserSelfieChange(event)">
-
-                            <div class="flex gap-2">
-                                <button onclick="triggerSelectUserSelfie()" class="flex-1 bg-white hover:bg-[#FAF1EC] text-[#3D2B1F] py-2 rounded-xl text-xs font-semibold border border-[#D8C2B0] shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
-                                    <i class="fa-solid fa-upload text-[#89C2D9]"></i> อัปโหลดรูป
-                                </button>
-                                <button onclick="triggerSelectUserSelfie()" class="flex-1 bg-white hover:bg-[#FAF1EC] text-[#3D2B1F] py-2 rounded-xl text-xs font-semibold border border-[#D8C2B0] shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
-                                    <i class="fa-solid fa-camera text-[#D88AAB]"></i> ถ่ายรูปเซลฟี่
-                                </button>
-                            </div>
                         </div>
                     </div>
 
-                    <!-- Generate Button -->
-                    <div class="space-y-2 pt-2">
-                        <button onclick="runAiVirtualTryOn()" class="w-full bg-gradient-to-r from-[#3D2B1F] via-[#523B2B] to-[#3D2B1F] hover:from-[#523B2B] hover:to-[#3D2B1F] text-[#F5E6DA] py-3.5 rounded-2xl text-xs font-bold shadow-lg transition-all transform active:scale-95 flex items-center justify-center gap-2 border border-[#8C6D53] cursor-pointer">
-                            <i class="fa-solid fa-wand-magic-sparkles text-[#E9B44C] animate-pulse"></i> 
-                            <span>✨ AI เสกรูปฉันใส่ชุดนี้</span>
-                        </button>
-                        <p class="text-[10px] text-[#6B5647] text-center">
-                            AI จะนำรูปของคุณ ผสานเข้ากับชุดที่แมตช์ และเจนเป็นภาพ Lookbook เสมือนจริง
-                        </p>
-                    </div>
-
+                    <p class="text-[11px] text-[#8C6D53] text-center mt-3 font-semibold">
+                        💡 เสื้อผ้าจากตู้ถูกวิเคราะห์ด้วย AI ให้แมตช์เข้าชุดอย่างลงตัว
+                    </p>
                 </div>
 
             </div>
@@ -489,34 +501,39 @@
 
 
         <!-- PAGE 4: BUILDER -->
-        <div id="page-builder" class="page-content hidden bg-[#EBD9CB] p-6 rounded-3xl border border-[#D8C2B0] shadow-sm space-y-6">
-            <h2 class="text-lg font-bold text-[#3D2B1F]"><i class="fa-solid fa-palette text-[#DDB892] mr-2"></i> สร้างลุคและจับคู่ใส่บนหุ่น</h2>
+        <div id="page-builder" class="page-content hidden glass-panel p-6 rounded-3xl space-y-6">
+            <h2 class="text-lg font-extrabold text-[#3D2B1F] flex items-center gap-2">
+                <span class="w-7 h-7 rounded-xl bg-[#FFF9DB] text-[#F59F00] flex items-center justify-center text-xs shadow-2xs">
+                    <i class="fa-solid fa-palette"></i>
+                </span>
+                <span>สร้างลุคและจับคู่ใส่บนหุ่น</span>
+            </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-4 bg-[#FCE8E8] p-5 rounded-2xl border border-[#D8C2B0] shadow-sm">
+                <div class="space-y-4 glass-subcard p-5 rounded-2xl shadow-xs">
                     <div>
                         <label class="block text-xs font-bold text-[#6B5647] mb-1">1. เลือกเสื้อ</label>
-                        <select id="builder-top-select" onchange="previewClothesOnModel()" class="w-full p-2.5 text-xs rounded-xl border border-[#D8C2B0] bg-white">
+                        <select id="builder-top-select" onchange="previewClothesOnModel()" class="w-full p-2.5 text-xs rounded-xl border border-[#F0DDD0] bg-white font-semibold shadow-2xs">
                             <option value="">-- เลือกเสื้อในตู้ของคุณ --</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#6B5647] mb-1">2. เลือกกางเกง / กระโปรง</label>
-                        <select id="builder-bottom-select" onchange="previewClothesOnModel()" class="w-full p-2.5 text-xs rounded-xl border border-[#D8C2B0] bg-white">
+                        <select id="builder-bottom-select" onchange="previewClothesOnModel()" class="w-full p-2.5 text-xs rounded-xl border border-[#F0DDD0] bg-white font-semibold shadow-2xs">
                             <option value="">-- เลือกกางเกง/กระโปรง --</option>
                         </select>
                     </div>
-                    <button onclick="saveBuilderOutfitToCalendar()" class="w-full bg-[#3D2B1F] text-white py-3 rounded-xl text-xs font-medium shadow-md">
+                    <button onclick="saveBuilderOutfitToCalendar()" class="w-full bg-gradient-to-r from-[#3D2B1F] to-[#5A382C] hover:from-[#5A382C] hover:to-[#3D2B1F] text-white py-3 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition transform active:scale-95 cursor-pointer">
                         💾 บันทึกลุคนี้เข้าสู่ปฏิทิน
                     </button>
                 </div>
 
-                <div class="bg-[#FCE8E8] p-6 rounded-2xl border border-[#D8C2B0] shadow-sm flex flex-col items-center justify-center min-h-[300px]">
-                    <div class="relative w-44 h-72 flex flex-col items-center justify-center border border-dashed border-[#D8C2B0] rounded-2xl bg-white p-2">
+                <div class="glass-subcard p-6 rounded-2xl flex flex-col items-center justify-center min-h-[300px] shadow-xs">
+                    <div class="relative w-48 h-76 flex flex-col items-center justify-center border-2 border-dashed border-[#E8D4C5] rounded-3xl bg-white/95 p-3 shadow-inner">
                         <div id="builder-model-top" class="w-24 h-24 flex items-center justify-center">
-                            <p class="text-[10px] text-[#6B5647]">ตัวอย่างเสื้อ</p>
+                            <p class="text-[10px] text-[#8C6D53] font-bold">ตัวอย่างเสื้อ</p>
                         </div>
                         <div id="builder-model-bottom" class="w-24 h-24 flex items-center justify-center -mt-2">
-                            <p class="text-[10px] text-[#6B5647]">ตัวอย่างกางเกง</p>
+                            <p class="text-[10px] text-[#8C6D53] font-bold">ตัวอย่างกางเกง</p>
                         </div>
                     </div>
                 </div>
@@ -526,36 +543,38 @@
         <!-- PAGE 5: CALENDAR -->
         <div id="page-calendar" class="page-content hidden space-y-6">
             <!-- ตารางปฏิทินรายเดือน -->
-            <div class="bg-[#EBD9CB] p-6 rounded-3xl border border-[#D8C2B0] shadow-sm space-y-4">
+            <div class="glass-panel p-6 rounded-3xl space-y-4">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
-                        <h2 class="text-lg font-bold text-[#3D2B1F] flex items-center gap-2">
-                            <i class="fa-solid fa-calendar-days text-[#B5A2D9]"></i> 
+                        <h2 class="text-lg font-extrabold text-[#3D2B1F] flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-xl bg-[#F3EDFD] text-[#734DB5] flex items-center justify-center text-xs shadow-2xs">
+                                <i class="fa-solid fa-calendar-days"></i>
+                            </span>
                             <span id="full-calendar-title">ปฏิทินการแต่งตัว</span>
                         </h2>
-                        <p class="text-xs text-[#6B5647]">คลิกที่ช่องวันที่เพื่อดู จัดการ หรือวางแผนชุดที่ใส่ในวันนั้น</p>
+                        <p class="text-xs text-[#6B5647] mt-0.5">คลิกที่ช่องวันที่เพื่อดู จัดการ หรือวางแผนชุดที่ใส่ในวันนั้น</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button onclick="changeCalendarMonth(-1)" class="w-8 h-8 rounded-full bg-[#FCE8E8] hover:bg-white text-[#3D2B1F] border border-[#D8C2B0] flex items-center justify-center text-xs shadow-sm transition">
+                        <button onclick="changeCalendarMonth(-1)" class="w-8 h-8 rounded-xl bg-white hover:bg-[#FFF5F2] text-[#3D2B1F] border border-[#F0DDD0] flex items-center justify-center text-xs shadow-xs transition hover:scale-105 active:scale-95 cursor-pointer">
                             <i class="fa-solid fa-chevron-left"></i>
                         </button>
-                        <button onclick="changeCalendarMonth(0)" class="px-3 py-1 rounded-xl bg-[#3D2B1F] text-white text-xs font-semibold shadow-sm transition">
+                        <button onclick="changeCalendarMonth(0)" class="px-3.5 py-1.5 rounded-xl bg-[#3D2B1F] text-white text-xs font-bold shadow-sm transition hover:scale-102 active:scale-95 cursor-pointer">
                             วันนี้
                         </button>
-                        <button onclick="changeCalendarMonth(1)" class="w-8 h-8 rounded-full bg-[#FCE8E8] hover:bg-white text-[#3D2B1F] border border-[#D8C2B0] flex items-center justify-center text-xs shadow-sm transition">
+                        <button onclick="changeCalendarMonth(1)" class="w-8 h-8 rounded-xl bg-white hover:bg-[#FFF5F2] text-[#3D2B1F] border border-[#F0DDD0] flex items-center justify-center text-xs shadow-xs transition hover:scale-105 active:scale-95 cursor-pointer">
                             <i class="fa-solid fa-chevron-right"></i>
                         </button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-7 text-center text-xs font-bold text-[#6B5647] gap-2 py-1">
-                    <span class="text-red-400">อา</span>
+                <div class="grid grid-cols-7 text-center text-xs font-extrabold text-[#8C6D53] gap-2 py-1">
+                    <span class="text-[#E03177]">อา</span>
                     <span>จ</span>
                     <span>อ</span>
                     <span>พ</span>
                     <span>พฤ</span>
                     <span>ศ</span>
-                    <span class="text-blue-400">ส</span>
+                    <span class="text-[#1C7ED6]">ส</span>
                 </div>
 
                 <div id="full-calendar-grid" class="grid grid-cols-7 gap-2 text-center text-xs"></div>
@@ -563,19 +582,28 @@
         </div>
 
         <!-- PAGE 6: STATS -->
-        <div id="page-stats" class="page-content hidden bg-[#EBD9CB] p-6 rounded-3xl border border-[#D8C2B0] shadow-sm space-y-6">
-            <h2 class="text-lg font-bold text-[#3D2B1F]">📊 สถิติตู้เสื้อผ้าและการแต่งตัว</h2>
+        <div id="page-stats" class="page-content hidden glass-panel p-6 rounded-3xl space-y-6">
+            <h2 class="text-lg font-extrabold text-[#3D2B1F] flex items-center gap-2">
+                <span class="w-7 h-7 rounded-xl bg-[#EDFAF2] text-[#2B8A3E] flex items-center justify-center text-xs shadow-2xs">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </span>
+                <span>สถิติตู้เสื้อผ้าและการแต่งตัว</span>
+            </h2>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="bg-[#FCE8E8] p-5 rounded-2xl border border-[#D8C2B0] shadow-sm">
-                    <p class="text-xs text-[#6B5647]">จำนวนเสื้อผ้าทั้งหมด</p>
-                    <h3 id="stat-total-clothes" class="text-3xl font-bold text-[#3D2B1F] mt-1">0</h3>
+                <div class="glass-subcard p-5 rounded-2xl hover-pop">
+                    <p class="text-xs font-bold text-[#8C6D53]">จำนวนเสื้อผ้าทั้งหมด</p>
+                    <h3 id="stat-total-clothes" class="text-3xl font-extrabold text-[#3D2B1F] mt-1 font-mono">0</h3>
                 </div>
-                <div class="bg-[#FCE8E8] p-5 rounded-2xl border border-[#D8C2B0] shadow-sm">
-                    <p class="text-xs text-[#6B5647]">จำนวนวันที่บันทึกชุดใส่แล้ว</p>
-                    <h3 id="stat-total-outfits" class="text-3xl font-bold text-[#3D2B1F] mt-1">0</h3>
+                <div class="glass-subcard p-5 rounded-2xl hover-pop">
+                    <p class="text-xs font-bold text-[#8C6D53]">จำนวนวันที่บันทึกชุดใส่แล้ว</p>
+                    <h3 id="stat-total-outfits" class="text-3xl font-extrabold text-[#3D2B1F] mt-1 font-mono">0</h3>
                 </div>
-                <div class="bg-[#FCE8E8] p-5 rounded-2xl border border-[#D8C2B0] shadow-sm">
-                    <p class="text-xs text-[#6B5647]">สไตล์ที่ใส่บ่อยที่สุด</p>
+                <div class="glass-subcard p-5 rounded-2xl hover-pop">
+                    <p class="text-xs font-bold text-[#8C6D53]">สไตล์ที่ใส่บ่อยที่สุด</p>
+                    <h3 id="stat-top-style" class="text-xl font-extrabold text-[#E03177] mt-1">CASUAL</h3>
+                </div>
+            </div>
+        </div>
                     <h3 id="stat-top-style" class="text-xl font-bold text-[#3D2B1F] mt-1">CASUAL</h3>
                 </div>
             </div>
@@ -812,52 +840,6 @@
             <button onclick="closeAiResultModal()" class="w-full bg-[#3D2B1F] hover:bg-[#523B2B] text-white py-2.5 rounded-xl text-xs font-medium shadow-md transition-all duration-200 transform active:scale-95">
                 ตกลง / นำไปใช้งาน
             </button>
-        </div>
-    </div>
-
-    <!-- MODAL 6: AI Virtual Try-On ผลลัพธ์ภาพลองชุดเสมือนจริง -->
-    <div id="tryon-result-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-[#FCE8E8] w-full max-w-md rounded-3xl p-6 shadow-2xl border border-[#D8C2B0] space-y-4 animate-modal-in text-center relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeTryOnModal()" class="absolute top-4 right-4 text-gray-500 hover:text-black font-bold p-1 cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
-            
-            <!-- Loading State -->
-            <div id="tryon-loading" class="py-12 space-y-4">
-                <div class="w-16 h-16 bg-[#FAF1EC] border border-[#D8C2B0] rounded-full flex items-center justify-center text-3xl mx-auto shadow-inner text-[#89C2D9] animate-spin">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                </div>
-                <div>
-                    <h3 class="text-base font-bold text-[#3D2B1F]">AI กำลังเสกรูปคุณใส่ชุดนี้... ✨</h3>
-                    <p class="text-xs text-[#6B5647] mt-1 px-4">กำลังคำนวณแสง เงา สไตล์ และจัดชุดให้เข้ากับคุณอย่างสมบูรณ์แบบ</p>
-                </div>
-            </div>
-
-            <!-- Result State -->
-            <div id="tryon-result-content" class="space-y-4 hidden text-left">
-                <div class="text-center">
-                    <span class="text-[10px] font-bold bg-[#3D2B1F] text-[#F5E6DA] px-3 py-1 rounded-full"><i class="fa-solid fa-wand-magic-sparkles text-[#E9B44C] mr-1"></i> AI Virtual Try-On</span>
-                    <h3 class="text-base font-bold text-[#3D2B1F] mt-2">ลุคของคุณใส่ชุดที่แมตช์ ✨</h3>
-                </div>
-                
-                <div class="relative bg-white rounded-2xl overflow-hidden border border-[#D8C2B0] shadow-md max-h-[380px] flex items-center justify-center group">
-                    <img id="tryon-result-img" src="" alt="Virtual Try-On Result" class="w-full h-auto max-h-[380px] object-cover rounded-2xl transition duration-300">
-                </div>
-
-                <div class="bg-white/80 p-3.5 rounded-xl border border-[#D8C2B0] text-xs text-[#523B2B] space-y-1">
-                    <p class="font-bold text-[#7A9A8B] flex items-center gap-1.5">
-                        <i class="fa-solid fa-sparkles text-[#E9B44C]"></i> คำแนะนำจาก AI Stylist:
-                    </p>
-                    <p id="tryon-advice-text" class="text-xs text-[#6B5647] leading-relaxed">-</p>
-                </div>
-
-                <div class="flex flex-col sm:flex-row gap-2 pt-2">
-                    <button onclick="downloadTryOnImage()" class="flex-1 bg-[#3D2B1F] hover:bg-[#523B2B] text-white py-3 rounded-xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-2 cursor-pointer active:scale-95">
-                        <i class="fa-solid fa-download"></i> ดาวน์โหลดรูปภาพ
-                    </button>
-                    <button onclick="saveCurrentMatchToCalendar(); closeTryOnModal();" class="flex-1 bg-[#7A9A8B] hover:bg-[#688577] text-white py-3 rounded-xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-2 cursor-pointer active:scale-95">
-                        <i class="fa-solid fa-calendar-check"></i> บันทึกลงปฏิทิน
-                    </button>
-                </div>
-            </div>
         </div>
     </div>
 

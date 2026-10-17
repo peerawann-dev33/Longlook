@@ -590,13 +590,97 @@ app.post('/api/ai/analyze-clothing', authenticateToken, upload.single('image'), 
     }
 });
 
-// Endpoint ใหม่: AI Fashion Stylist Matcher (อิงสไตล์และเทรนด์ Pinterest พร้อมกรองเพศอย่างเคร่งครัด)
+// ตัวช่วยแปลงชื่อและสีเสื้อผ้าภาษาไทยเป็นคำศัพท์แฟชั่นภาษาอังกฤษระดับสตูดิโอ สำหรับ Image Generation
+function translateClothingToFashionEnglish(item, fallbackType = 'top') {
+    if (!item) return '';
+    const name = (item.name || '').toLowerCase();
+    const cat = (item.category || '').toLowerCase();
+    const color = (item.color || '').toLowerCase();
+
+    // Map สีเป็นศัพท์แสงแฟชั่น
+    let colorEng = '';
+    if (color.includes('ขาว') || name.includes('ขาว') || color.includes('งาช้าง')) colorEng = 'crisp ivory white';
+    else if (color.includes('ดำ') || name.includes('ดำ')) colorEng = 'matte obsidian black';
+    else if (color.includes('เทา') || name.includes('เทา')) colorEng = 'charcoal heather grey';
+    else if (color.includes('ครีม') || color.includes('เบจ') || name.includes('ครีม') || name.includes('เบจ')) colorEng = 'warm oatmeal beige';
+    else if (color.includes('น้ำตาล') || color.includes('มอคค่า') || name.includes('น้ำตาล')) colorEng = 'mocha brown';
+    else if (color.includes('กรม') || color.includes('น้ำเงิน') || name.includes('กรม')) colorEng = 'deep midnight navy blue';
+    else if (color.includes('ฟ้า') || color.includes('ยีนส์') || name.includes('ฟ้า') || name.includes('ยีน')) colorEng = 'light washed vintage indigo denim';
+    else if (color.includes('เขียว') || color.includes('เสจ') || name.includes('เขียว')) colorEng = 'muted sage green';
+    else if (color.includes('ชมพู') || name.includes('ชมพู')) colorEng = 'soft dusty blush pink';
+    else if (color.includes('แดง') || name.includes('แดง')) colorEng = 'rich burgundy wine red';
+    else colorEng = 'neutral aesthetic tone';
+
+    // Map หมวดหมู่และทรงเสื้อผ้า
+    if (fallbackType === 'top' || cat === 'เสื้อ' || name.includes('เสื้อ')) {
+        if (name.includes('เชิ้ต') || name.includes('shirt')) return `${colorEng} relaxed linen button-up shirt`;
+        if (name.includes('โปโล') || name.includes('polo')) return `${colorEng} textured knit collar polo shirt`;
+        if (name.includes('ไหมพรม') || name.includes('knit') || name.includes('cardigan') || name.includes('คาร์ดิแกน')) return `${colorEng} cozy minimalist knit cardigan`;
+        if (name.includes('ฮู้ด') || name.includes('hoodie') || name.includes('สเวตเตอร์')) return `${colorEng} premium oversized heavyweight hoodie`;
+        return `${colorEng} premium heavy cotton relaxed drop-shoulder t-shirt`;
+    }
+
+    if (fallbackType === 'bottom' || cat === 'กางเกง' || cat === 'กระโปรง' || name.includes('เกง') || name.includes('กระโปรง')) {
+        if (cat === 'กระโปรง' || name.includes('กระโปรง') || name.includes('skirt')) return `${colorEng} high-waisted pleated A-line midi skirt`;
+        if (name.includes('ยีนส์') || name.includes('jean') || name.includes('denim')) return `${colorEng} vintage straight-leg loose-fit denim jeans`;
+        if (name.includes('คาร์โก้') || name.includes('cargo')) return `${colorEng} modern relaxed wide-leg cargo trousers`;
+        if (name.includes('ขาสั้น') || name.includes('short')) return `${colorEng} tailored knee-length casual shorts`;
+        return `${colorEng} tailored pleated wide-leg trousers`;
+    }
+
+    if (fallbackType === 'shoes' || cat === 'รองเท้า' || name.includes('รองเท้า')) {
+        if (name.includes('ส้นสูง') || name.includes('heels')) return `${colorEng} pointed-toe kitten heel mules`;
+        if (name.includes('โลฟเฟอร์') || name.includes('loafer')) return `${colorEng} classic polished leather penny loafers`;
+        if (name.includes('แตะ') || name.includes('sandal')) return `${colorEng} minimalist leather slide sandals`;
+        return `${colorEng} clean low-top minimalist retro sneakers`;
+    }
+
+    if (fallbackType === 'accessory' || cat === 'เครื่องประดับ' || cat === 'กระเป๋า' || cat === 'หมวก') {
+        if (name.includes('หมวก') || name.includes('cap') || name.includes('hat')) return `${colorEng} clean baseball dad cap`;
+        if (name.includes('สะพาย') || name.includes('crossbody') || name.includes('bag') || name.includes('กระเป๋า')) return `${colorEng} minimalist leather crossbody bag`;
+        if (name.includes('แว่น') || name.includes('glass')) return `retro tortoiseshell sunglasses`;
+        return `${colorEng} subtle minimalist jewelry accent`;
+    }
+
+    return `${colorEng} minimalist fashion piece`;
+}
+
+// Endpoint ใหม่: AI Fashion Stylist Matcher (อิงสไตล์และเทรนด์ Pinterest พร้อมตัวเลือกรวมพร็อพ)
 app.post('/api/ai/match-outfit', async (req, res) => {
     try {
-        const { wardrobe = [], occasion = 'ไปคาเฟ่ / เดินเล่นวันสบายๆ', style = 'CASUAL', gender = 'unisex', skinTone = 'warm' } = req.body || {};
+        const { wardrobe = [], occasion = 'ไปคาเฟ่ / เดินเล่นวันสบายๆ', style = 'CASUAL', gender = 'unisex', skinTone = 'warm', includeAccessories = false, ratingsHistory = [] } = req.body || {};
 
         if (!Array.isArray(wardrobe) || wardrobe.length === 0) {
             return res.status(400).json({ message: 'ไม่มีเสื้อผ้าในตู้สำหรับให้ AI แมตช์' });
+        }
+
+        // รวบรวมเรทติ้งในอดีต (ทั้งจาก client และจากตาราง outfit_ratings ใน DB) เพื่อเรียนรู้ความชอบ
+        let combinedRatings = [...(Array.isArray(ratingsHistory) ? ratingsHistory : [])];
+        try {
+            const dbRatings = db.prepare('SELECT top_name, bottom_name, rating, feedback FROM outfit_ratings ORDER BY id DESC LIMIT 30').all();
+            for (const r of dbRatings) {
+                if (!combinedRatings.some(c => (c.topName === r.top_name && c.bottomName === r.bottom_name))) {
+                    combinedRatings.push({
+                        topName: r.top_name,
+                        bottomName: r.bottom_name,
+                        rating: r.rating,
+                        feedback: r.feedback
+                    });
+                }
+            }
+        } catch (e) {}
+
+        const dislikedCombos = combinedRatings.filter(r => (r.rating <= 2 || r.feedback === 'dislike'));
+        const likedCombos = combinedRatings.filter(r => (r.rating >= 4 || r.feedback === 'like'));
+
+        let feedbackRules = '';
+        if (dislikedCombos.length > 0) {
+            feedbackRules += `\nCRITICAL USER FEEDBACK - AVOID DISLIKED PAIRS (User gave 1-2 stars / disliked):\n` +
+                dislikedCombos.map(d => `- DO NOT PAIR: "${d.topName || d.top_name}" with "${d.bottomName || d.bottom_name}" (Disliked, rating: ${d.rating} stars). NEVER pick this pair together!`).join('\n') + '\n';
+        }
+        if (likedCombos.length > 0) {
+            feedbackRules += `\nUSER FAVORITES (User gave 4-5 stars / liked):\n` +
+                likedCombos.map(l => `- FAVORITE SYNERGY: "${l.topName || l.top_name}" with "${l.bottomName || l.bottom_name}" (User gave ${l.rating} stars). Prioritize similar aesthetic vibes or items!`).join('\n') + '\n';
         }
 
         // 1. ดึงแรงบันดาลใจ Pinterest Trend จาก LOOK_CATALOG ให้ตรงกับเพศ สไตล์ และโทนสี
@@ -633,7 +717,6 @@ app.post('/api/ai/match-outfit', async (req, res) => {
         let genderFilteredWardrobe = wardrobe.filter(item => {
             const itemGender = (item.gender || 'unisex').toLowerCase();
             if (gender === 'male') {
-                // ผู้ชาย ห้ามเลือกกระโปรง/เดรส และห้ามเลือกไอเทมเพศหญิง
                 if (isFeminineItem(item) || itemGender === 'female') return false;
                 return true;
             } else if (gender === 'female') {
@@ -643,7 +726,6 @@ app.post('/api/ai/match-outfit', async (req, res) => {
             return true;
         });
 
-        // หากผู้ใช้ยังไม่มีเสื้อผ้าที่ระบุเพศไว้เลย ให้ใช้ตู้เสื้อผ้าทั้งหมดที่มี (แต่ตัดกระโปรง/เดรสออกถ้าเพศชาย)
         if (genderFilteredWardrobe.length === 0) {
             genderFilteredWardrobe = gender === 'male' ? wardrobe.filter(item => !isFeminineItem(item)) : wardrobe;
             if (genderFilteredWardrobe.length === 0) genderFilteredWardrobe = wardrobe;
@@ -661,38 +743,45 @@ app.post('/api/ai/match-outfit', async (req, res) => {
             style: item.style || ''
         }));
 
-        const fashionPrompt = `You are a world-class Pinterest Fashion Stylist and color coordination expert.
-We want to style the user based on real Pinterest aesthetic trends:
+        const fashionPrompt = `You are an elite Pinterest Fashion Stylist and color coordination expert.
+We want to style the user based on real trending Pinterest aesthetic lookbooks and user rating feedback.
 Target Pinterest Trend:
 - Title: "${pinterestInspiration.title}"
-- Style: "${pinterestInspiration.style}"
-- Color Harmony: "${pinterestInspiration.color_tone}"
+- Style Aesthetic: "${pinterestInspiration.style}"
+- Target Color Harmony: "${pinterestInspiration.color_tone}"
 - Pinterest Reference: "${pinterestInspiration.pinterest_query}"
 
 User Settings:
 - Occasion: "${occasion}"
-- Target Gender: "${gender}" (STRICT: If gender is "male", NEVER pick a skirt, dress, or female item)
+- Target Gender: "${gender}" (CRITICAL RULE: If gender is "male", NEVER pick a skirt, dress, or female item)
 - Skin Tone: "${skinTone}"
-
+- Include Accessories/Bag: ${includeAccessories ? 'YES' : 'NO (Do not include accessory, set accessoryIndex: null)'}
+${feedbackRules}
 Available User Wardrobe:
 ${JSON.stringify(wardrobeSummary, null, 2)}
 
-Pick the best 4 matching pieces (topIndex, bottomIndex, shoesIndex, accessoryIndex) from the available wardrobe list to emulate this Pinterest aesthetic.
+Task:
+Select the best matching items from user wardrobe to emulate this Pinterest aesthetic while respecting user rating preferences.
 Respond in strict JSON only (no markdown, no backticks, valid JSON):
 {
   "topIndex": 0,
   "bottomIndex": 1,
   "shoesIndex": 2,
-  "accessoryIndex": 3,
+  "accessoryIndex": ${includeAccessories ? 3 : 'null'},
   "matchScore": 96,
-  "colorHarmony": "สรุปคู่สีสไตล์ Pinterest เช่น โทนครีมมอคค่า คอนทราสต์มินิมอล",
-  "stylistReason": "คำแนะนำภาษาไทย 2 ประโยคจาก AI Stylist ว่าทำไมชุดนี้ถึงตรงตามสไตล์ Pinterest และเหมาะกับผู้ใช้"
+  "colorHarmony": "สรุปคู่สีสไตล์ Pinterest เช่น เอิร์ธโทนตัดขาว คลีนตาแบบหนุ่มเกาหลี",
+  "stylistReason": "คำแนะนำภาษาไทยสละสลวย 2 ประโยคจาก AI Stylist ว่าทำไมชุดนี้ถึงตรงตามสไตล์ Pinterest และเข้ากับผู้ใช้"
 }`;
 
-        // 1. ถ้ามี Gemini AI ให้วิเคราะห์ด้วย Gemini 1.5 Flash
+        // 1. ถ้ามี Gemini AI ให้วิเคราะห์ด้วย Gemini 2.0 Flash / 1.5 Flash
         if (genAI) {
             try {
-                const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+                let model;
+                try {
+                    model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+                } catch(e) {
+                    model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+                }
                 const result = await model.generateContent(fashionPrompt);
                 const text = await result.response.text();
                 const cleaned = text.replace(/```json|```/g, '').trim();
@@ -702,18 +791,18 @@ Respond in strict JSON only (no markdown, no backticks, valid JSON):
                     top: genderFilteredWardrobe[parsed.topIndex] || null,
                     bottom: genderFilteredWardrobe[parsed.bottomIndex] || null,
                     shoes: genderFilteredWardrobe[parsed.shoesIndex] || null,
-                    accessory: genderFilteredWardrobe[parsed.accessoryIndex] || null,
-                    matchScore: parsed.matchScore || 95,
+                    accessory: includeAccessories && typeof parsed.accessoryIndex === 'number' ? genderFilteredWardrobe[parsed.accessoryIndex] : null,
+                    matchScore: parsed.matchScore || 96,
                     colorHarmony: parsed.colorHarmony || pinterestInspiration.color_tone,
                     stylistReason: parsed.stylistReason || `AI ปรับลุคตาม Pinterest "${pinterestInspiration.title}" ให้เข้ากับตู้เสื้อผ้าของคุณ`,
-                    aiEngine: 'Gemini 1.5 Flash (Pinterest Aesthetic)'
+                    aiEngine: 'Gemini 2.0 Flash (Pinterest Stylist)'
                 };
             } catch (aiErr) {
-                console.warn('Gemini Matcher error, trying Pollinations AI:', aiErr.message);
+                console.warn('Gemini Matcher error, trying OpenAI Reasoning via Pollinations:', aiErr.message);
             }
         }
 
-        // 2. ถ้าไม่มี Gemini API Key หรือ Gemini มีปัญหา ให้เรียก Pollinations Text AI
+        // 2. ถ้าไม่มี Gemini API Key ให้เรียก OpenAI Reasoning (GPT-4o) ผ่าน Pollinations
         if (!matchedResult) {
             try {
                 const aiRes = await fetch('https://text.pollinations.ai/', {
@@ -721,9 +810,10 @@ Respond in strict JSON only (no markdown, no backticks, valid JSON):
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         messages: [
-                            { role: 'system', content: 'You are an elite fashion stylist matching Pinterest aesthetics. You always respond in pure JSON.' },
+                            { role: 'system', content: 'You are an elite fashion stylist matching Pinterest aesthetics. You always respond in valid JSON. You write natural, fluent, elegant Thai styling advice without literal English machine translation.' },
                             { role: 'user', content: fashionPrompt }
                         ],
+                        model: 'openai',
                         jsonMode: true
                     })
                 });
@@ -738,11 +828,11 @@ Respond in strict JSON only (no markdown, no backticks, valid JSON):
                             top: genderFilteredWardrobe[parsed.topIndex] || genderFilteredWardrobe[0],
                             bottom: genderFilteredWardrobe[parsed.bottomIndex] || genderFilteredWardrobe[1] || genderFilteredWardrobe[0],
                             shoes: genderFilteredWardrobe[parsed.shoesIndex] || null,
-                            accessory: genderFilteredWardrobe[parsed.accessoryIndex] || null,
-                            matchScore: parsed.matchScore || 96,
+                            accessory: includeAccessories && typeof parsed.accessoryIndex === 'number' ? genderFilteredWardrobe[parsed.accessoryIndex] : null,
+                            matchScore: parsed.matchScore || 97,
                             colorHarmony: parsed.colorHarmony || pinterestInspiration.color_tone,
                             stylistReason: parsed.stylistReason || `AI จับคู่ลุคตามเทรนด์ Pinterest "${pinterestInspiration.title}" ได้อย่างกลมกลืน`,
-                            aiEngine: 'Pollinations Fashion AI (Pinterest Aesthetic)'
+                            aiEngine: 'OpenAI GPT-4o Stylist (Pinterest Aesthetic)'
                         };
                     }
                 }
@@ -781,23 +871,50 @@ Respond in strict JSON only (no markdown, no backticks, valid JSON):
         const shoesList = genderFilteredWardrobe.filter(isShoes);
         const accessories = genderFilteredWardrobe.filter(isAcc);
 
-        // 3. Smart Color Harmony & Variety Engine (Local Fallback ออฟไลน์ / สำรอง)
+        // 3. Smart Color Harmony & Variety Engine (Local Fallback สำรอง)
         if (!matchedResult) {
             const pickRandom = (arr) => arr.length > 0 ? arr[Math.floor(Math.random() * arr.length)] : null;
-            const chosenTop = pickRandom(tops.filter(t => (t.style || '').toUpperCase() === style.toUpperCase())) || pickRandom(tops) || genderFilteredWardrobe[0];
-            const chosenBottom = pickRandom(bottoms.filter(b => (b.style || '').toUpperCase() === style.toUpperCase())) || pickRandom(bottoms) || genderFilteredWardrobe[1] || genderFilteredWardrobe[0];
+            
+            // กรองคู่ท่อนบน-ท่อนล่างไม่ให้ซ้ำกับชุดที่ผู้ใช้ให้คะแนนไม่พอใจ (1-2 ดาว)
+            const isPairDisliked = (topItem, bottomItem) => {
+                if (!topItem || !bottomItem) return false;
+                return dislikedCombos.some(d => {
+                    const dTop = (d.topName || d.top_name || '').toLowerCase();
+                    const dBottom = (d.bottomName || d.bottom_name || '').toLowerCase();
+                    return dTop && dBottom && topItem.name.toLowerCase().includes(dTop) && bottomItem.name.toLowerCase().includes(dBottom);
+                });
+            };
+
+            const matchingTops = tops.filter(t => (t.style || '').toUpperCase() === style.toUpperCase());
+            const poolTops = matchingTops.length > 0 ? matchingTops : tops;
+            const matchingBottoms = bottoms.filter(b => (b.style || '').toUpperCase() === style.toUpperCase());
+            const poolBottoms = matchingBottoms.length > 0 ? matchingBottoms : bottoms;
+
+            let chosenTop = null;
+            let chosenBottom = null;
+
+            for (let attempt = 0; attempt < 12; attempt++) {
+                const candTop = pickRandom(poolTops) || genderFilteredWardrobe[0];
+                const candBottom = pickRandom(poolBottoms) || genderFilteredWardrobe[1] || genderFilteredWardrobe[0];
+                if (!isPairDisliked(candTop, candBottom) || attempt === 11) {
+                    chosenTop = candTop;
+                    chosenBottom = candBottom;
+                    break;
+                }
+            }
+
             const chosenShoes = pickRandom(shoesList) || {
                 name: 'รองเท้าผ้าใบสีขาวคลีน',
                 category: 'รองเท้า',
                 image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300&auto=format&fit=crop'
             };
-            const chosenAccessory = pickRandom(accessories) || {
+            const chosenAccessory = includeAccessories ? (pickRandom(accessories) || {
                 name: gender === 'female' ? 'กระเป๋าสะพายข้างแฟชั่น' : 'กระเป๋าสะพายข้างมินิมอล',
                 category: 'กระเป๋า',
                 image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=300&auto=format&fit=crop'
-            };
+            }) : null;
 
-            const randomScores = [94, 95, 97, 98, 99];
+            const randomScores = [95, 96, 97, 98, 99];
             const score = randomScores[Math.floor(Math.random() * randomScores.length)];
 
             matchedResult = {
@@ -812,7 +929,7 @@ Respond in strict JSON only (no markdown, no backticks, valid JSON):
             };
         }
 
-        // การันตีความถูกต้องของหมวดหมู่ 100% ไม่ให้เสื้อไปโผล่ในช่องพร็อพ หรือเพศชายได้กระโปรง
+        // การันตีความถูกต้องของหมวดหมู่ 100%
         if (!matchedResult.top || !isTop(matchedResult.top)) {
             matchedResult.top = tops[0] || genderFilteredWardrobe[0];
         }
@@ -830,12 +947,16 @@ Respond in strict JSON only (no markdown, no backticks, valid JSON):
                 image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300&auto=format&fit=crop'
             };
         }
-        if (!matchedResult.accessory || !isAcc(matchedResult.accessory)) {
-            matchedResult.accessory = accessories[0] || {
-                name: gender === 'female' ? 'กระเป๋าสะพายข้างแฟชั่น' : 'กระเป๋าสะพายข้างมินิมอล',
-                category: 'กระเป๋า',
-                image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=300&auto=format&fit=crop'
-            };
+        if (includeAccessories) {
+            if (!matchedResult.accessory || !isAcc(matchedResult.accessory)) {
+                matchedResult.accessory = accessories[0] || {
+                    name: gender === 'female' ? 'กระเป๋าสะพายข้างแฟชั่น' : 'กระเป๋าสะพายข้างมินิมอล',
+                    category: 'กระเป๋า',
+                    image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=300&auto=format&fit=crop'
+                };
+            }
+        } else {
+            matchedResult.accessory = null;
         }
 
         matchedResult.pinterestInspiration = pinterestInspiration;
@@ -851,52 +972,109 @@ Respond in strict JSON only (no markdown, no backticks, valid JSON):
     }
 });
 
+// Endpoint ใหม่: บันทึกเรทติ้งชุด (1 - 5 ดาว) และเรียนรู้ความชอบของผู้ใช้
+app.post('/api/ai/rate-outfit', async (req, res) => {
+    try {
+        const { topName, bottomName, shoesName, accessoryName, rating = 3, style = 'CASUAL', occasion = '', feedback } = req.body || {};
+        let userId = null;
 
+        const authHeader = req.headers['authorization'];
+        if (authHeader) {
+            const token = authHeader.split(' ')[1];
+            try {
+                const decoded = jwt.verify(token, JWT_SECRET);
+                userId = decoded.id;
+            } catch (err) {}
+        }
 
-// Endpoint ใหม่: AI Virtual Try-On (เจนรูปผู้ใช้สวมชุดที่แมตช์)
+        const numericRating = Math.max(1, Math.min(5, parseInt(rating, 10) || 3));
+        const fb = feedback || (numericRating <= 2 ? 'dislike' : numericRating >= 4 ? 'like' : 'neutral');
+
+        const insertStmt = db.prepare(`
+            INSERT INTO outfit_ratings (user_id, top_name, bottom_name, shoes_name, accessory_name, rating, style, occasion, feedback)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+        const result = insertStmt.run(userId, topName || '', bottomName || '', shoesName || '', accessoryName || '', numericRating, style, occasion, fb);
+
+        res.json({
+            success: true,
+            message: numericRating <= 2 ? 'บันทึกคะแนนแล้ว AI จะหลีกเลี่ยงคู่ชุดนี้ในรอบถัดไป' : 'บันทึกคะแนนความชอบแล้ว AI จะจดจำสไตล์นี้',
+            ratingId: result.lastInsertRowid,
+            rating: numericRating,
+            feedback: fb
+        });
+    } catch (err) {
+        console.error('Rate outfit error:', err);
+        res.status(500).json({ message: 'ไม่สามารถบันทึกเรทติ้งได้' });
+    }
+});
+
+app.get('/api/ai/ratings', async (req, res) => {
+    try {
+        const rows = db.prepare('SELECT * FROM outfit_ratings ORDER BY id DESC LIMIT 50').all();
+        res.json({ ratings: rows });
+    } catch (err) {
+        res.json({ ratings: [] });
+    }
+});
+
+// Endpoint ใหม่: AI Virtual Try-On (เจนรูป Lookbook เสมือนจริงระดับนิตยสารแฟชั่น ด้วย FLUX Realism Engine)
 app.post('/api/ai/virtual-tryon', async (req, res) => {
     try {
-        const { userPhoto, items, style = 'Casual', gender = 'unisex', occasion = 'ทั่วไป' } = req.body || {};
+        const { userPhoto, items, style = 'Casual', gender = 'unisex', occasion = 'ทั่วไป', vibe = 'korean_cafe', includeAccessories = false } = req.body || {};
 
-        const topName = items?.top?.name || 'เสื้อสไตล์มินิมอล';
-        const topColor = items?.top?.color || 'สีธรรมชาติ';
-        const bottomName = items?.bottom?.name || 'กางเกงสแล็คหรือยีนส์เข้าชุด';
-        const bottomColor = items?.bottom?.color || '';
-        const shoesName = items?.shoes?.name || 'รองเท้าผ้าใบ';
-        const accessoryName = items?.accessory?.name || 'กระเป๋าแฟชั่น';
+        // แปลงชิ้นเสื้อผ้าเป็นภาษาอังกฤษเชิงแฟชั่นเพื่อป้อนให้ FLUX Diffusion Model เข้าใจลึกซึ้ง
+        const topDesc = translateClothingToFashionEnglish(items?.top, 'top') || 'minimalist cotton oversized t-shirt';
+        const bottomDesc = translateClothingToFashionEnglish(items?.bottom, 'bottom') || 'tailored straight-leg trousers';
+        const shoesDesc = translateClothingToFashionEnglish(items?.shoes, 'shoes') || 'clean low-top white sneakers';
+        const accDesc = includeAccessories && items?.accessory ? translateClothingToFashionEnglish(items?.accessory, 'accessory') : '';
 
-        let genderLabel = 'stylish young adult';
+        // จัดการเพศและสไตล์โมเดล
+        let genderPrompt = 'stylish 22-year-old Asian young adult';
         if (gender === 'female') {
-            genderLabel = 'young attractive asian woman, feminine chic styling, elegant female model';
+            genderPrompt = 'stylish 22-year-old Asian female fashion model, feminine graceful posture, natural subtle makeup';
         } else if (gender === 'male') {
-            genderLabel = 'young handsome asian man, masculine stylish, handsome male model';
-        } else {
-            genderLabel = 'young stylish modern asian person, unisex fashion aesthetic';
+            genderPrompt = 'stylish 23-year-old handsome Asian male fashion model, masculine sharp jawline, modern haircut';
         }
-        
-        // สร้าง Prompt คุณภาพสูงสำหรับ Fashion Lookbook / Virtual Try-on
-        const outfitDescription = `wearing ${topName} ${topColor}, paired with ${bottomName} ${bottomColor}, styled with ${shoesName} and ${accessoryName}`;
-        const prompt = `Full body fashion lookbook portrait of a ${genderLabel}, ${outfitDescription}, ${style} style, occasion for ${occasion}, elegant pose, aesthetic soft cafe or studio lighting, 8k resolution, highly detailed realistic photography, Pinterest fashion aesthetic, photorealistic`;
 
-        // สุ่ม Seed เพื่อให้แต่ละการเจนมีความหลากหลายและเป็นเอกลักษณ์
+        // สถานที่และแสง (Setting & Lighting Vibes)
+        let settingPrompt = 'standing in a sunlit aesthetic minimalist Seoul coffee shop, warm natural diffused sunlight, warm wood and microcement walls';
+        if (vibe === 'tokyo_street') {
+            settingPrompt = 'standing on a clean minimalist street in Daikanyama Tokyo, candid street style fashion photography, soft golden hour sunlight, architectural background';
+        } else if (vibe === 'editorial_studio') {
+            settingPrompt = 'in a clean contemporary fashion studio, softbox directional lighting, Vogue GQ lookbook aesthetic, neutral warm grey backdrop';
+        } else if (vibe === 'clean_minimal') {
+            settingPrompt = 'in a contemporary minimalist art gallery setting, clean white architectural space, natural diffused daylight';
+        }
+
+        // ประกอบร่างเป็น Master Prompt ระดับมืออาชีพ
+        const outfitSentence = accDesc 
+            ? `wearing ${topDesc}, paired with ${bottomDesc}, styled with ${shoesDesc}, and holding a ${accDesc}`
+            : `wearing ${topDesc}, paired with ${bottomDesc}, and styled with ${shoesDesc}`;
+
+        const masterPrompt = `Full-length editorial fashion lookbook photograph of a ${genderPrompt}, ${outfitSentence}. ${settingPrompt}. Shot on Hasselblad X2D 100C, 85mm f/1.4 lens, crisp sharp focus on clothing fabric texture, realistic natural skin pores, authentic cloth wrinkles and drapery, high fashion Pinterest aesthetic, 8k uhd, photorealistic masterpiece, professional color grading`;
+
+        // สุ่ม Seed และเรียกใช้งาน FLUX Engine คุณภาพสูง
         const seed = Math.floor(Math.random() * 999999);
-        const generatedImageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=768&height=1024&seed=${seed}&nologo=true&model=flux`;
+        const generatedImageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(masterPrompt)}?width=768&height=1024&seed=${seed}&nologo=true&model=flux`;
 
-        // ข้อความคำแนะนำสไตล์จาก AI
-        const advice = `AI แมตช์ชุด "${topName}" คู่กับ "${bottomName}" พร้อมเสริมด้วย "${shoesName}" และ "${accessoryName}" ให้ดูเข้ากันในสไตล์ ${style} เหมาะกับ ${occasion} อย่างลงตัว`;
+        const topName = items?.top?.name || 'เสื้อ';
+        const bottomName = items?.bottom?.name || 'กางเกง';
+        const advice = `AI สร้างภาพจำลองลุค "${topName}" คู่กับ "${bottomName}" ในสไตล์ ${style} แสง ${vibe === 'tokyo_street' ? 'สตรีทโตเกียว' : vibe === 'editorial_studio' ? 'สตูดิโอแฟชั่น' : 'คาเฟ่เกาหลี'} ได้อย่างลงตัว`;
 
         res.json({
             success: true,
             imageUrl: generatedImageUrl,
-            prompt: prompt,
+            prompt: masterPrompt,
             advice: advice,
             details: {
                 top: topName,
                 bottom: bottomName,
-                shoes: shoesName,
-                accessory: accessoryName,
+                shoes: items?.shoes?.name || '',
+                accessory: items?.accessory?.name || '',
                 style,
-                occasion
+                occasion,
+                vibe
             }
         });
     } catch (err) {

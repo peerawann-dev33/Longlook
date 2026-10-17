@@ -15,13 +15,13 @@ function switchPage(pageId) {
 
     // 3. รีเซ็ตสไตล์ปุ่มเมนูทั้งหมดให้เป็นสีปกติ
     document.querySelectorAll('nav button').forEach(btn => {
-        btn.className = "w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl text-[#EBD9CB] hover:bg-[#523B2B] transition";
+        btn.className = "w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl text-[#EBD9CB] hover:bg-[#523B2B]/60 hover:text-white transition";
     });
 
     // 4. ใส่สไตล์ไฮไลต์ (Active State) ให้ปุ่มที่กำลังกดเลือก
     const activeNav = document.getElementById(`nav-${pageId}`);
     if (activeNav) {
-        activeNav.className = "w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl bg-[#EBD9CB] text-[#3D2B1F] font-bold transition shadow-sm";
+        activeNav.className = "w-full flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-[#FFF0F2] to-[#FAF1EC] text-[#3D2B1F] font-extrabold shadow-sm transition border border-white/60";
     }
 
     // 5. โหลดข้อมูลอัตโนมัติตามหน้าที่เปิด

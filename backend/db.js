@@ -106,6 +106,22 @@ db.exec(`
         details TEXT,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
+
+    -- 11. ตารางบันทึกการให้คะแนนชุด (OUTFIT_RATING)
+    CREATE TABLE IF NOT EXISTS outfit_ratings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        outfit_id INTEGER REFERENCES outfits(id) ON DELETE SET NULL,
+        top_name TEXT,
+        bottom_name TEXT,
+        shoes_name TEXT,
+        accessory_name TEXT,
+        rating INTEGER NOT NULL,
+        style TEXT,
+        occasion TEXT,
+        feedback TEXT,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
 `);
 
 // ตรวจสอบและเพิ่มคอลัมน์ใน calendar_logs อัตโนมัติหากมี DB เดิมอยู่แล้ว

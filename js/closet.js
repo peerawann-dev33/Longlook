@@ -339,9 +339,9 @@ window.filterClosetByGender = function(gender) {
         const btn = document.getElementById(`closet-filter-${g}`);
         if (btn) {
             if (g === gender) {
-                btn.className = "px-3 py-1.5 rounded-xl font-bold bg-[#3D2B1F] text-white shadow-xs transition cursor-pointer";
+                btn.className = "px-3.5 py-1.5 rounded-xl font-extrabold bg-[#3D2B1F] text-[#FFF0F5] shadow-md transition transform scale-105 cursor-pointer border border-[#523B2B]";
             } else {
-                btn.className = "px-3 py-1.5 rounded-xl font-medium bg-[#FCE8E8] text-[#3D2B1F] border border-[#D8C2B0] hover:bg-white transition cursor-pointer";
+                btn.className = "px-3.5 py-1.5 rounded-xl font-bold bg-white/80 text-[#6B5647] border border-[#F0DDD0] hover:bg-white hover:text-[#3D2B1F] transition cursor-pointer shadow-2xs hover:scale-102";
             }
         }
     });
@@ -362,25 +362,42 @@ function renderClosetItems(filterGender = 'all') {
     }
 
     if (displayItems.length === 0) {
-        closetGrid.innerHTML = `<p class="text-xs text-[#6B5647] col-span-full text-center py-6">ไม่พบเสื้อผ้าในหมวดนี้ กดปุ่ม "+ เพิ่มเสื้อผ้าใหม่" ได้เลย</p>`;
+        closetGrid.innerHTML = `
+            <div class="col-span-full text-center py-12 glass-subcard rounded-3xl p-6">
+                <span class="text-3xl block mb-2">🧺</span>
+                <p class="text-xs font-bold text-[#6B5647]">ยังไม่มีเสื้อผ้าในหมวดนี้</p>
+                <p class="text-[11px] text-[#8C6D53] mt-1">กดปุ่ม "+ เพิ่มเสื้อผ้าใหม่" เพื่อเริ่มสร้างคอลเลกชันในตู้ของคุณ</p>
+            </div>
+        `;
         return;
     }
 
     closetGrid.innerHTML = displayItems.map(item => {
-        const gBadge = item.gender === 'female' ? '👩 หญิง' : item.gender === 'male' ? '👨 ชาย' : '🧑 Unisex';
+        const itemGender = item.gender || 'unisex';
+        let gBadge = '⚡ Unisex';
+        let gBadgeClass = 'text-[#7C3AED] bg-[#EDE9FE] border-[#DDD6FE]';
+
+        if (itemGender === 'female') {
+            gBadge = '🎀 หญิง';
+            gBadgeClass = 'text-[#BE185D] bg-[#FFE4E6] border-[#FECDD3]';
+        } else if (itemGender === 'male') {
+            gBadge = '🧢 ชาย';
+            gBadgeClass = 'text-[#0369A1] bg-[#E0F2FE] border-[#BAE6FD]';
+        }
+
         return `
-        <div class="bg-[#FCE8E8] p-3 rounded-2xl border border-[#D8C2B0] text-center shadow-sm hover-lift flex flex-col items-center relative group">
+        <div class="glass-subcard p-3 rounded-3xl border border-white/80 text-center shadow-sm hover-pop flex flex-col items-center relative group">
             <button type="button" onclick="deleteClothItem(event, '${item.id || ''}')" title="ลบเสื้อผ้าชิ้นนี้" 
-                    class="absolute top-2 right-2 w-7 h-7 bg-white/90 hover:bg-red-500 hover:text-white text-gray-500 rounded-full border border-[#D8C2B0] flex items-center justify-center text-xs shadow-md transition-all duration-200 z-10 cursor-pointer opacity-90 group-hover:opacity-100 group-hover:scale-105">
+                    class="absolute top-2.5 right-2.5 w-7 h-7 bg-white/90 hover:bg-rose-500 hover:text-white text-gray-400 hover:border-rose-300 rounded-full border border-gray-200 flex items-center justify-center text-xs shadow-md transition-all duration-200 z-10 cursor-pointer opacity-80 group-hover:opacity-100 group-hover:scale-110">
                 <i class="fa-solid fa-trash-can pointer-events-none"></i>
             </button>
-            <div class="w-full h-40 bg-white rounded-xl mb-2 border border-[#D8C2B0] flex items-center justify-center p-2 overflow-hidden transition-transform duration-300 group-hover:scale-[1.03]">
-                <img src="${item.image}" class="max-w-full max-h-full object-contain" alt="${item.name}">
+            <div class="w-full h-40 bg-gradient-to-b from-[#FFF5F8]/60 to-white rounded-2xl mb-2.5 border border-pink-100/60 flex items-center justify-center p-2.5 overflow-hidden transition-transform duration-300 group-hover:scale-[1.04]">
+                <img src="${item.image}" class="max-w-full max-h-full object-contain drop-shadow-xs" alt="${item.name}">
             </div>
-            <h4 class="font-bold text-xs text-[#3D2B1F] truncate w-full" title="${item.name}">${item.name}</h4>
-            <div class="flex items-center gap-1.5 mt-1">
-                <span class="text-[9px] text-[#6B5647] bg-[#EBD9CB] px-2 py-0.5 rounded-md font-semibold">${formatCategoryBadge(item.category)}</span>
-                <span class="text-[9px] text-[#3D2B1F] bg-white px-1.5 py-0.5 rounded-md border border-[#D8C2B0] font-medium">${gBadge}</span>
+            <h4 class="font-extrabold text-xs text-[#3D2B1F] truncate w-full" title="${item.name}">${item.name}</h4>
+            <div class="flex items-center gap-1.5 mt-1.5 flex-wrap justify-center">
+                <span class="text-[9px] text-[#6B5647] bg-white px-2 py-0.5 rounded-lg border border-pink-100 font-bold shadow-2xs">${formatCategoryBadge(item.category)}</span>
+                <span class="text-[9px] font-bold ${gBadgeClass} px-2 py-0.5 rounded-lg border shadow-2xs">${gBadge}</span>
             </div>
         </div>
         `;
@@ -492,33 +509,161 @@ function isTopClothing(item) {
            cat === 'เดรส' || (!isBottomClothing(item) && !isShoes(item) && !isAccessory(item));
 }
 
-// แมตช์ชุดด้วย AI Fashion Stylist (ดึง AI วิเคราะห์ความเข้ากันตามหลักแฟชั่น)
+// ฟังก์ชันควบคุมสถานะปุ่มสุ่มแมตช์ชุด (ป้องกันการกดซ้ำ และแสดงแอนิเมชัน)
+function setMatchButtonsLoading(isLoading) {
+    const heroBtn = document.getElementById('btn-hero-match');
+    const heroText = document.getElementById('hero-match-text');
+    const colBtn = document.getElementById('btn-col-match');
+    const colText = document.getElementById('col-match-text');
+    const diceIcon = document.getElementById('matcher-dice-icon');
+    const colDice = document.getElementById('col-dice-icon');
+
+    if (isLoading) {
+        if (heroBtn) heroBtn.disabled = true;
+        if (colBtn) colBtn.disabled = true;
+        if (heroText) heroText.innerText = 'กำลังคำนวณลุค...';
+        if (colText) colText.innerText = 'AI กำลังแมตช์...';
+        if (diceIcon) {
+            diceIcon.className = 'text-base fa-solid fa-spinner animate-spin text-[#8C6D53]';
+            diceIcon.innerText = '';
+        }
+        if (colDice) {
+            colDice.className = 'text-base fa-solid fa-spinner animate-spin text-[#F5E6DA]';
+            colDice.innerText = '';
+        }
+    } else {
+        if (heroBtn) heroBtn.disabled = false;
+        if (colBtn) colBtn.disabled = false;
+        if (heroText) heroText.innerText = 'สุ่มแมตช์ชุดครบเซ็ต';
+        if (colText) colText.innerText = 'สุ่มแมตช์ชุดใหม่';
+        if (diceIcon) {
+            diceIcon.className = 'text-base';
+            diceIcon.innerText = '🎲';
+        }
+        if (colDice) {
+            colDice.className = '';
+            colDice.innerText = '🎲';
+        }
+    }
+}
+
+// ฟังก์ชันแสดงสถานะและเปอร์เซ็นต์ความคืบหน้าขณะ AI กำลังแมตช์ชุด
+function renderMatchingProgress(percent, stageText) {
+    const lookbookView = document.getElementById('fitting-lookbook-view');
+    if (!lookbookView) return;
+
+    const clamped = Math.min(Math.max(Math.round(percent), 0), 100);
+
+    const numElem = document.getElementById('match-progress-number');
+    const barElem = document.getElementById('match-progress-bar');
+    const stageElem = document.getElementById('match-progress-stage');
+
+    // ถ้าสร้าง UI โครงสร้างไว้แล้ว ให้อัปเดตเฉพาะตัวเลขและแถบเพื่อความสมูท
+    if (numElem && barElem && stageElem) {
+        numElem.innerText = `${clamped}%`;
+        barElem.style.width = `${clamped}%`;
+        if (stageText) stageElem.innerText = stageText;
+        return;
+    }
+
+    // สร้างกล่อง Progress สไตล์ LongLook อบอุ่น สวยงาม
+    lookbookView.innerHTML = `
+        <div class="w-full h-full flex flex-col items-center justify-center text-center p-6 space-y-4 animate-modal-in">
+            <!-- Animated Icon -->
+            <div class="relative flex items-center justify-center">
+                <div class="w-20 h-20 rounded-3xl bg-[#FAF1EC] border border-[#D8C2B0] flex items-center justify-center shadow-inner">
+                    <i class="fa-solid fa-wand-magic-sparkles text-3xl text-[#E9B44C] animate-spin" style="animation-duration: 4s;"></i>
+                </div>
+                <span class="absolute -bottom-2 bg-[#3D2B1F] text-[#F5E6DA] text-[9px] font-bold px-2.5 py-0.5 rounded-full border border-[#D8C2B0] shadow-sm">
+                    AI Stylist
+                </span>
+            </div>
+
+            <!-- Percentage Display -->
+            <div class="space-y-1.5 w-full max-w-xs">
+                <div class="flex items-baseline justify-center gap-1.5">
+                    <span id="match-progress-number" class="text-4xl font-extrabold text-[#3D2B1F] tracking-tight font-mono">${clamped}%</span>
+                    <span class="text-xs font-bold text-[#7A9A8B] animate-pulse">กำลังประมวลผล...</span>
+                </div>
+                <p id="match-progress-stage" class="text-xs font-semibold text-[#6B5647] min-h-[38px] flex items-center justify-center px-2 text-center leading-relaxed">
+                    ${stageText || 'กำลังเตรียมการแมตช์ชุด...'}
+                </p>
+            </div>
+
+            <!-- Animated Progress Bar -->
+            <div class="w-full max-w-xs bg-[#FAF1EC] h-3.5 rounded-full border border-[#D8C2B0] p-0.5 overflow-hidden shadow-inner">
+                <div id="match-progress-bar" 
+                     class="h-full bg-gradient-to-r from-[#3D2B1F] via-[#8C6D53] to-[#7A9A8B] rounded-full transition-all duration-300 ease-out shadow-xs" 
+                     style="width: ${clamped}%;">
+                </div>
+            </div>
+
+            <!-- Workflow Steps Indicator -->
+            <div class="flex items-center justify-center gap-2 text-[10px] text-[#8C6D53] pt-2 border-t border-dashed border-[#D8C2B0] w-full max-w-xs">
+                <span class="flex items-center gap-1 font-medium"><i class="fa-solid fa-shirt text-[#89C2D9]"></i> 1. ตรวจตู้</span>
+                <i class="fa-solid fa-chevron-right text-[8px] text-[#D8C2B0]"></i>
+                <span class="flex items-center gap-1 font-medium"><i class="fa-brands fa-pinterest text-[#E60023]"></i> 2. Pinterest</span>
+                <i class="fa-solid fa-chevron-right text-[8px] text-[#D8C2B0]"></i>
+                <span class="flex items-center gap-1 font-medium"><i class="fa-solid fa-circle-check text-[#7A9A8B]"></i> 3. แมตช์ลุค</span>
+            </div>
+        </div>
+    `;
+}
+
+// แมตช์ชุดด้วย AI Fashion Stylist (ดึง AI วิเคราะห์ความเข้ากันตามหลักแฟชั่น พร้อมรายงานเปอร์เซ็นต์แบบ Real-time)
 async function triggerAutoMatchAndFitting() {
+    // ป้องกันการเรียกซ้ำซ้อน (debounce) ถ้ากำลังสุ่มอยู่แล้วจะไม่ทำซ้ำ
+    if (window._matchInProgress) return;
+    window._matchInProgress = true;
+
     const saved = localStorage.getItem('wardrobe_clothes');
     if (saved) closetItems = JSON.parse(saved);
 
     if (closetItems.length === 0) {
         showLongLookToast('ยังไม่มีรายการเสื้อผ้าในตู้ กรุณาอัปโหลดรูปเสื้อผ้าก่อนเริ่มแมตช์ชุดนะครับ', 'info');
+        window._matchInProgress = false;
         return;
     }
 
-    // แอนิเมชันลูกเต๋าหมุนที่ปุ่มสุ่ม
-    const diceIcon = document.getElementById('matcher-dice-icon');
-    if (diceIcon) {
-        diceIcon.classList.remove('animate-dice');
-        void diceIcon.offsetWidth;
-        diceIcon.classList.add('animate-dice');
-    }
+    setMatchButtonsLoading(true);
 
     const occasionSelect = document.getElementById('match-occasion-select');
     const styleSelect = document.getElementById('match-style-select');
     const genderSelect = document.getElementById('match-gender-select');
+    const includeAcc = document.getElementById('match-include-acc')?.checked || false;
     const occasion = occasionSelect?.value || 'ไปคาเฟ่ / เดินเล่นวันสบายๆ';
     const style = styleSelect?.value || 'CASUAL';
     const gender = genderSelect?.value || localStorage.getItem('longlook_user_gender') || 'unisex';
     const skinTone = localStorage.getItem('longlook_user_skintone') || 'warm';
 
     showLongLookToast('✨ AI Fashion Stylist กำลังดึงเทรนด์ Pinterest และแมตช์ชุดจากตู้...', 'info');
+
+    // เริ่มต้นแสดงเปอร์เซ็นต์และจำลองสเต็ปการประมวลผลให้เห็นความคืบหน้าอย่างชัดเจน
+    let currentPercent = 10;
+    renderMatchingProgress(currentPercent, `🧺 ตรวจสอบเสื้อผ้าในตู้ (${closetItems.length} ชิ้น)...`);
+
+    const progressTimer = setInterval(() => {
+        if (currentPercent < 28) {
+            currentPercent += Math.floor(Math.random() * 5) + 3;
+            renderMatchingProgress(currentPercent, `🎨 วิเคราะห์สีผิว (${skinTone}) และโอกาส (${occasion})...`);
+        } else if (currentPercent < 55) {
+            currentPercent += Math.floor(Math.random() * 4) + 2;
+            renderMatchingProgress(currentPercent, `📌 ดึงเทรนด์สไตล์ ${style} ยอดนิยมบน Pinterest...`);
+        } else if (currentPercent < 82) {
+            currentPercent += Math.floor(Math.random() * 3) + 2;
+            renderMatchingProgress(currentPercent, '🤖 AI Stylist กำลังจับคู่สี ท่อนบน และท่อนล่าง...');
+        } else if (currentPercent < 94) {
+            currentPercent += 1;
+            renderMatchingProgress(currentPercent, '✨ ประเมิน Match Score และสร้างคำแนะนำจากสไตลิสต์...');
+        }
+    }, 180);
+
+    let savedRatings = [];
+    try {
+        savedRatings = JSON.parse(localStorage.getItem('longlook_outfit_ratings') || '[]');
+    } catch(e) { savedRatings = []; }
+
+    let matchResult = null;
 
     try {
         const response = await fetch(`${window.LONGLOOK_API}/api/ai/match-outfit`, {
@@ -529,79 +674,123 @@ async function triggerAutoMatchAndFitting() {
                 occasion,
                 style,
                 gender,
-                skinTone
+                skinTone,
+                includeAccessories: includeAcc,
+                ratingsHistory: savedRatings
             })
         });
 
         const data = await response.json();
         if (response.ok && data.match) {
-            window.currentMatchedOutfit = data.match;
-            renderOutfitLayers();
-            showLongLookToast(`✨ AI สไตลิสต์แมตช์ชุดสไตล์ Pinterest สำเร็จ! (คะแนน: ${data.match.matchScore || 95}%)`, 'success');
-            return;
+            matchResult = data.match;
         }
     } catch (err) {
         console.warn('AI Stylist Match API error, using smart rule-based fallback:', err);
     }
 
+    // หยุดตัวนับเปอร์เซ็นต์
+    clearInterval(progressTimer);
+
     // Smart Rule-based Fallback (ถ้าออฟไลน์หรือเซิร์ฟเวอร์ตอบช้า)
-    const isMale = gender === 'male';
-    const isFemale = gender === 'female';
+    if (!matchResult) {
+        const isMale = gender === 'male';
+        const isFemale = gender === 'female';
 
-    const genderFilteredCloset = closetItems.filter(item => {
-        const itemGender = (item.gender || 'unisex').toLowerCase();
-        const cat = (item.category || '').toLowerCase();
-        const name = (item.name || '').toLowerCase();
-        const isFeminine = cat === 'กระโปรง' || cat === 'เดรส' || name.includes('กระโปรง') || name.includes('เดรส') || name.includes('skirt') || name.includes('dress');
-        if (isMale) {
-            if (isFeminine || itemGender === 'female') return false;
+        const genderFilteredCloset = closetItems.filter(item => {
+            const itemGender = (item.gender || 'unisex').toLowerCase();
+            const cat = (item.category || '').toLowerCase();
+            const name = (item.name || '').toLowerCase();
+            const isFeminine = cat === 'กระโปรง' || cat === 'เดรส' || name.includes('กระโปรง') || name.includes('เดรส') || name.includes('skirt') || name.includes('dress');
+            if (isMale) {
+                if (isFeminine || itemGender === 'female') return false;
+                return true;
+            } else if (isFemale) {
+                return itemGender === 'female' || itemGender === 'unisex';
+            }
             return true;
-        } else if (isFemale) {
-            return itemGender === 'female' || itemGender === 'unisex';
+        });
+
+        const activeWardrobe = genderFilteredCloset.length > 0 ? genderFilteredCloset : (isMale ? closetItems.filter(i => {
+            const c = (i.category || '').toLowerCase();
+            return c !== 'กระโปรง' && c !== 'เดรส';
+        }) : closetItems);
+
+        const tops = activeWardrobe.filter(isTopClothing);
+        const bottoms = activeWardrobe.filter(isBottomClothing);
+        const shoes = activeWardrobe.filter(isShoes);
+        const accessories = activeWardrobe.filter(isAccessory);
+
+        // หลีกเลี่ยงคู่ชุดที่ผู้ใช้ให้ 1-2 ดาว (Disliked Pairs)
+        const dislikedPairs = savedRatings.filter(r => r.rating <= 2 || r.feedback === 'dislike');
+        const isDisliked = (t, b) => {
+            if (!t || !b) return false;
+            return dislikedPairs.some(d => {
+                const dTop = (d.topName || '').toLowerCase();
+                const dBottom = (d.bottomName || '').toLowerCase();
+                return dTop && dBottom && t.name.toLowerCase().includes(dTop) && b.name.toLowerCase().includes(dBottom);
+            });
+        };
+
+        const availableTops = tops.length > 0 ? tops : [activeWardrobe[0] || closetItems[0]];
+        const availableBottoms = bottoms.length > 0 ? bottoms : [activeWardrobe[1] || activeWardrobe[0] || closetItems[0]];
+
+        let chosenTop = availableTops[0];
+        let chosenBottom = availableBottoms[0];
+
+        // สุ่มหาคู่ที่ไม่เคยถูกเรทลบ
+        const shuffledTops = [...availableTops].sort(() => Math.random() - 0.5);
+        const shuffledBottoms = [...availableBottoms].sort(() => Math.random() - 0.5);
+        let foundPair = false;
+
+        for (const t of shuffledTops) {
+            for (const b of shuffledBottoms) {
+                if (!isDisliked(t, b)) {
+                    chosenTop = t;
+                    chosenBottom = b;
+                    foundPair = true;
+                    break;
+                }
+            }
+            if (foundPair) break;
         }
-        return true;
-    });
 
-    const activeWardrobe = genderFilteredCloset.length > 0 ? genderFilteredCloset : (isMale ? closetItems.filter(i => {
-        const c = (i.category || '').toLowerCase();
-        return c !== 'กระโปรง' && c !== 'เดรส';
-    }) : closetItems);
+        const chosenShoes = shoes.length > 0 ? shoes[0] : {
+            name: 'รองเท้าผ้าใบสีขาวคลีน',
+            category: 'รองเท้า',
+            image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300&auto=format&fit=crop'
+        };
+        const chosenAccessory = includeAcc && accessories.length > 0 ? accessories[0] : (includeAcc ? {
+            name: isFemale ? 'กระเป๋าสะพายข้างแฟชั่น' : 'กระเป๋าสะพายข้างมินิมอล',
+            category: 'กระเป๋า',
+            image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=300&auto=format&fit=crop'
+        } : null);
 
-    const tops = activeWardrobe.filter(isTopClothing);
-    const bottoms = activeWardrobe.filter(isBottomClothing);
-    const shoes = activeWardrobe.filter(isShoes);
-    const accessories = activeWardrobe.filter(isAccessory);
+        matchResult = {
+            top: chosenTop,
+            bottom: chosenBottom,
+            shoes: chosenShoes,
+            accessory: chosenAccessory,
+            matchScore: 96,
+            stylistReason: `AI จับคู่ "${chosenTop?.name || 'เสื้อ'}" เข้ากับ "${chosenBottom?.name || 'กางเกง'}" ตามสไตล์ Pinterest ${style} เหมาะกับ ${occasion}`,
+            pinterestInspiration: {
+                title: `Pinterest ${style} Trend Look`,
+                style: style,
+                color_tone: 'เอิร์ธโทน & สีพื้นคลาสสิก',
+                guide: `คัดสรรไอเทมจากตู้ให้ตรงตามสไตล์และ Silhouettes ยอดนิยมบน Pinterest`,
+                pinterest_url: `https://www.pinterest.com/search/pins/?q=${encodeURIComponent((gender === 'male' ? 'men ' : gender === 'female' ? 'women ' : '') + style + ' outfit aesthetic')}`
+            }
+        };
+    }
 
-    const chosenTop = tops.length > 0 ? tops[0] : (activeWardrobe[0] || closetItems[0]);
-    const chosenBottom = bottoms.length > 0 ? bottoms[0] : (activeWardrobe[1] || activeWardrobe[0] || closetItems[0]);
-    const chosenShoes = shoes.length > 0 ? shoes[0] : {
-        name: 'รองเท้าผ้าใบสีขาวคลีน',
-        category: 'รองเท้า',
-        image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300&auto=format&fit=crop'
-    };
-    const chosenAccessory = accessories.length > 0 ? accessories[0] : {
-        name: isFemale ? 'กระเป๋าสะพายข้างแฟชั่น' : 'กระเป๋าสะพายข้างมินิมอล',
-        category: 'กระเป๋า',
-        image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=300&auto=format&fit=crop'
-    };
+    // วิ่งเต็ม 100% ให้ผู้ใช้เห็นว่ากระบวนการแมตช์เสร็จสมบูรณ์
+    renderMatchingProgress(100, '🎉 แมตช์ชุดสำเร็จแล้ว! กำลังจัดแสดงบนสไตล์บอร์ด...');
+    await new Promise(r => setTimeout(r, 450));
 
-    window.currentMatchedOutfit = {
-        top: chosenTop,
-        bottom: chosenBottom,
-        shoes: chosenShoes,
-        accessory: chosenAccessory,
-        matchScore: 96,
-        stylistReason: `AI จับคู่ "${chosenTop?.name || 'เสื้อ'}" เข้ากับ "${chosenBottom?.name || 'กางเกง'}" ตามสไตล์ Pinterest ${style} เหมาะกับ ${occasion}`,
-        pinterestInspiration: {
-            title: `Pinterest ${style} Trend Look`,
-            style: style,
-            color_tone: 'เอิร์ธโทน & สีพื้นคลาสสิก',
-            guide: `คัดสรรไอเทมจากตู้ให้ตรงตามสไตล์และ Silhouettes ยอดนิยมบน Pinterest`,
-            pinterest_url: `https://www.pinterest.com/search/pins/?q=${encodeURIComponent((gender === 'male' ? 'men ' : gender === 'female' ? 'women ' : '') + style + ' outfit aesthetic')}`
-        }
-    };
-
+    window.currentMatchedOutfit = matchResult;
     renderOutfitLayers();
+    setMatchButtonsLoading(false);
+    showLongLookToast(`✨ AI สไตลิสต์แมตช์ชุดสไตล์ Pinterest สำเร็จ! (คะแนน: ${matchResult.matchScore || 96}%)`, 'success');
+    window._matchInProgress = false;
 }
 
 function renderOutfitLayers() {
@@ -609,72 +798,172 @@ function renderOutfitLayers() {
     if (!outfit) return;
 
     const lookbookView = document.getElementById('fitting-lookbook-view');
-    const aiView = document.getElementById('fitting-ai-view');
 
     if (lookbookView) {
-        lookbookView.innerHTML = `
-            <div class="w-full space-y-3 z-10 p-2 text-left">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-[#3D2B1F] flex items-center gap-1.5">
-                        <i class="fa-solid fa-sparkles text-[#E9B44C]"></i> เซ็ตที่ AI สไตลิสต์คัดสรร
+        const hasAccessory = !!outfit.accessory;
+
+        const cardsHtml = hasAccessory ? `
+            <!-- 4-Piece Fashion Lookbook Grid -->
+            <div class="grid grid-cols-2 gap-3">
+                <!-- Top -->
+                <div class="glass-subcard p-3 rounded-2xl border border-purple-200/60 shadow-xs flex flex-col items-center hover-pop">
+                    <span class="text-[9px] font-extrabold text-[#7C3AED] bg-[#EDE9FE] px-2 py-0.5 rounded-lg border border-[#DDD6FE] self-start mb-1.5 flex items-center gap-1">
+                        <i class="fa-solid fa-shirt text-[10px]"></i> ท่อนบน · TOP
                     </span>
-                    <span class="text-[10px] bg-[#3D2B1F] text-[#F5E6DA] px-2.5 py-0.5 rounded-full font-bold">
-                        Match Score: ${outfit.matchScore || 96}%
-                    </span>
+                    <div class="w-full h-24 flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-[#FAF5FF] to-white border border-[#F3E8FF]">
+                        <img src="${outfit.top?.image || ''}" class="max-h-full max-w-full object-contain drop-shadow-2xs">
+                    </div>
+                    <p class="text-[11px] font-extrabold text-[#3D2B1F] mt-1.5 truncate w-full text-center">${outfit.top?.name || '-'}</p>
                 </div>
 
-                <!-- 4-Piece Fashion Lookbook Grid -->
-                <div class="grid grid-cols-2 gap-2.5">
+                <!-- Bottom -->
+                <div class="glass-subcard p-3 rounded-2xl border border-sky-200/60 shadow-xs flex flex-col items-center hover-pop">
+                    <span class="text-[9px] font-extrabold text-[#0284C7] bg-[#E0F2FE] px-2 py-0.5 rounded-lg border border-[#BAE6FD] self-start mb-1.5 flex items-center gap-1">
+                        <i class="fa-solid fa-vest text-[10px]"></i> ท่อนล่าง · BOTTOM
+                    </span>
+                    <div class="w-full h-24 flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-[#F0F9FF] to-white border border-[#E0F2FE]">
+                        <img src="${outfit.bottom?.image || ''}" class="max-h-full max-w-full object-contain drop-shadow-2xs">
+                    </div>
+                    <p class="text-[11px] font-extrabold text-[#3D2B1F] mt-1.5 truncate w-full text-center">${outfit.bottom?.name || '-'}</p>
+                </div>
+
+                <!-- Shoes -->
+                <div class="glass-subcard p-3 rounded-2xl border border-emerald-200/60 shadow-xs flex flex-col items-center hover-pop">
+                    <span class="text-[9px] font-extrabold text-[#059669] bg-[#DCFCE7] px-2 py-0.5 rounded-lg border border-[#BBF7D0] self-start mb-1.5 flex items-center gap-1">
+                        <i class="fa-solid fa-shoe-prints text-[10px]"></i> รองเท้า · SHOES
+                    </span>
+                    <div class="w-full h-20 flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-[#F0FDF4] to-white border border-[#DCFCE7]">
+                        <img src="${outfit.shoes?.image || ''}" class="max-h-full max-w-full object-contain drop-shadow-2xs">
+                    </div>
+                    <p class="text-[11px] font-extrabold text-[#3D2B1F] mt-1.5 truncate w-full text-center">${outfit.shoes?.name || '-'}</p>
+                </div>
+
+                <!-- Accessory -->
+                <div class="glass-subcard p-3 rounded-2xl border border-rose-200/60 shadow-xs flex flex-col items-center hover-pop">
+                    <span class="text-[9px] font-extrabold text-[#E11D48] bg-[#FFE4E6] px-2 py-0.5 rounded-lg border border-[#FECDD3] self-start mb-1.5 flex items-center gap-1">
+                        <i class="fa-solid fa-gem text-[10px]"></i> พร็อพ · ACC
+                    </span>
+                    <div class="w-full h-20 flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-[#FFF1F2] to-white border border-[#FFE4E6]">
+                        <img src="${outfit.accessory?.image || ''}" class="max-h-full max-w-full object-contain drop-shadow-2xs">
+                    </div>
+                    <p class="text-[11px] font-extrabold text-[#3D2B1F] mt-1.5 truncate w-full text-center">${outfit.accessory?.name || '-'}</p>
+                </div>
+            </div>
+        ` : `
+            <!-- 3-Piece Clean Minimalist Layout (ไม่มีพร็อพให้รก) -->
+            <div class="space-y-3">
+                <div class="grid grid-cols-2 gap-3">
                     <!-- Top -->
-                    <div class="bg-white p-2.5 rounded-2xl border border-[#D8C2B0] shadow-xs flex flex-col items-center hover:scale-[1.02] transition">
-                        <span class="text-[9px] font-bold text-[#8C6D53] self-start mb-1">👕 ท่อนบน</span>
-                        <div class="w-full h-24 flex items-center justify-center overflow-hidden rounded-xl bg-[#FAF1EC]">
-                            <img src="${outfit.top?.image || ''}" class="max-h-full max-w-full object-contain">
+                    <div class="glass-subcard p-3 rounded-2xl border border-purple-200/60 shadow-xs flex flex-col items-center hover-pop">
+                        <span class="text-[9px] font-extrabold text-[#7C3AED] bg-[#EDE9FE] px-2 py-0.5 rounded-lg border border-[#DDD6FE] self-start mb-1.5 flex items-center gap-1">
+                            <i class="fa-solid fa-shirt text-[10px]"></i> ท่อนบน · TOP
+                        </span>
+                        <div class="w-full h-28 flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-[#FAF5FF] to-white border border-[#F3E8FF]">
+                            <img src="${outfit.top?.image || ''}" class="max-h-full max-w-full object-contain drop-shadow-2xs">
                         </div>
-                        <p class="text-[10px] font-bold text-[#3D2B1F] mt-1.5 truncate w-full text-center">${outfit.top?.name || '-'}</p>
+                        <p class="text-[11px] font-extrabold text-[#3D2B1F] mt-1.5 truncate w-full text-center">${outfit.top?.name || '-'}</p>
                     </div>
 
                     <!-- Bottom -->
-                    <div class="bg-white p-2.5 rounded-2xl border border-[#D8C2B0] shadow-xs flex flex-col items-center hover:scale-[1.02] transition">
-                        <span class="text-[9px] font-bold text-[#8C6D53] self-start mb-1">👖 ท่อนล่าง</span>
-                        <div class="w-full h-24 flex items-center justify-center overflow-hidden rounded-xl bg-[#FAF1EC]">
-                            <img src="${outfit.bottom?.image || ''}" class="max-h-full max-w-full object-contain">
+                    <div class="glass-subcard p-3 rounded-2xl border border-sky-200/60 shadow-xs flex flex-col items-center hover-pop">
+                        <span class="text-[9px] font-extrabold text-[#0284C7] bg-[#E0F2FE] px-2 py-0.5 rounded-lg border border-[#BAE6FD] self-start mb-1.5 flex items-center gap-1">
+                            <i class="fa-solid fa-vest text-[10px]"></i> ท่อนล่าง · BOTTOM
+                        </span>
+                        <div class="w-full h-28 flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-[#F0F9FF] to-white border border-[#E0F2FE]">
+                            <img src="${outfit.bottom?.image || ''}" class="max-h-full max-w-full object-contain drop-shadow-2xs">
                         </div>
-                        <p class="text-[10px] font-bold text-[#3D2B1F] mt-1.5 truncate w-full text-center">${outfit.bottom?.name || '-'}</p>
-                    </div>
-
-                    <!-- Shoes -->
-                    <div class="bg-white p-2.5 rounded-2xl border border-[#D8C2B0] shadow-xs flex flex-col items-center hover:scale-[1.02] transition">
-                        <span class="text-[9px] font-bold text-[#8C6D53] self-start mb-1">👟 รองเท้า</span>
-                        <div class="w-full h-20 flex items-center justify-center overflow-hidden rounded-xl bg-[#FAF1EC]">
-                            <img src="${outfit.shoes?.image || ''}" class="max-h-full max-w-full object-contain">
-                        </div>
-                        <p class="text-[10px] font-bold text-[#3D2B1F] mt-1.5 truncate w-full text-center">${outfit.shoes?.name || '-'}</p>
-                    </div>
-
-                    <!-- Accessory -->
-                    <div class="bg-white p-2.5 rounded-2xl border border-[#D8C2B0] shadow-xs flex flex-col items-center hover:scale-[1.02] transition">
-                        <span class="text-[9px] font-bold text-[#8C6D53] self-start mb-1">💍 พร็อพ / เครื่องประดับ</span>
-                        <div class="w-full h-20 flex items-center justify-center overflow-hidden rounded-xl bg-[#FAF1EC]">
-                            <img src="${outfit.accessory?.image || ''}" class="max-h-full max-w-full object-contain">
-                        </div>
-                        <p class="text-[10px] font-bold text-[#3D2B1F] mt-1.5 truncate w-full text-center">${outfit.accessory?.name || '-'}</p>
+                        <p class="text-[11px] font-extrabold text-[#3D2B1F] mt-1.5 truncate w-full text-center">${outfit.bottom?.name || '-'}</p>
                     </div>
                 </div>
 
-                <!-- Stylist Advice Box -->
-                <div class="bg-[#FAF1EC] p-3 rounded-2xl border border-[#D8C2B0] text-xs text-[#523B2B] space-y-1">
-                    <div class="font-bold text-[#7A9A8B] flex items-center gap-1.5 text-[11px]">
-                        <i class="fa-solid fa-wand-magic-sparkles text-[#E9B44C]"></i> คำแนะนำจาก AI Fashion Stylist:
+                <!-- Shoes Full Width Clean Card -->
+                <div class="glass-subcard p-3 rounded-2xl border border-emerald-200/60 shadow-xs flex items-center gap-3.5 hover-pop">
+                    <div class="w-16 h-16 flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-[#F0FDF4] to-white border border-[#DCFCE7] shrink-0">
+                        <img src="${outfit.shoes?.image || ''}" class="max-h-full max-w-full object-contain drop-shadow-2xs">
                     </div>
-                    <p class="text-xs text-[#6B5647] leading-relaxed">
-                        ${outfit.stylistReason || 'ชุดนี้แมตช์คู่สีและสัดส่วนได้อย่างลงตัว เสริมออร่าและความมั่นใจในทุกโอกาส'}
+                    <div class="truncate flex-1">
+                        <span class="text-[9px] font-extrabold text-[#059669] bg-[#DCFCE7] px-2 py-0.5 rounded-lg border border-[#BBF7D0] inline-block mb-1">👟 รองเท้า · SHOES</span>
+                        <p class="text-xs font-extrabold text-[#3D2B1F] truncate">${outfit.shoes?.name || '-'}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        lookbookView.innerHTML = `
+            <div class="w-full space-y-3 z-10 p-1 text-left">
+                <div class="flex items-center justify-between pb-1">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-black text-[#3D2B1F] flex items-center gap-1.5">
+                            <span class="animate-bounce">✨</span> ${hasAccessory ? 'เซ็ตครบ 4 ชิ้น (Full Aesthetic)' : 'เซ็ตคลีนลุค 3 ชิ้น (Clean Cut)'}
+                        </span>
+                        <span class="text-[9px] bg-[#FAF5FF] text-[#7C3AED] border border-[#DDD6FE] px-2 py-0.5 rounded-full font-bold">OOTD</span>
+                    </div>
+                    <span class="text-[11px] bg-gradient-to-r from-[#FF6B8B] to-[#FF8E72] text-white px-3 py-1 rounded-full font-black shadow-xs flex items-center gap-1">
+                        <i class="fa-solid fa-fire-flame-curved text-xs"></i> ${outfit.matchScore || 96}% MATCH
+                    </span>
+                </div>
+
+                ${cardsHtml}
+
+                <!-- Stylist Advice Box -->
+                <div class="bg-gradient-to-br from-[#FFF7ED] via-[#FFF1F2] to-[#FAF5FF] p-4 rounded-3xl border border-[#FBCFE8] shadow-sm text-xs space-y-1.5 relative overflow-hidden">
+                    <div class="absolute -right-2 -bottom-2 text-4xl opacity-10 pointer-events-none">💬</div>
+                    <div class="font-black text-[#BE185D] flex items-center gap-2 text-xs">
+                        <span class="w-6 h-6 rounded-full bg-white shadow-xs flex items-center justify-center text-[#FF6B8B]"><i class="fa-solid fa-wand-magic-sparkles text-xs"></i></span>
+                        AI STYLIST NOTE · คำแนะนำสไตล์
+                    </div>
+                    <p class="text-xs text-[#4A3E3D] leading-relaxed pl-8 font-medium">
+                        "${outfit.stylistReason || 'ชุดนี้แมตช์คู่สีและสัดส่วนได้อย่างลงตัว สไตล์ชิคแบบ Pinterest ใส่แล้วปังแน่นอน ✨'}"
+                    </p>
+                </div>
+
+                <!-- Outfit Rating & AI Feedback System -->
+                <div id="outfit-rating-box" class="glass-subcard p-3.5 rounded-3xl border border-pink-200/80 shadow-xs space-y-2 mt-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-sm">⭐</span>
+                            <span class="text-xs font-black text-[#3D2B1F]">ให้คะแนนลุคนี้ (AI Feedback)</span>
+                        </div>
+                        <span id="rating-status-text" class="text-[10px] text-[#8C6D53] font-bold">
+                            ${outfit.userRating ? `คุณให้ ${outfit.userRating} ดาวแล้ว` : 'กดเพื่อให้ AI จดจำสไตล์'}
+                        </span>
+                    </div>
+
+                    <!-- 5 Interactive Star Rating Buttons -->
+                    <div class="flex items-center justify-between flex-wrap gap-2 pt-0.5">
+                        <div class="flex items-center gap-1.5" id="star-rating-buttons">
+                            ${[1, 2, 3, 4, 5].map(star => {
+                                const isFilled = (outfit.userRating || 0) >= star;
+                                return `
+                                    <button type="button" onclick="rateCurrentOutfit(${star})" 
+                                            title="${star <= 2 ? 'ไม่พอใจ (สุ่มใหม่ทันที)' : star === 3 ? 'พอใช้' : 'ชอบมาก'}"
+                                            class="w-8 h-8 rounded-xl ${isFilled ? 'bg-[#FFE4E6] text-[#FF6B8B] scale-105' : 'bg-white text-gray-300 hover:text-[#FFB100]'} border border-pink-100 flex items-center justify-center text-sm transition hover:scale-110 active:scale-90 cursor-pointer shadow-2xs">
+                                        <i class="fa-solid fa-star"></i>
+                                    </button>
+                                `;
+                            }).join('')}
+                        </div>
+
+                        <!-- Quick Action Pills -->
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" onclick="rateCurrentOutfit(1)" 
+                                    class="text-[10px] px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold border border-rose-200 shadow-2xs transition hover:scale-102 active:scale-95 cursor-pointer flex items-center gap-1">
+                                <span>👎</span> ไม่ชอบ (สุ่มใหม่)
+                            </button>
+                            <button type="button" onclick="rateCurrentOutfit(5)" 
+                                    class="text-[10px] px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-extrabold border border-emerald-200 shadow-2xs transition hover:scale-102 active:scale-95 cursor-pointer flex items-center gap-1">
+                                <span>❤️</span> ชอบมาก
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="text-[10px] text-[#8C6D53] leading-relaxed font-medium">
+                        💡 <span class="font-bold text-[#E03177]">หากให้ 1-2 ดาว:</span> AI จะจดจำว่าไม่ชอบคู่ชุดนี้ และสุ่มชุดใหม่ขึ้นมาแทนทันที
                     </p>
                 </div>
             </div>
         `;
         lookbookView.classList.remove('hidden');
-        if (aiView) aiView.classList.add('hidden');
     }
 
     // อัปเดตการ์ดแรงบันดาลใจ Pinterest Trend ในคอลัมน์ 1
@@ -698,6 +987,94 @@ function renderOutfitLayers() {
         if (inspoLink) inspoLink.href = `https://www.pinterest.com/search/pins/?q=${encodeURIComponent(styleSelect + ' fashion aesthetic')}`;
     }
 }
+
+// ฟังก์ชันบันทึกเรทติ้งชุด (1 - 5 ดาว) และสุ่มชุดใหม่ทันทีหากคะแนนน้อย
+window.rateCurrentOutfit = async function(stars) {
+    const outfit = window.currentMatchedOutfit;
+    if (!outfit) {
+        showLongLookToast('ยังไม่มีชุดให้เรทติ้ง กรุณาสุ่มชุดก่อน', 'info');
+        return;
+    }
+
+    const numericStars = Math.max(1, Math.min(5, parseInt(stars, 10) || 3));
+    outfit.userRating = numericStars;
+
+    let savedRatings = [];
+    try {
+        savedRatings = JSON.parse(localStorage.getItem('longlook_outfit_ratings') || '[]');
+    } catch(e) { savedRatings = []; }
+
+    const topName = outfit.top?.name || '';
+    const bottomName = outfit.bottom?.name || '';
+    const shoesName = outfit.shoes?.name || '';
+    const accName = outfit.accessory?.name || '';
+    const occasion = document.getElementById('match-occasion-select')?.value || '';
+    const style = document.getElementById('match-style-select')?.value || outfit.pinterestInspiration?.style || 'CASUAL';
+
+    const newRating = {
+        id: 'rate_' + Date.now(),
+        topName,
+        bottomName,
+        shoesName,
+        accessoryName: accName,
+        style,
+        occasion,
+        rating: numericStars,
+        feedback: numericStars <= 2 ? 'dislike' : numericStars >= 4 ? 'like' : 'neutral',
+        timestamp: Date.now()
+    };
+
+    savedRatings.unshift(newRating);
+    if (savedRatings.length > 50) savedRatings.pop();
+    localStorage.setItem('longlook_outfit_ratings', JSON.stringify(savedRatings));
+
+    // อัปเดต UI ปุ่มดาวและข้อความสถานะทันที
+    const statusText = document.getElementById('rating-status-text');
+    if (statusText) {
+        if (numericStars <= 2) {
+            statusText.innerHTML = `<span class="text-rose-500 font-extrabold animate-pulse">❌ คุณให้ ${numericStars} ดาว (กำลังสุ่มชุดใหม่...)</span>`;
+        } else if (numericStars >= 4) {
+            statusText.innerHTML = `<span class="text-emerald-600 font-extrabold">💖 คุณให้ ${numericStars} ดาว (AI บันทึกสไตล์แล้ว)</span>`;
+        } else {
+            statusText.innerHTML = `<span class="text-amber-600 font-extrabold">⭐ คุณให้ 3 ดาว (บันทึกแล้ว)</span>`;
+        }
+    }
+
+    const starBtns = document.querySelectorAll('#star-rating-buttons button');
+    starBtns.forEach((btn, idx) => {
+        const starIdx = idx + 1;
+        if (starIdx <= numericStars) {
+            btn.className = "w-8 h-8 rounded-xl bg-[#FFE4E6] text-[#FF6B8B] border border-pink-100 flex items-center justify-center text-sm transition shadow-2xs scale-105";
+        } else {
+            btn.className = "w-8 h-8 rounded-xl bg-white text-gray-300 border border-pink-100 flex items-center justify-center text-sm transition shadow-2xs";
+        }
+    });
+
+    // ส่งคะแนนไปบันทึกที่ Database ของระบบ
+    try {
+        const token = localStorage.getItem('longlook_token');
+        fetch(`${window.LONGLOOK_API}/api/ai/rate-outfit`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            },
+            body: JSON.stringify(newRating)
+        }).catch(() => {});
+    } catch(err) {}
+
+    // หากคะแนนน้อย (1-2 ดาว) หรือกดไม่ชอบ ให้สุ่มชุดใหม่ขึ้นมาแทนทันที!
+    if (numericStars <= 2) {
+        showLongLookToast(`🤖 คุณให้ ${numericStars} ดาว AI จดจำว่าไม่ชอบชุดนี้ และกำลังสุ่มลุคใหม่ให้ทันที...`, 'info');
+        setTimeout(() => {
+            triggerAutoMatchAndFitting();
+        }, 550);
+    } else if (numericStars >= 4) {
+        showLongLookToast(`💖 บันทึกคะแนน ${numericStars} ดาวเรียบร้อย! AI จะนำสไตล์และคู่สีนี้ไปเป็นแนวทางในการสุ่มรอบถัดไป`, 'success');
+    } else {
+        showLongLookToast(`⭐ บันทึกคะแนน 3 ดาวเรียบร้อยแล้ว AI จะนำไปปรับสมดุลคู่สีในรอบถัดไป`, 'info');
+    }
+};
 
 
 // เติมตัวเลือกเสื้อผ้าลงใน Select สำหรับ Builder
@@ -987,209 +1364,6 @@ async function saveBuilderOutfitToCalendar() {
 }
 
 // --------------------------------------------------------------------------
-// AI VIRTUAL TRY-ON & SELFIE LOGIC (ถ่ายรูปตัวเอง + AI เจนรูปใส่ชุดที่แมตช์)
-// --------------------------------------------------------------------------
-function triggerSelectUserSelfie() {
-    const input = document.getElementById('user-selfie-input');
-    if (input) input.click();
-}
-
-function handleUserSelfieChange(event) {
-    const file = event.target.files && event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const photoData = e.target.result;
-        localStorage.setItem('longlook_user_selfie', photoData);
-        updateUserSelfiePreview(photoData);
-        toggleFittingMode('user');
-        showLongLookToast('📸 โหลดรูปภาพของคุณเรียบร้อยแล้ว!', 'success');
-    };
-    reader.readAsDataURL(file);
-}
-
-function updateUserSelfiePreview(photoUrl) {
-    const placeholder = document.getElementById('user-selfie-placeholder');
-    const imgElem = document.getElementById('user-selfie-img');
-    const statusText = document.getElementById('user-selfie-status');
-    const bgElem = document.getElementById('avatar-user-bg');
-
-    if (imgElem) {
-        imgElem.src = photoUrl;
-        imgElem.classList.remove('hidden');
-    }
-    if (bgElem) {
-        bgElem.src = photoUrl;
-    }
-    if (placeholder) placeholder.classList.add('hidden');
-    if (statusText) statusText.innerText = 'รูปของคุณพร้อมลองชุดแล้ว ✨';
-}
-
-// สลับโหมดการแสดงผลในห้องลองชุด (สไตล์บอร์ด 4 ชิ้น vs ภาพถ่าย AI เสก)
-function toggleFittingMode(mode) {
-    const btnLookbook = document.getElementById('btn-view-lookbook');
-    const btnAiPortrait = document.getElementById('btn-view-ai-portrait');
-    const lookbookView = document.getElementById('fitting-lookbook-view');
-    const aiView = document.getElementById('fitting-ai-view');
-    const aiEmpty = document.getElementById('fitting-ai-empty');
-    const aiDisplay = document.getElementById('fitting-ai-display');
-    const aiImg = document.getElementById('fitting-ai-img');
-    const aiCaption = document.getElementById('fitting-ai-caption');
-    const hint = document.getElementById('fitting-mode-hint');
-
-    if (mode === 'portrait') {
-        if (lookbookView) lookbookView.classList.add('hidden');
-        if (aiView) aiView.classList.remove('hidden');
-
-        if (btnAiPortrait) {
-            btnAiPortrait.className = "px-2.5 py-1 rounded-full font-bold bg-[#3D2B1F] text-white transition shadow-xs cursor-pointer";
-        }
-        if (btnLookbook) {
-            btnLookbook.className = "px-2.5 py-1 rounded-full font-medium text-[#6B5647] hover:text-[#3D2B1F] transition cursor-pointer";
-        }
-
-        if (window.latestTryOnResult && window.latestTryOnResult.imageUrl) {
-            if (aiEmpty) aiEmpty.classList.add('hidden');
-            if (aiDisplay) aiDisplay.classList.remove('hidden');
-            if (aiImg) aiImg.src = window.latestTryOnResult.imageUrl;
-            if (aiCaption) aiCaption.innerText = window.latestTryOnResult.advice || '';
-            if (hint) hint.innerHTML = '✨ <b>ภาพ AI เสก:</b> ภาพถ่ายโมเดลแฟชั่นเสมือนจริงที่ AI ผสานชุดของคุณอย่างแนบเนียน';
-        } else {
-            if (aiEmpty) aiEmpty.classList.remove('hidden');
-            if (aiDisplay) aiDisplay.classList.add('hidden');
-            if (hint) hint.innerHTML = '💡 กดปุ่ม <b>"✨ AI เสกรูปฉันใส่ชุดนี้"</b> ด้านขวา เพื่อเจนรูปภาพเสมือนจริง';
-        }
-    } else {
-        if (lookbookView) lookbookView.classList.remove('hidden');
-        if (aiView) aiView.classList.add('hidden');
-
-        if (btnLookbook) {
-            btnLookbook.className = "px-2.5 py-1 rounded-full font-bold bg-[#3D2B1F] text-white transition shadow-xs cursor-pointer";
-        }
-        if (btnAiPortrait) {
-            btnAiPortrait.className = "px-2.5 py-1 rounded-full font-medium text-[#6B5647] hover:text-[#3D2B1F] transition cursor-pointer";
-        }
-        if (hint) {
-            hint.innerHTML = '💡 เสื้อผ้าจากตู้ถูกวิเคราะห์ด้วย AI ให้แมตช์เข้าชุด 4 ชิ้นอย่างลงตัว';
-        }
-    }
-}
-
-// AI Virtual Try-On: สั่งประมวลผลเจนภาพคนสวมใส่ชุดที่แมตช์ด้วย Pure AI Generation (ไม่มีการตัดแปะ)
-async function runAiVirtualTryOn() {
-    if (!window.currentMatchedOutfit || !window.currentMatchedOutfit.top) {
-        await triggerAutoMatchAndFitting();
-    }
-
-    const outfit = window.currentMatchedOutfit;
-    if (!outfit || !outfit.top) {
-        showLongLookToast('กรุณาเพิ่มเสื้อผ้าในตู้ก่อนลองชุดนะครับ', 'info');
-        return;
-    }
-
-    const userPhoto = localStorage.getItem('longlook_user_selfie') || '';
-    if (!userPhoto) {
-        showLongLookToast('📸 กรุณาถ่ายรูปหรืออัปโหลดรูปตัวเองก่อน เพื่อให้ AI นำไปสร้างลุคครับ', 'info');
-        triggerSelectUserSelfie();
-        return;
-    }
-
-    const occasionSelect = document.getElementById('match-occasion-select');
-    const styleSelect = document.getElementById('match-style-select');
-
-    const occasion = occasionSelect?.value || 'ไปคาเฟ่ / เดินเล่นวันสบายๆ';
-    const style = styleSelect?.value || 'CASUAL';
-
-    const modal = document.getElementById('tryon-result-modal');
-    const loadingElem = document.getElementById('tryon-loading');
-    const resultContent = document.getElementById('tryon-result-content');
-    const resultImg = document.getElementById('tryon-result-img');
-    const adviceElem = document.getElementById('tryon-advice-text');
-
-    if (modal) modal.classList.remove('hidden');
-    if (loadingElem) loadingElem.classList.remove('hidden');
-    if (resultContent) resultContent.classList.add('hidden');
-
-    try {
-        const response = await fetch(`${window.LONGLOOK_API}/api/ai/virtual-tryon`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                userPhoto,
-                items: outfit,
-                style,
-                occasion,
-                gender: localStorage.getItem('longlook_user_gender') || 'unisex'
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('Virtual try-on server failed');
-        }
-
-        const data = await response.json();
-        const generatedImageUrl = data.imageUrl;
-        const adviceText = data.advice || `AI แมตช์ชุด "${outfit.top?.name}" คู่กับ "${outfit.bottom?.name}" ให้คุณได้อย่างลงตัว`;
-
-        window.latestTryOnResult = {
-            imageUrl: generatedImageUrl,
-            advice: adviceText
-        };
-
-        // โหลดรูปภาพ AI ให้พร้อมก่อนแสดงผล
-        const imgPreloader = new Image();
-        imgPreloader.onload = () => {
-            if (resultImg) resultImg.src = generatedImageUrl;
-            if (adviceElem) adviceElem.innerText = adviceText;
-
-            // อัปเดตในสไตล์บอร์ดหน้า Matcher ด้วย
-            const aiImg = document.getElementById('fitting-ai-img');
-            const aiCaption = document.getElementById('fitting-ai-caption');
-            const aiEmpty = document.getElementById('fitting-ai-empty');
-            const aiDisplay = document.getElementById('fitting-ai-display');
-            if (aiImg) aiImg.src = generatedImageUrl;
-            if (aiCaption) aiCaption.innerText = adviceText;
-            if (aiEmpty) aiEmpty.classList.add('hidden');
-            if (aiDisplay) aiDisplay.classList.remove('hidden');
-
-            if (loadingElem) loadingElem.classList.add('hidden');
-            if (resultContent) resultContent.classList.remove('hidden');
-            showLongLookToast('✨ AI เสกรูปภาพแฟชั่นเสมือนจริงสำเร็จแล้ว!', 'success');
-        };
-        imgPreloader.onerror = () => {
-            if (resultImg) resultImg.src = generatedImageUrl;
-            if (adviceElem) adviceElem.innerText = adviceText;
-            if (loadingElem) loadingElem.classList.add('hidden');
-            if (resultContent) resultContent.classList.remove('hidden');
-        };
-        imgPreloader.src = generatedImageUrl;
-
-    } catch (err) {
-        console.error('Try-on error:', err);
-        showLongLookToast('เกิดข้อผิดพลาดในการเจนภาพด้วย AI กรุณาลองใหม่อีกครั้ง', 'error');
-        if (modal) modal.classList.add('hidden');
-    }
-}
-
-function closeTryOnModal() {
-    const modal = document.getElementById('tryon-result-modal');
-    if (modal) modal.classList.add('hidden');
-}
-
-
-function downloadTryOnImage() {
-    if (!window.latestTryOnResult?.imageUrl) return;
-    const link = document.createElement('a');
-    link.href = window.latestTryOnResult.imageUrl;
-    link.target = '_blank';
-    link.download = `longlook-tryon-${Date.now()}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-// --------------------------------------------------------------------------
 // BATCH CLOTHES UPLOAD & GENDER LOGIC
 // --------------------------------------------------------------------------
 let pendingBatchItems = [];
@@ -1427,11 +1601,6 @@ document.addEventListener('DOMContentLoaded', () => {
     populateSelectOptions();
     loadClothesFromDatabase();
     loadCalendarHistory();
-
-    const savedSelfie = localStorage.getItem('longlook_user_selfie');
-    if (savedSelfie) {
-        updateUserSelfiePreview(savedSelfie);
-    }
 
     const savedGender = localStorage.getItem('longlook_user_gender') || 'female';
     const matchGenderSelect = document.getElementById('match-gender-select');
