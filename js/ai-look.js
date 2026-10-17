@@ -350,3 +350,43 @@ document.addEventListener('DOMContentLoaded', () => {
     initUserProfileInputs();
     fetchDailyAiLook(false);
 });
+// ... โค้ดเดิมใน js/ai-look.js ...
+
+// ==========================================
+// ✨ ฟังก์ชันแนะนำชุดตามสถานการณ์ + เสื้อผ้าในตู้จริง
+// ==========================================
+async function fetchAiLookWithContext() {
+    // 1. ดึงค่าสถานการณ์/สถานที่ ที่ผู้ใช้พิมพ์หรือเลือก
+    const eventInput = document.getElementById('user-event-prompt'); // ช่องพิมพ์ เช่น "ไปเรียนวิชาการ"
+    const eventContext = eventInput && eventInput.value.trim() !== '' ? eventInput.value : 'ไปเที่ยววันสบายๆ';
+
+    // 2. ดึงรายการเสื้อผ้าจริงในตู้เสื้อผ้าของผู้ใช้
+    const myCloset = JSON.parse(localStorage.getItem('longlook_closet') || '[]');
+
+    // 3. ดึงเพศ สีผิว อุณหภูมิ
+    const gender = localStorage.getItem('longlook_gender') || 'unisex';
+    const skinTone = localStorage.getItem('longlook_skintone') || 'warm';
+    const weatherTemp = document.getElementById('weather-temp');
+    const temp = weatherTemp ? parseInt(weatherTemp.innerText) || 25 : 25;
+
+    try {
+        const response = await fetch(`${window.LONGLOOK_API}/api/ai/recommend-look`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                gender,
+                skinTone,
+                temp,
+                eventContext, // ส่งสถานการณ์/สถานที่ไปให้ AI
+                closetItems: myCloset // ส่งเสื้อผ้าในตู้จริงไปให้ AI แมตช์
+            })
+        });
+
+        const data = await response.json();
+        applyLookToUI(data.look, data.source);
+    } catch (err) {
+        console.warn('API Error, using fallback');
+    }
+}
+
+// ... โค้ดเดิมส่วนอื่นๆ ...

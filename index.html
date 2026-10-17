@@ -145,7 +145,26 @@
 
                 <!-- ฝั่งซ้าย: ลุคแนะนำ + โทนสีผิว & เพศ -->
                 <div class="lg:col-span-2 space-y-6">
-                    
+                    <!-- กล่องรับ Prompt สถานการณ์/สถานที่ -->
+<div class="glass-panel p-4 rounded-2xl border border-pink-100 shadow-sm space-y-2">
+    <label class="block text-sm font-semibold text-[#3D2B1F]">
+        ✨ วันนี้คุณจะไปทำอะไร / ไปที่ไหน?
+    </label>
+    <div class="flex gap-2">
+        <input 
+            type="text" 
+            id="user-event-prompt" 
+            placeholder="เช่น ไปเรียนวิชาการ, ไปเที่ยวคาเฟ่, ประชุมงาน" 
+            class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 text-sm"
+        />
+        <button 
+            onclick="fetchAiLookWithContext()" 
+            class="bg-pink-400 hover:bg-pink-500 text-white font-medium px-4 py-2 rounded-xl text-sm transition-all whitespace-nowrap shadow-sm"
+        >
+            ให้ AI แมตช์ชุด
+        </button>
+    </div>
+</div>
                     <!-- 1. ลุคแนะนำสำหรับวันนี้ (Gemini AI Look + Pinterest Inspiration) -->
                     <div class="glass-panel p-6 rounded-3xl space-y-4">
                         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
