@@ -568,6 +568,10 @@ app.post('/api/ai/analyze-clothing', authenticateToken, upload.single('image'), 
         else if (originalName.includes('skirt') || originalName.includes('กระโปรง')) category = 'กระโปรง';
         else if (originalName.includes('dress') || originalName.includes('เดรส')) category = 'เดรส';
         else if (originalName.includes('shoe') || originalName.includes('รองเท้า')) category = 'รองเท้า';
+        else if (originalName.includes('acc') || originalName.includes('bracelet') || originalName.includes('necklace') || originalName.includes('ring') || originalName.includes('jewelry') || originalName.includes('สร้อย') || originalName.includes('กำไล') || originalName.includes('แหวน') || originalName.includes('ประดับ')) category = 'เครื่องประดับ';
+        else if (originalName.includes('bag') || originalName.includes('กระเป๋า')) category = 'กระเป๋า';
+        else if (originalName.includes('hat') || originalName.includes('cap') || originalName.includes('หมวก')) category = 'หมวก';
+
 
         const mockResults = [
             { category: category, color: 'โทนเบจ-ครีม', style: 'CASUAL' },

@@ -122,8 +122,14 @@ async function analyzeClothWithAI(file) {
             const catSelect = document.getElementById('cloth-category-input');
             const styleSelect = document.getElementById('cloth-style-input');
             if (catSelect && result.category) {
-                if (result.category.includes('กางเกง') || result.category.includes('กระโปรง')) catSelect.value = 'กางเกง';
-                else if (result.category.includes('เดรส')) catSelect.value = 'เดรส';
+                const c = (result.category || '').toLowerCase();
+                if (c.includes('กางเกง')) catSelect.value = 'กางเกง';
+                else if (c.includes('กระโปรง')) catSelect.value = 'กระโปรง';
+                else if (c.includes('เดรส')) catSelect.value = 'เดรส';
+                else if (c.includes('รองเท้า')) catSelect.value = 'รองเท้า';
+                else if (c.includes('ประดับ') || c.includes('สร้อย') || c.includes('กำไล') || c.includes('แหวน') || c.includes('แว่น') || c.includes('นาฬิกา') || c.includes('jewelry') || c.includes('accessory')) catSelect.value = 'เครื่องประดับ';
+                else if (c.includes('กระเป๋า') || c.includes('bag')) catSelect.value = 'กระเป๋า';
+                else if (c.includes('หมวก') || c.includes('hat') || c.includes('cap')) catSelect.value = 'หมวก';
                 else catSelect.value = 'เสื้อ';
             }
             if (styleSelect && result.style) {
@@ -279,9 +285,23 @@ function renderClosetItems() {
                 <img src="${item.image}" class="max-w-full max-h-full object-contain" alt="${item.name}">
             </div>
             <h4 class="font-bold text-xs text-[#3D2B1F] truncate w-full" title="${item.name}">${item.name}</h4>
-            <span class="text-[9px] text-[#6B5647] bg-[#EBD9CB] px-2 py-0.5 rounded-md mt-1 font-medium">${item.category || 'เสื้อผ้า'}</span>
+            <span class="text-[9px] text-[#6B5647] bg-[#EBD9CB] px-2.5 py-0.5 rounded-md mt-1 font-semibold">${formatCategoryBadge(item.category)}</span>
         </div>
     `).join('');
+}
+
+// ฟังก์ชันจัดไอคอนและป้ายชื่อหมวดหมู่เสื้อผ้าให้สวยงามและถูกต้อง
+function formatCategoryBadge(cat) {
+    if (!cat) return '👕 เสื้อผ้า';
+    const c = String(cat).toLowerCase();
+    if (c === 'เครื่องประดับ' || c.includes('ประดับ') || c.includes('สร้อย') || c.includes('กำไล') || c.includes('แหวน') || c.includes('แว่น') || c.includes('นาฬิกา')) return '💍 เครื่องประดับ';
+    if (c === 'กระเป๋า' || c.includes('กระเป๋า')) return '👜 กระเป๋า';
+    if (c === 'หมวก' || c.includes('หมวก')) return '🧢 หมวก';
+    if (c === 'รองเท้า' || c.includes('รองเท้า')) return '👟 รองเท้า';
+    if (c === 'กางเกง' || c.includes('กางเกง')) return '👖 กางเกง';
+    if (c === 'กระโปรง' || c.includes('กระโปรง')) return '👗 กระโปรง';
+    if (c === 'เดรส' || c.includes('เดรส')) return '✨ เดรส';
+    return `👕 ${cat}`;
 }
 
 let itemPendingDeleteId = null;
