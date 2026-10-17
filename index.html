@@ -194,6 +194,28 @@
                                 <a id="home-outfit-pinterest-link" href="https://www.pinterest.com" target="_blank" rel="noopener noreferrer" class="absolute bottom-3 right-3 bg-[#E60023] hover:bg-[#b8001c] text-white text-[11px] font-black px-3.5 py-1.5 rounded-full shadow-lg transition flex items-center gap-1.5 transform active:scale-95">
                                     <i class="fa-brands fa-pinterest"></i> ไอเดียบน Pinterest
                                 </a>
+                                <!-- 📌 วางโค้ดปุ่ม Virtual Try-On ต่อตรงนี้ได้เลยค่ะ -->
+            <div class="mt-4 pt-4 border-t border-pink-100 flex flex-col gap-2">
+                <button 
+                    onclick="generateVirtualTryOn()" 
+                    class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-2.5 px-4 rounded-2xl shadow-md transition-all flex items-center justify-center gap-2"
+                >
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    จำลองภาพเราใส่ชุดนี้ (Virtual Try-On)
+                </button>
+                
+                <!-- พื้นที่แสดงภาพผลลัพธ์ที่ AI Generate ออกมา -->
+                <div id="tryon-result-container" class="hidden mt-3 p-3 bg-purple-50/50 rounded-2xl border border-purple-100 text-center">
+                    <p class="text-xs font-semibold text-purple-700 mb-2">✨ ภาพจำลองการแต่งตัวของคุณ</p>
+                    <div id="tryon-loading" class="hidden py-6 text-purple-500 text-sm">
+                        <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
+                        <p>กำลังจำลองภาพลองชุดให้อยู่รอสักครู่นะคะ...</p>
+                    </div>
+                    <img id="tryon-result-img" src="" alt="Virtual Try-On" class="w-full h-auto rounded-xl shadow-sm hidden border border-white" />
+                </div>
+            </div>
+
+        </div> <!-- ปิดแท็ก glass-panel ของการ์ด AI Stylist -->
                             </div>
 
                             <!-- ข้อมูลรายละเอียดชุดและคำแนะนำ AI -->

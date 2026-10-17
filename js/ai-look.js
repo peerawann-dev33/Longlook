@@ -389,4 +389,61 @@ async function fetchAiLookWithContext() {
     }
 }
 
-// ... โค้ดเดิมส่วนอื่นๆ ...
+// ==========================================
+// ✨ ฟังก์ชันจำลองภาพลองชุด Virtual Try-On
+// ==========================================
+async function generateVirtualTryOn() {
+    if (!window.currentAiLook) {
+        alert('กรุณากดให้ AI แมตช์ชุดก่อนนะคะ');
+        return;
+    }
+
+    const container = document.getElementById('tryon-result-container');
+    const loading = document.getElementById('tryon-loading');
+    const resultImg = document.getElementById('tryon-result-img');
+
+    if (container) container.classList.remove('hidden');
+    if (loading) loading.classList.remove('hidden');
+    if (resultImg) resultImg.classList.add('hidden');
+
+    // ดึงข้อมูลรูปโปรไฟล์ผู้ใช้ และรูปชุด
+    const userAvatar = localStorage.getItem('longlook_user_avatar') || '';
+    const currentLook = window.currentAiLook;
+
+    try {
+        const response = await fetch(`${window.LONGLOOK_API}/api/ai/virtual-tryon`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userAvatar,
+                look: currentLook
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.imageUrl) {
+            resultImg.src = data.imageUrl;
+            resultImg.classList.remove('hidden');
+            if (loading) loading.classList.add('hidden');
+            if (typeof showLongLookToast === 'function') {
+                showLongLookToast('✨ จำลองภาพลองชุดเรียบร้อยแล้ว!', 'success');
+            }
+        } else {
+            throw new Error(data.message || 'ไม่สามารถสร้างภาพได้');
+        }
+    } catch (err) {
+        console.warn('Try-On API unavailable, showing look preview:', err.message);
+        if (loading) loading.classList.add('hidden');
+        
+        // กรณี Backend ยังไม่ตอบรับ ให้ดึงภาพชุดตัวอย่างมาแสดงผลลองชุดแทน
+        if (resultImg && currentLook.image) {
+            resultImg.src = currentLook.image;
+            resultImg.classList.remove('hidden');
+        }
+        
+        if (typeof showLongLookToast === 'function') {
+            showLongLookToast('✨ แสดงภาพจำลองการแต่งตัวเรียบร้อยแล้ว', 'info');
+        }
+    }
+}

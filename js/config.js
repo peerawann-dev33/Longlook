@@ -1,1 +1,1 @@
-window.LONGLOOK_API = window.LONGLOOK_API || (window.location.protocol.startsWith('http') ? window.location.origin : 'http://localhost:5000');
+window.LONGLOOK_API = 'https://longlook.onrender.com';
