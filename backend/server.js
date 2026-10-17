@@ -552,7 +552,7 @@ app.post('/api/ai/analyze-clothing', authenticateToken, upload.single('image'), 
                     }
                 };
 
-                const prompt = "วิเคราะห์รูปเสื้อผ้านี้ แล้วตอบเฉพาะ JSON เท่านั้น: { \"category\": \"เสื้อ/กางเกง/กระโปรง/เดรส\", \"color\": \"โทนสี เช่น สีขาว/สีครีม\", \"style\": \"CASUAL/KOREAN/FORMAL/STREET\" }";
+                const prompt = 'วิเคราะห์รูปเสื้อผ้านี้ แล้วตอบเฉพาะ JSON เท่านั้น: { "category": "เสื้อ/กางเกง/กระโปรง/เดรส/แจ็คเก็ต/รองเท้า/เครื่องประดับ", "color": "ระบุสีหลักตามภาพจริงเท่านั้น เช่น สีขาว, สีดำ, สีน้ำเงิน, สีเทา (ห้ามตอบสียีนส์คลาสสิกหากไม่ใช่ผ้ายีนส์)", "style": "CASUAL/STREET/FORMAL/SPORT" }';
                 const result = await model.generateContent([prompt, imagePart]);
                 const responseText = await result.response.text();
                 return res.json({ message: 'วิเคราะห์สำเร็จ', result: JSON.parse(responseText.replace(/```json|```/g, '').trim()) });
